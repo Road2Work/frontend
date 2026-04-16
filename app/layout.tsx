@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Festival Film Kebangsaan - Pendaftaran',
+  title: 'Road2Work',
   description:
-    'Portal pendaftaran resmi Festival Film Kebangsaan. Daftarkan karya film terbaik Anda dan ikuti kompetisi bergengsi tingkat nasional.',
+    'Platform berbasis AI yang membantu job seeker di Indonesia mempersiapkan interview kerja secara lebih terarah, terukur, dan realistis.',
 }
 
 export default function RootLayout({
