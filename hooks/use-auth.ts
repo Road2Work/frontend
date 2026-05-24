@@ -8,11 +8,11 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: authService.login,
     onSuccess: data => {
-      localStorage.setItem('token', data.data.token)
-      localStorage.setItem('user', JSON.stringify(data.data.participant))
+      localStorage.setItem('token', data.data.accessToken)
+      localStorage.setItem('user', JSON.stringify(data.data.user))
 
       // Also set cookie so Next.js middleware can read it for route protection
-      document.cookie = `token=${data.data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      document.cookie = `token=${data.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
 
       router.push('/')
     },
@@ -27,8 +27,11 @@ export const useRegisterMutation = () => {
 
   return useMutation({
     mutationFn: authService.register,
-    onSuccess: () => {
-      router.push('/auth/login')
+    onSuccess: data => {
+      localStorage.setItem('token', data.data.accessToken)
+      localStorage.setItem('user', JSON.stringify(data.data.user))
+      document.cookie = `token=${data.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      router.push('/hub')
     },
     onError: (error: Error) => {
       console.error(error)

@@ -1,16 +1,25 @@
 export const endpoints = {
   auth: {
     login: '/auth/login',
-    register: '/auth/register',
+    signup: '/auth/signup',
+    me: '/auth/me',
   },
-  profile: {
-    get: '/profile',
-    update: '/profile',
+  roles: {
+    getAll: '/roles',
+    getById: (roleId: string) => `/roles/${roleId}`,
   },
-  feedback: (id?: number) => ({
-    getAll: '/feedback',
-    create: '/feedback',
-    getById: `/feedback/${id}`,
-    submit: `/feedback/${id}`,
-  }),
+  profiles: {
+    create: '/profiles',
+    getById: (profileId: string) => `/profiles/${profileId}`,
+    uploadCv: (profileId: string) => `/profiles/${profileId}/cv`,
+    submitContext: (profileId: string) => `/profiles/${profileId}/context`,
+  },
+  interviews: {
+    createSession: '/interviews/sessions',
+    getSession: (sessionId: string) => `/interviews/sessions/${sessionId}`,
+    submitVoiceAnswer: (sessionId: string) => `/interviews/sessions/${sessionId}/voice-answer`,
+    cancelSession: (sessionId: string) => `/interviews/sessions/${sessionId}/cancel`,
+    getResult: (sessionId: string) => `/interviews/sessions/${sessionId}/result`,
+    history: '/interviews/history',
+  },
 } as const

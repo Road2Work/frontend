@@ -16,29 +16,25 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const useTheme = () => useContext(ThemeContext)
 
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'light'
+  return (localStorage.getItem('theme') as Theme | null) || 'light'
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
-    setMounted(true)
-    const saved = localStorage.getItem('theme') as Theme | null
-    const initial = saved || 'light'
-    setTheme(initial)
-    document.documentElement.classList.toggle('dark', initial === 'dark')
-    document.documentElement.classList.toggle('light', initial === 'light')
-  }, [])
+    localStorage.setItem('theme', theme)
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+    document.documentElement.classList.toggle('light', theme === 'light')
+  }, [theme])
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark'
     setTheme(next)
-    localStorage.setItem('theme', next)
     document.documentElement.classList.toggle('dark', next === 'dark')
     document.documentElement.classList.toggle('light', next === 'light')
-  }
-
-  if (!mounted) {
-    return <>{children}</>
   }
 
   return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
