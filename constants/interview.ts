@@ -1,7 +1,7 @@
 import type { ComponentType, CSSProperties } from 'react'
 import { MessageSquare, Mic, Star, Volume2 } from 'lucide-react'
 
-export type InterviewState = 'asking' | 'listening' | 'thinking' | 'clarifying'
+export type InterviewState = 'idle' | 'asking' | 'listening' | 'thinking' | 'clarifying' | 'completed'
 
 export type InterviewStateConfig = {
   label: string
@@ -29,6 +29,19 @@ export const clarifyingQuestion =
   'Kamu menyebut dashboard itu membantu. Bisa lebih spesifik tentang skala data dan impact terukur terhadap workflow tim?'
 
 export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> = {
+  idle: {
+    label: 'Siap Mulai',
+    videoSrc: '/videos/hrd/male/Idle%20State%20(HRD%20siap%20memulai%20interview).webm',
+    color: 'rgba(255,255,255,0.55)',
+    badgeBg: 'rgba(255,255,255,0.094)',
+    badgeBorder: 'rgba(255,255,255,0.188)',
+    ringColor: 'rgba(255,255,255,0.12)',
+    glowColor: 'rgba(100,120,200,0.12)',
+    hint: 'HRD siap memulai interview',
+    orbGradient: 'linear-gradient(135deg, #E63946 0%, #A50F17 100%)',
+    micBg: 'rgba(255,255,255,0.05)',
+    micShadow: '0 4px 24px rgba(0,0,0,0.3)',
+  },
   asking: {
     label: 'Bertanya',
     videoSrc: '/videos/hrd/male/Asking%20State%20(HRD%20sedang%20mengajukan%20pertanyaan).webm',
@@ -37,7 +50,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
     badgeBorder: 'rgba(255,255,255,0.188)',
     ringColor: 'rgba(255,255,255,0.12)',
     glowColor: 'rgba(100,120,200,0.12)',
-    hint: 'Tekan mikrofon saat kamu siap menjawab',
+    hint: 'Mic akan otomatis aktif setelah AI HRD selesai bertanya',
     orbGradient: 'linear-gradient(135deg, #E63946 0%, #A50F17 100%)',
     micBg: '#E63946',
     micShadow: '0 8px 40px rgba(230,57,70,0.45), 0 2px 8px rgba(0,0,0,0.3)',
@@ -50,7 +63,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
     badgeBorder: 'rgba(34,197,94,0.188)',
     ringColor: '#22C55E',
     glowColor: 'rgba(34,197,94,0.14)',
-    hint: 'Sedang berbicara. Tekan lagi saat selesai',
+    hint: 'Mic aktif. Tekan lagi saat jawaban selesai, atau tunggu batas waktu habis',
     orbGradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
     micBg: '#16A34A',
     micShadow: '0 8px 40px rgba(22,163,74,0.4), 0 2px 8px rgba(0,0,0,0.3)',
@@ -63,7 +76,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
     badgeBorder: 'rgba(245,158,11,0.188)',
     ringColor: '#F59E0B',
     glowColor: 'rgba(245,158,11,0.12)',
-    hint: 'AI HRD sedang mengevaluasi jawaban kamu',
+    hint: 'Road2Work sedang memahami jawabanmu...',
     orbGradient: 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
     micBg: 'rgba(255,255,255,0.05)',
     micShadow: '0 4px 24px rgba(0,0,0,0.3)',
@@ -76,10 +89,23 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
     badgeBorder: 'rgba(230,57,70,0.188)',
     ringColor: '#E63946',
     glowColor: 'rgba(230,57,70,0.14)',
-    hint: 'Pertanyaan follow-up. Tekan mikrofon untuk menjawab',
+    hint: 'HRD meminta detail tambahan. Mic akan aktif setelah pertanyaan selesai',
     orbGradient: 'linear-gradient(135deg, #E63946 0%, #A50F17 100%)',
     micBg: '#E63946',
     micShadow: '0 8px 40px rgba(230,57,70,0.45), 0 2px 8px rgba(0,0,0,0.3)',
+  },
+  completed: {
+    label: 'Selesai',
+    videoSrc: '/videos/hrd/male/Completed%20State%20(Sesi%20interview%20selesai).webm',
+    color: '#22C55E',
+    badgeBg: 'rgba(34,197,94,0.094)',
+    badgeBorder: 'rgba(34,197,94,0.188)',
+    ringColor: '#22C55E',
+    glowColor: 'rgba(34,197,94,0.14)',
+    hint: 'Sesi selesai. Hasil latihan sedang disiapkan',
+    orbGradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+    micBg: 'rgba(255,255,255,0.05)',
+    micShadow: '0 4px 24px rgba(0,0,0,0.3)',
   },
 }
 

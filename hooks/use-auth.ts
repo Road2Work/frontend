@@ -9,12 +9,15 @@ export const useLoginMutation = () => {
     mutationFn: authService.login,
     onSuccess: data => {
       localStorage.setItem('token', data.data.accessToken)
+      const refreshToken = 'refreshToken' in data.data ? data.data.refreshToken : undefined
+      if (typeof refreshToken === 'string' && refreshToken) localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('user', JSON.stringify(data.data.user))
 
       // Also set cookie so Next.js middleware can read it for route protection
       document.cookie = `token=${data.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      document.cookie = `userRole=${data.data.user.role ?? 'user'}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
 
-      router.push('/')
+      router.push(data.data.user.role === 'admin' ? '/admin' : '/hub')
     },
     onError: (error: Error) => {
       console.error(error)
@@ -29,8 +32,11 @@ export const useRegisterMutation = () => {
     mutationFn: authService.register,
     onSuccess: data => {
       localStorage.setItem('token', data.data.accessToken)
+      const refreshToken = 'refreshToken' in data.data ? data.data.refreshToken : undefined
+      if (typeof refreshToken === 'string' && refreshToken) localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('user', JSON.stringify(data.data.user))
       document.cookie = `token=${data.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+      document.cookie = `userRole=${data.data.user.role ?? 'user'}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
       router.push('/hub')
     },
     onError: (error: Error) => {

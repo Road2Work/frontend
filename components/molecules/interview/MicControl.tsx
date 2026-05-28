@@ -10,7 +10,7 @@ type MicControlProps = {
 
 export default function MicControl({ state, onClick }: MicControlProps) {
   const config = interviewStateConfig[state]
-  const disabled = state === 'thinking'
+  const disabled = state === 'idle' || state === 'asking' || state === 'thinking' || state === 'clarifying' || state === 'completed'
 
   return (
     <motion.button

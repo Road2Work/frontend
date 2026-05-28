@@ -28,7 +28,7 @@ export default function InterviewCanvasShowcase() {
             </div>
             <div>
               <p className="font-display text-sm font-bold">AI HRD sedang mendengarkan</p>
-              <p className="text-xs text-white/55">Jawab dengan contoh nyata dan evidence terukur.</p>
+              <p className="text-xs text-white/55">Jawab dengan contoh nyata dan hasil yang terukur.</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/65">

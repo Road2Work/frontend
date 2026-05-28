@@ -4,7 +4,7 @@ type ScoreRingProps = {
   size?: number
 }
 
-export default function ScoreRing({ score, label = 'Readiness', size = 132 }: ScoreRingProps) {
+export default function ScoreRing({ score, label = 'Kesiapan', size = 132 }: ScoreRingProps) {
   const stroke = size > 110 ? 10 : 7
   const radius = (size - stroke * 2) / 2
   const circumference = 2 * Math.PI * radius

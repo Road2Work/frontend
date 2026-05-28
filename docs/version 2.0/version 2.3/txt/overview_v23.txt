@@ -1,0 +1,1182 @@
+Overview Baru Road2Work.id
+AI Career Readiness Platform — Gabungan Overview Lama + Update Flow Terbaru
+Project Name: Road2Work.idTagline: Your Roadmap to a Better CareerTheme: Future-Ready Work & EconomyFocus MVP: Profile Intelligence, Role Fit, Adaptive Voice Interview, dan Career Readiness Dashboard
+Versi: 25 Mei 2026
+Catatan Penyatuan DokumenDokumen ini menggabungkan overview lama dengan update terbaru. Informasi lama tetap dipertahankan selama tidak bertentangan dengan update terbaru. Perubahan utama yang dimasukkan adalah arah produk sebagai AI Career Readiness Platform, dua jalur onboarding CV/manual, Role Fit Ranking khusus jalur CV, Career Readiness Dashboard sebagai pusat hasil, admin panel basic, interview quota, logic speech-to-text baru dengan mic otomatis dan durasi jawab 90 detik, serta penyelarasan HRD Interview State menjadi Idle, Asking, Listening, Thinking, Clarifying, dan Completed.
+Daftar Isi Ringkas
+1. Ringkasan Produk
+2. Filosofi Produk
+3. Problem Statement
+4. Positioning Produk
+5. Target User
+6. Scope dan Out of Scope MVP
+7. Core Value dan Core Innovation
+8. Alur Sistem Terbaru
+9. Professional Profile dan Review & Edit
+10. Role Fit
+11. Interview System dan Logic STT 90 Detik
+12. Question Strategy dan Adaptive Competency
+13. Answer Evaluation dan Evidence Ladder
+14. Career Readiness Dashboard
+15. Admin Panel
+16. Business Rules
+17. Activity Diagram Full Terbaru
+18. System Architecture
+19. API Overview
+20. Data Model High-Level
+21. Pembagian Tugas Tim
+22. Prioritas Pengerjaan dan Sprint Roadmap
+23. Demo Scenario
+24. Risiko dan Mitigasi
+25. Definition of Done MVP
+26. Kesimpulan
+1. Ringkasan Produk
+Road2Work.id adalah platform AI Career Readiness yang membantu mahasiswa, fresh graduate, career switcher, dan pencari kerja mempersiapkan diri menuju dunia kerja secara lebih terarah.
+Pada MVP capstone ini, Road2Work.id berfokus pada interview readiness yang didukung oleh data profil profesional user. Sistem membantu user membangun atau membaca profil profesional, memahami skill dan bukti pengalaman, memperoleh rekomendasi role yang sesuai, menjalankan adaptive voice interview, lalu memperbarui Career Readiness Dashboard.
+Road2Work.id bukan hanya aplikasi latihan interview. Produk ini diarahkan sebagai career roadmap platform yang membantu user memahami posisi kesiapan mereka saat ini, mengetahui gap yang harus diperbaiki, dan mengambil langkah berikutnya menuju pekerjaan yang lebih baik.
+Core experience Road2Work.id tetap mempertahankan Adaptive HRD Interview Stage, yaitu halaman interview berbasis visual HRD menggunakan short loop video/WebM. User menjawab secara langsung menggunakan voice, sistem melakukan speech-to-text secara internal, mengevaluasi kualitas jawaban, mendeteksi kelemahan, dan menghasilkan pertanyaan klarifikasi jika dibutuhkan.
+2. Filosofi Produk
+Nama Road2Work.id menggambarkan perjalanan user menuju dunia kerja.
+Road = perjalanan / roadmap
+2 = arah menuju tujuan
+Work = pekerjaan / karier
+.id = identitas lokal Indonesia
+Road2Work.id ingin menjadi peta jalan yang membantu user bergerak dari kondisi belum siap kerja menuju lebih siap menghadapi peluang kerja.
+Filosofi Platform
+Discover → Prepare → Practice → Improve → Apply
+Untuk MVP, fokus utama ada pada Prepare → Practice → Improve.
+Artinya, user dibantu untuk membangun profil profesional, memahami role yang cocok, melatih interview berbasis suara, mendapat feedback dari AI, dan memperbaiki kesiapan sebelum melamar kerja.
+3. Problem Statement
+Banyak kandidat pemula memiliki pengalaman seperti project kuliah, organisasi, freelance, bootcamp, lomba, magang, atau tugas akhir, tetapi belum mampu menjelaskannya dengan kuat dalam interview.
+Masalah utama yang diselesaikan Road2Work.id:
+1. User bingung menjelaskan pengalaman secara profesional.
+2. Jawaban interview sering terlalu umum dan kurang bukti konkret.
+3. User belum tahu cara menghubungkan pengalaman dengan role target.
+4. User belum terbiasa menjawab interview secara lisan.
+5. User sering tidak tahu apakah jawabannya sudah cukup kuat atau belum.
+6. Platform latihan interview biasa cenderung statis dan tidak menggali jawaban user secara adaptif.
+7. User membutuhkan dashboard yang menjelaskan skor kesiapan, gap, dan langkah perbaikan secara mudah dipahami.
+Road2Work.id hadir untuk membantu user mengubah pengalaman mentah menjadi jawaban interview yang lebih relevan, jelas, dan berbasis evidence.
+4. Positioning Produk
+4.1 Positioning Utama
+Road2Work.id adalah AI-powered career readiness platform yang mensimulasikan interview kerja secara adaptif berdasarkan professional profile, role target, dan konteks pengalaman user.
+4.2 Road2Work.id Bukan
+Job portal utama
+CV generator penuh
+ATS perusahaan
+Learning path lengkap
+Live recruiter panel
+Avatar AI real-time yang kompleks
+Platform assessment perusahaan
+Mentor marketplace
+Company-specific interview pack
+4.3 Road2Work.id Adalah
+Platform latihan interview berbasis role target
+AI interviewer simulation
+Voice-based interview practice
+Professional profile intelligence
+Role fit recommendation khusus jalur CV
+Evidence-based answer evaluator
+Adaptive clarification engine
+Career readiness dashboard
+Personal interview feedback dashboard
+5. Target User
+Target User
+Kondisi
+Kebutuhan Utama
+Mahasiswa tingkat akhir
+Sedang mempersiapkan magang, kerja pertama, atau program career readiness.
+Mengetahui skill yang dimiliki, memahami role yang cocok, melatih interview, dan mendapat feedback yang jelas.
+Fresh graduate
+Sedang mencari pekerjaan pertama dan perlu membuat pengalaman akademik/project terlihat profesional.
+Melatih jawaban interview, mengetahui gap sebelum melamar, dan memperkuat evidence pengalaman.
+Career switcher pemula
+Ingin berpindah bidang atau masuk ke role baru seperti data, AI, produk, atau software development.
+Menghubungkan pengalaman lama dengan role baru dan menyiapkan jawaban interview yang relevan.
+Pencari kerja pemula
+Sudah memiliki pengalaman atau project tetapi belum yakin cara menjelaskan value dirinya.
+Membutuhkan roadmap kesiapan, latihan interview, dan next best actions.
+6. Scope dan Out of Scope MVP
+6.1 Scope MVP Terbaru
+1. Landing Page.
+2. Login dan Sign Up.
+3. Readiness Hub.
+4. Career Readiness Onboarding.
+5. Upload CV atau isi profil manual.
+6. AI extraction profile.
+7. Review dan edit professional profile.
+8. Role fit recommendation khusus jalur CV.
+9. Manual role selection khusus jalur tanpa CV.
+10. Build personalized interview context.
+11. Adaptive voice interview.
+12. Speech-to-text.
+13. AI answer evaluation.
+14. Clarifying question.
+15. Interview result.
+16. Career Readiness Dashboard.
+17. Free interview quota.
+18. Admin panel basic.
+19. CRUD domain, role family, role, skill, dan tools.
+20. Admin analytics dashboard sederhana.
+6.2 Out of Scope MVP
+Job portal real-time.
+Apply job langsung ke perusahaan.
+Payment atau subscription.
+Live AI avatar dengan lip sync.
+Webcam analysis.
+Emotion detection.
+Mentor marketplace.
+Full CV builder.
+Company-specific interview pack.
+Mobile native app.
+7. Core Value dan Core Innovation
+7.1 Core Value Road2Work.id
+Professional Profile Intelligence
+->
+Role Fit Recommendation / Role Fit Score
+->
+Adaptive Voice Interview
+->
+Career Readiness Dashboard
+Lapisan
+Fungsi
+Output
+Professional Profile Intelligence
+Membaca atau membangun profil profesional user dari CV atau profil singkat.
+Ringkasan profesional, skills/tools, bukti per skill, achievement signals, evidence score, profile completeness.
+Role Fit Recommendation
+Membantu user memahami role yang paling cocok berdasarkan profil.
+Role Fit Ranking khusus CV path dan Role Fit Score untuk dashboard.
+Adaptive Voice Interview
+Melatih user menjawab secara lisan dengan pertanyaan adaptif dari AI HRD.
+Transkrip internal, evaluasi jawaban, clarification, answer score.
+Career Readiness Dashboard
+Menjadi pusat perkembangan user setelah interview.
+Career Readiness Score, Evidence Score, Role Fit Score, Interview Readiness, Next Best Actions, Strengths, Gaps, timeline.
+7.2 Core Innovation dari Overview Lama yang Tetap Dipertahankan
+Adaptive HRD Interview Stage berbasis visual HRD short loop video/WebM dengan state utama Idle, Asking, Listening, Thinking, Clarifying, dan Completed.
+Voice-first interview experience agar user benar-benar melatih komunikasi lisan.
+AI-generated natural question dengan guardrail dari role-skill matrix, competency map, question seed, user context, dan interview state.
+Clarifying Question Engine berbasis weakness detection, bukan pertanyaan random.
+Evidence Ladder Scoring untuk menilai kekuatan bukti pengalaman.
+Before–After Answer Improvement agar user melihat contoh konkret perbaikan jawaban.
+8. Alur Sistem Terbaru
+Flow terbaru memiliki dua jalur utama: Jalur Upload CV dan Jalur Tanpa Upload CV / Isi Profil Manual.
+Perbedaan Penting Flow Terbaru
+Pada jalur upload CV, sistem belum tahu role target user sehingga AI membuat Role Fit Ranking.
+Pada jalur manual, user memilih role dari awal, sehingga sistem tidak perlu membuat Role Fit Ranking.
+Pada jalur manual, AI langsung membangun konteks interview berdasarkan role yang sudah dipilih dan profil singkat user.
+8.1 Jalur 1 — User Upload CV
+Landing Page
+->
+Login / Sign Up
+->
+Readiness Hub
+->
+Career Readiness Onboarding
+->
+User bersedia upload CV
+->
+Upload CV
+->
+AI Extract CV Data
+->
+Generate Professional Profile Draft
+->
+Review & Edit Profile
+->
+User validasi data profil
+->
+Generate Role Fit Ranking
+->
+Show Recommended Roles Rank 1, 2, 3
+->
+User pilih role rekomendasi atau pilih role manual
+->
+Confirm Selected Role
+->
+Build Personalized Interview Context
+->
+Interview Onboarding
+->
+Adaptive Voice Interview
+->
+Interview Result
+->
+Update Career Readiness Dashboard
+Role Fit Ranking hanya ada di jalur CV karena sistem membaca pengalaman user terlebih dahulu tanpa user memilih role. AI membantu user menemukan role yang paling sesuai berdasarkan skill, tools, pengalaman, dan achievement signals yang terdeteksi.
+Output Role Fit Ranking
+Contoh
+Rank 1
+Product Analyst — 89%
+Rank 2
+UX Researcher — 82%
+Rank 3
+Business Intelligence — 76%
+Setiap rekomendasi role harus menjelaskan alasan role direkomendasikan, skill yang cocok, bukti pengalaman yang mendukung, dan gap yang masih perlu diisi.
+8.2 Jalur 2 — User Tidak Upload CV / Isi Profil Manual
+Landing Page
+->
+Login / Sign Up
+->
+Readiness Hub
+->
+Career Readiness Onboarding
+->
+User belum siap upload CV
+->
+Copywriting Disclaimer
+->
+Pilih Domain
+->
+Pilih Role Family
+->
+Pilih Target Role
+->
+Isi Profil Singkat
+->
+AI Extract Short Profile Data
+->
+Generate Professional Profile Draft
+->
+Review & Edit Profile
+->
+User validasi data profil
+->
+Use Selected Target Role
+->
+Build Personalized Interview Context
+->
+Interview Onboarding
+->
+Adaptive Voice Interview
+->
+Interview Result
+->
+Update Career Readiness Dashboard
+Pada jalur manual, Role Fit Ranking tidak perlu ditampilkan karena user sudah menentukan role target dari awal melalui Domain → Role Family → Target Role. Setelah user mengisi profil singkat dan meninjau hasil extraction, sistem langsung membangun konteks interview berdasarkan target role yang sudah dipilih.
+Catatan penting: sistem tetap boleh menghitung Role Fit Score untuk dashboard pada semua jalur, tetapi tidak menampilkan Role Fit Ranking lagi di jalur manual agar flow tidak redundan.
+8.3 Copywriting Disclaimer untuk User yang Belum Upload CV
+Copywriting yang Direkomendasikan
+Upload CV agar Road2Work dapat memahami pengalaman, skill, tools, dan pencapaianmu dengan lebih akurat. Data ini digunakan untuk membuat simulasi interview, rekomendasi role, dan feedback yang lebih personal.
+Belum siap upload CV? Tidak masalah. Kamu tetap bisa melanjutkan dengan memilih role tujuan dan mengisi profil singkat secara manual.
+CTA utama: Upload CV
+CTA sekunder: Isi Profil Secara Manual
+Hindari wording: Skip / Lanjut tanpa data.
+9. Professional Profile dan Review & Edit
+Professional Profile adalah fondasi utama sistem Road2Work.id. Data ini digunakan untuk role fit, interview context, evidence score, dashboard result, CV improvement di future plan, dan career readiness scoring.
+9.1 Isi Professional Profile
+Komponen
+Isi
+Contoh
+Ringkasan Profesional
+Ringkasan singkat tentang pengalaman, skill, dan arah profesional user.
+Profesional dengan pengalaman menganalisis perilaku pengguna untuk fitur produk digital.
+Skills & Tools
+Daftar skill dan tools yang dikuasai user.
+SQL, Funnel Analysis, A/B Testing, Python, Excel, User Research.
+Bukti per Skill
+Evidence yang menjelaskan bagaimana skill digunakan.
+Skill User Research: melakukan 12 wawancara user untuk fitur onboarding.
+Sinyal Pencapaian
+Indikator hasil, dampak, atau kontribusi.
+Completion rate naik 12%, partisipasi naik 40% YoY, mengelola 200+ transaksi per bulan.
+Evidence Score
+Skor kekuatan bukti pengalaman user.
+84/100.
+Profile Completeness
+Skor kelengkapan profil user.
+82/100.
+9.2 Review & Edit Profile
+Hasil AI extraction tidak boleh langsung dianggap benar. Sistem harus memberi user kesempatan untuk meninjau dan memperbaiki profil.
+Mengedit ringkasan profesional.
+Menambah skill.
+Menghapus skill yang salah.
+Menambah tools.
+Menambah bukti per skill.
+Menambah pencapaian.
+Memperbaiki pengalaman yang kurang akurat.
+Prinsip UX
+AI creates the draft, user makes the final decision. Hal ini penting untuk menjaga trust karena AI extraction bisa salah atau belum lengkap.
+10. Role Fit
+Dalam Road2Work.id, Role Fit Ranking dan Role Fit Score harus dibedakan agar flow tidak rancu.
+Istilah
+Definisi
+Digunakan pada
+Catatan
+Role Fit Ranking
+Rekomendasi beberapa role yang paling cocok untuk user.
+Jalur Upload CV.
+Karena user belum memilih role dari awal. Output dapat berupa Rank 1, 2, 3.
+Role Fit Score
+Skor kecocokan user terhadap satu role tertentu.
+Dashboard utama untuk semua jalur.
+Berlaku pada jalur CV dan manual. Contoh: 88/100, 8 dari 10 skill inti Product Analyst tercermin di profil.
+11. Interview System dan Logic STT 90 Detik
+Interview pada Road2Work.id menggunakan konsep adaptive voice interview. User menjawab menggunakan microphone. Selama mic masih aktif, jawaban dianggap masih berlangsung. Jawaban selesai ketika user menekan Mic Off atau durasi maksimal tercapai.
+11.1 Flow Interview Utama
+AI HRD memberikan pertanyaan
+->
+Mic otomatis menyala setelah pertanyaan siap dijawab
+->
+Timer 90 detik otomatis dimulai
+->
+Recording berjalan walau user sedang diam
+->
+User menekan Mic Off / Selesai Menjawab atau timer mencapai 90 detik
+->
+Recording berhenti
+->
+Speech-to-Text berjalan secara internal
+->
+AI Evaluate Answer
+->
+Need Clarification?
+|-- Ya -> AI HRD bertanya follow-up
+`-- Tidak -> lanjut pertanyaan berikutnya
+->
+Interview selesai
+->
+Generate Interview Result
+->
+Update Career Readiness Dashboard
+11.2 Update Baru: Logic Mic Otomatis dan Durasi 90 Detik
+Kondisi
+Logic Sistem
+Implikasi UI/UX
+HRD memberikan pertanyaan
+Setelah pertanyaan HRD selesai ditampilkan/dibacakan, state berpindah dari Asking ke Listening.
+User tidak perlu menekan mic untuk mulai menjawab karena mic otomatis aktif saat state Listening.
+Mic otomatis menyala
+Browser microphone aktif otomatis sesuai permission yang sudah diberikan user sebelum interview.
+Indicator mic aktif harus jelas agar user tahu jawaban sedang direkam.
+Timer 90 detik dimulai
+Countdown 90 detik berjalan bersamaan dengan recording.
+Timer tampil kecil namun jelas pada Interview Stage.
+User diam di tengah jawaban
+Mic tetap menyala dan recording tetap berjalan. Sistem tidak menghentikan rekaman hanya karena silence.
+Silence dianggap bagian dari proses berpikir user, bukan tanda jawaban selesai.
+User selesai sebelum 90 detik
+User dapat menekan Mic Off / Selesai Menjawab.
+Mic Off menjadi sinyal eksplisit bahwa jawaban sudah selesai dan siap diproses.
+Timer mencapai 90 detik
+Recording otomatis berhenti dan jawaban dikirim ke STT.
+Sistem dapat menampilkan copy: Waktu menjawab selesai, jawabanmu sedang diproses.
+STT selesai
+Transcript disimpan internal, lalu state berpindah ke Thinking saat AI mengevaluasi jawaban.
+Jika jawaban kurang jelas, state berpindah ke Clarifying; jika tidak, lanjut ke Asking berikutnya atau Completed.
+Catatan Implementasi STT 90 Detik
+Durasi jawaban untuk MVP ditetapkan maksimal 90 detik. Tidak ada auto-stop berbasis silence detection. Stop condition hanya dua: user mematikan mic sebagai tanda selesai, atau timer 90 detik habis.
+11.3 Interview State Frontend
+State
+Fungsi
+Implikasi UI / Sistem
+Idle
+HRD siap memulai interview.
+Menampilkan HRD WebM idle loop, CTA Start Interview, dan memastikan microphone permission sudah diberikan sebelum sesi dimulai.
+Asking
+HRD sedang mengajukan pertanyaan.
+Question bubble ditampilkan, HRD WebM masuk state asking, user belum menjawab, dan mic belum merekam sampai pertanyaan selesai.
+Listening
+HRD sedang mendengarkan jawaban user.
+Mic otomatis menyala, timer 90 detik otomatis berjalan, recording tetap aktif walau user diam, dan user dapat menekan Mic Off/Selesai Menjawab sebelum waktu habis.
+Thinking
+AI sedang memproses jawaban.
+Recording berhenti, audio dikirim ke STT, transcript disimpan internal, lalu AI mengevaluasi jawaban, score, evidence level, dan weakness.
+Clarifying
+HRD meminta klarifikasi atau detail tambahan.
+Muncul jika jawaban kurang jelas, kurang evidence, missing tools, missing impact, atau kontribusi pribadi belum terlihat. Setelah pertanyaan klarifikasi selesai, state kembali ke Listening.
+Completed
+Sesi interview selesai.
+Sistem menghasilkan interview result, memperbarui Career Readiness Dashboard, dan menampilkan CTA untuk melihat hasil atau latihan ulang.
+State utama HRD Interview Stage mengikuti konsep visual produk. Detail teknis seperti recording, auto mic, timer 90 detik, STT, dan API call tidak dijadikan state terpisah, tetapi menjadi behavior di dalam state Listening dan Thinking.
+11.4 Batasan Interview MVP
+Rule
+Batasan
+Free quota
+1 user = 5 free interview sessions.
+Jumlah pertanyaan
+1 session = 3–5 main questions.
+Durasi jawaban
+1 answer = maksimal 90 detik.
+Clarification per pertanyaan
+1 main question = maksimal 1 clarification.
+Clarification per session
+1 session = maksimal 3 clarification.
+Demo capstone
+1 session = 3 main questions + 1 clarification example agar aman untuk presentasi dan latency.
+12. Question Strategy dan Adaptive Competency
+Jumlah pertanyaan utama berada pada rentang 3 sampai 5 pertanyaan dan bersifat adaptif. AI HRD tidak hanya mengambil pertanyaan statis dari bank soal, tetapi membentuk pertanyaan natural berdasarkan role, professional profile, answer history, weakness history, dan competency target.
+12.1 Struktur Besar Pertanyaan
+Urutan
+Tipe Pertanyaan
+Tujuan
+1
+Perkenalan diri
+HRD mempersilakan user memperkenalkan diri untuk membaca cara user merangkum profil, pengalaman, dan arah karier.
+2–5
+Pertanyaan adaptif
+Pertanyaan berikutnya dipilih berdasarkan jawaban user, target role, dan kompetensi yang perlu digali.
+Opsional
+Clarifying question
+Muncul jika jawaban belum jelas, kurang evidence, atau belum cukup menjawab competency target.
+12.2 Area Kompetensi Adaptif
+Area
+Fokus yang Digali
+Contoh Arah Pertanyaan
+Interest
+Minat user terhadap role dan alasan memilih bidang tersebut.
+Apa yang membuat kamu tertarik dengan role ini?
+Need of Learning
+Kesadaran user terhadap hal yang masih perlu dipelajari.
+Skill apa yang menurut kamu masih perlu kamu tingkatkan untuk role ini?
+Self Confidence
+Kepercayaan diri dan cara user menjelaskan value dirinya.
+Apa kekuatan utama kamu yang relevan dengan role ini?
+Skill
+Skill teknis atau non-teknis yang sudah dimiliki.
+Tools atau metode apa yang pernah kamu gunakan dalam project terkait?
+Solution Skill
+Kemampuan memecahkan masalah dengan langkah yang jelas.
+Ceritakan situasi saat kamu menyelesaikan masalah dalam project atau organisasi.
+Predictive Based
+Kemampuan membaca kemungkinan, risiko, atau hasil dari data/situasi.
+Bagaimana kamu memperkirakan dampak dari keputusan atau solusi yang kamu buat?
+Predictive-Based Recruitment
+Kesesuaian user dengan sinyal yang biasanya dicari dalam proses rekrutmen.
+Bukti apa yang menunjukkan kamu siap menjalankan tanggung jawab role ini?
+Agile Culture
+Adaptabilitas, kolaborasi, iterasi, dan cara merespons perubahan.
+Ceritakan pengalaman saat kamu harus menyesuaikan diri dengan perubahan cepat.
+12.3 Guardrail Pertanyaan AI
+Role-Skill Matrix
++
+Interview Competency Map
++
+Question Seed
++
+Professional Profile / User Context
++
+Interview State
++
+Answer History & Weakness History
+->
+AI Generate Natural Question
+Dengan guardrail ini, pertanyaan tetap natural tetapi tidak keluar dari tujuan evaluasi interview readiness.
+12.4 Adaptive Interview Antar Session
+Jika user melakukan interview lagi pada role yang sama, sistem tidak boleh mengulang pertanyaan yang sama persis secara default. AI HRD harus membaca evaluasi dari interview sebelumnya, termasuk score breakdown, weakness, evidence level, feedback terakhir, dan daftar pertanyaan yang sudah pernah ditanyakan.
+Tujuannya adalah membuat sesi latihan berikutnya terasa seperti kelanjutan proses improvement, bukan interview baru yang kosong dari konteks.
+Prinsip adaptif antar session:
+Pertanyaan baru diprioritaskan pada area yang masih lemah dari interview sebelumnya.
+Sistem menghindari pertanyaan yang sama persis, kecuali user memilih mode latihan ulang atau retry focus.
+Kompetensi yang sama boleh ditanyakan ulang dengan wording berbeda jika weakness belum membaik.
+Jika target role berubah, role context dihitung ulang, tetapi weakness umum seperti STAR structure, confidence, clarity, dan evidence tetap bisa digunakan sebagai konteks improvement.
+Dashboard Next Best Action menjadi salah satu input untuk menentukan fokus interview berikutnya.
+Data dari Interview Sebelumnya
+Fungsi untuk Interview Berikutnya
+Score breakdown
+Menentukan area skor terendah yang perlu dilatih ulang, misalnya STAR Structure atau Evidence Specificity.
+Detected weaknesses
+Menjadi prioritas arah pertanyaan adaptif, seperti missing impact, weak evidence, atau low role relevance.
+Evidence level
+Menentukan apakah user perlu didorong dari claim/skill menuju context, impact, atau measurable result.
+Asked question history
+Mencegah AI menanyakan pertanyaan yang sama persis pada sesi berikutnya.
+Latest interview feedback
+Menjadi konteks bahasa feedback agar sesi berikutnya terasa personal.
+Next best actions
+Mengarahkan fokus latihan berikutnya sesuai rekomendasi dashboard.
+Contoh: pada interview pertama user lemah di evidence dan missing impact. Pada interview kedua, AI HRD tidak mengulang persis “Ceritakan pengalaman membuat dashboard”, tetapi dapat bertanya: “Ceritakan satu pengalaman ketika kamu memakai data untuk mengambil keputusan, lalu jelaskan tools, kontribusi pribadi, dan dampaknya.”
+13. Answer Evaluation dan Evidence Ladder
+13.1 Clarifying Question Engine
+AI tidak dianggap “bingung” seperti manusia. Secara teknis, sistem mendeteksi bahwa jawaban user belum cukup jelas, belum lengkap, atau belum kuat, lalu menghasilkan clarifying question.
+User answer voice
+->
+Speech-to-text
+->
+Answer Evaluation Engine
+->
+Weakness Detection
+->
+Clarification Decision Engine
+->
+Jika perlu -> GenAI membuat pertanyaan klarifikasi natural
+Contoh: user menjawab “Saya pernah membuat dashboard penjualan.” Sistem mendeteksi tools belum disebutkan, kontribusi pribadi belum jelas, impact belum dijelaskan, dan evidence masih lemah. Clarifying question dapat menjadi: “Bisa kamu jelaskan tools yang digunakan, bagian yang kamu kerjakan sendiri, dan dampak dari dashboard tersebut?”
+13.2 Evidence Ladder Scoring
+Level
+Nama
+Contoh
+1
+Claim
+Saya bisa membuat dashboard.
+2
+Skill
+Saya menggunakan Excel dan Python.
+3
+Context
+Saya membuat dashboard untuk data penjualan.
+4
+Impact
+Dashboard membantu tim memahami performa produk.
+5
+Measurable Result
+Waktu pembuatan laporan berkurang dari 2 jam menjadi 30 menit.
+Evidence Ladder membantu user memahami bahwa jawaban interview yang kuat harus punya konteks, kontribusi, dan hasil.
+13.3 Rubric Answer Evaluation
+Komponen
+Bobot
+Fokus Penilaian
+Role Relevance
+25%
+Kesesuaian jawaban dengan target role.
+STAR Structure
+20%
+Kejelasan Situation, Task, Action, Result.
+Evidence Specificity
+20%
+Kekuatan bukti pengalaman, tools, angka, dampak, kontribusi.
+Technical Accuracy
+15%
+Akurasi penjelasan teknis sesuai role.
+Communication Clarity
+10%
+Kejelasan komunikasi lisan dan struktur jawaban.
+Self-Awareness
+10%
+Kesadaran terhadap kekuatan, gap, dan learning needs.
+13.4 Output Evaluasi Jawaban
+Score per jawaban.
+Score breakdown.
+Detected weakness.
+Evidence Level.
+Need clarification: true/false.
+Clarification type.
+Stronger answer draft.
+Latest feedback untuk dashboard.
+Batasan AI Feedback
+AI tidak boleh mengarang pengalaman, angka, tools, atau hasil yang tidak disebut user. Stronger answer hanya boleh memperbaiki struktur dan wording berdasarkan data yang sudah diberikan user.
+14. Career Readiness Dashboard
+Setelah interview selesai, user diarahkan kembali ke dashboard utama. Dashboard ini menjadi pusat perkembangan user dan menjawab empat pertanyaan: seberapa siap saya sekarang, kenapa skor saya segitu, apa yang harus saya lakukan berikutnya, dan bukti apa yang mendukung kesiapan saya.
+14.1 Komponen Dashboard Utama
+Komponen
+Isi
+Contoh
+Hero Score Card
+Career Readiness Score, status kesiapan, target role, last updated, CTA unduh ringkasan.
+Halo, Rizky 👋 Kamu 82% siap untuk melamar Product Analyst.
+Score Breakdown
+Evidence Score, Role Fit Score, Interview Readiness, Profile Completeness.
+Evidence 84/100, Role Fit 88/100, Interview 78/100, Kelengkapan Profil 82/100.
+Next Best Action
+Tiga prioritas utama untuk user.
+Tambahkan contoh A/B testing, latih STAR, tinjau alternatif UX Researcher.
+Mengapa Skor Kariermu?
+Penjelasan formula dan alasan skor.
+Evidence 30% + Role Fit 30% + Interview 25% + Profile Completeness 15%.
+Preparation Checklist
+Checklist prioritas tinggi, sedang, rendah.
+Tambahkan contoh SQL, selesaikan 1 sesi interview lagi.
+Ringkasan Profil
+Professional summary dan skill chips.
+SQL, Python, Funnel Analysis, User Research.
+Rekomendasi Peran
+Role utama yang dipilih atau direkomendasikan.
+Product Analyst 88% match.
+Feedback Interview Terbaru
+Ringkasan hasil interview terakhir.
+HR Interview · 3 pertanyaan · skor 78 — Hampir siap.
+Sidebar Snapshot
+Data user, target role, profile completeness, strengths, gaps, activity timeline.
+Aktif, diperbarui 2 jam lalu.
+14.2 Formula Career Readiness Score
+Career Readiness Score =
+Evidence Score 30%
++ Role Fit Score 30%
++ Interview Readiness 25%
++ Profile Completeness 15%
+14.3 Empat Hasil Interview Detail
+Hasil
+Fungsi
+Isi
+Strengths
+Menampilkan bagian jawaban user yang sudah kuat.
+3 kekuatan utama, alasan singkat, bukti dari jawaban user.
+Improvement Areas
+Menampilkan kelemahan utama yang perlu diperbaiki.
+3 area perbaikan, penyebab kelemahan, saran singkat.
+Before–After Answer Improvement
+Membandingkan jawaban awal dan versi yang lebih kuat.
+Jawaban awal, masalah, versi lebih baik, alasan.
+Next Practice Recommendation
+Memberi rekomendasi latihan berikutnya berdasarkan kelemahan terbesar.
+Jenis latihan, alasan, fokus latihan, CTA latihan ulang.
+14.4 Mapping Rekomendasi Latihan
+Skor Terendah
+Rekomendasi
+STAR Structure
+Behavioral STAR Practice
+Evidence Specificity
+Evidence Booster Practice
+Technical Accuracy
+Technical Interview Practice
+Communication Clarity
+Answer Clarity Practice
+Role Relevance
+Role Understanding Practice
+BR-20
+Jika user melakukan interview ulang, sistem harus membaca evaluasi interview sebelumnya sebagai practice memory.
+BR-21
+Sistem harus menyimpan asked question history agar interview berikutnya tidak mengulang pertanyaan yang sama persis secara default.
+BR-22
+Pertanyaan interview ulang harus diprioritaskan pada weakness terbesar, next best action, dan evidence gap dari hasil interview sebelumnya.
+BR-23
+Kompetensi yang sama boleh dilatih ulang dengan wording pertanyaan berbeda jika weakness belum membaik atau user memilih mode latihan ulang.
+15. Admin Panel
+Admin panel dibutuhkan agar data sistem tidak hardcoded dan dapat dikelola oleh tim.
+15.1 Fitur Admin Panel MVP
+Login admin.
+User management sederhana.
+CRUD Domain.
+CRUD Role Family.
+CRUD Role.
+CRUD Skill dan Tools per Role.
+Dashboard analytics sederhana.
+15.2 Fitur Admin yang Tidak Masuk MVP
+Advanced permission management.
+Audit log detail.
+Billing management.
+Export laporan kompleks.
+Multi-admin organization.
+15.3 Admin Analytics Dashboard
+Total users.
+Total completed interviews.
+Total CV uploaded.
+Total manual profiles.
+Most selected roles.
+Average career readiness score.
+Average evidence score.
+Most common weakness.
+CV upload vs manual profile ratio.
+Interview completion rate.
+16. Business Rules Terbaru
+Kode
+Business Rule
+BR-01
+User harus login sebelum membuat professional profile.
+BR-02
+User dapat memilih upload CV atau isi profil manual.
+BR-03
+Jika user upload CV, sistem melakukan AI extraction dan Role Fit Ranking.
+BR-04
+Jika user tidak upload CV, user wajib memilih Domain, Role Family, Target Role, dan mengisi profil singkat.
+BR-05
+Setiap hasil AI extraction harus bisa direview dan diedit oleh user.
+BR-06
+Role Fit Ranking hanya digenerate pada jalur Upload CV.
+BR-07
+Pada jalur manual, sistem langsung memakai Target Role yang sudah dipilih user.
+BR-08
+Role Fit Score tetap dapat dihitung untuk dashboard pada semua jalur.
+BR-09
+User wajib confirm selected role sebelum interview pada jalur CV.
+BR-10
+1 user mendapatkan 5 free interview sessions.
+BR-11
+1 interview session berisi 3–5 main questions.
+BR-12
+Pertanyaan pertama adalah perkenalan diri, lalu pertanyaan berikutnya adaptif berdasarkan jawaban user dan competency target.
+BR-13
+Setelah AI HRD selesai memberikan pertanyaan, mic otomatis menyala dan timer 90 detik otomatis dimulai.
+BR-14
+Mic tetap menyala walaupun user diam; silence tidak menghentikan recording.
+BR-15
+Jawaban voice selesai ketika user menekan Mic Off / Selesai Menjawab atau timer 90 detik habis.
+BR-16
+Setiap main question maksimal memiliki 1 clarification.
+BR-17
+Setiap session maksimal memiliki 3 clarification.
+BR-18
+Setelah interview selesai, sistem harus update Career Readiness Dashboard.
+BR-19
+Career Summary hanya dapat diunduh jika Career Readiness Score mencapai threshold tertentu, misalnya 90+.
+17. Activity Diagram Full Terbaru
+flowchart TD
+A([Start]) --> B[Landing Page Road2Work.id]
+B --> C{User sudah punya akun?}
+C -->|Belum| D[Sign Up]
+C -->|Sudah| E[Login]
+D --> F[Create User Account]
+E --> G[Authenticate User]
+F --> H[Readiness Hub]
+G --> H
+H --> I{User sudah punya Professional Profile?}
+I -->|Sudah| J[Dashboard Utama]
+I -->|Belum| K[Career Readiness Onboarding]
+K --> L{User punya CV dan bersedia upload?}
+L -->|Ya| M[Upload CV]
+M --> N[AI Extract CV Data]
+N --> O[Generate Professional Profile Draft]
+O --> P[Review & Edit Profile]
+P --> Q[User Validasi Data Profil]
+Q --> R{Data sudah sesuai?}
+R -->|Belum| S[Edit / Tambah / Hapus Data]
+S --> P
+R -->|Ya| T[Save Professional Profile]
+T --> U[Generate Role Fit Ranking]
+U --> V[Show Recommended Roles Rank 1, 2, 3]
+V --> W{User pilih role rekomendasi?}
+W -->|Ya| X[Confirm Selected Role]
+W -->|Tidak| Y[Pilih Role Manual]
+Y --> X
+L -->|Tidak| Z[Copywriting Disclaimer]
+Z --> AA[Pilih Domain]
+AA --> AB[Pilih Role Family]
+AB --> AC[Pilih Target Role]
+AC --> AD[Isi Profil Singkat]
+AD --> AE[AI Extract Short Profile Data]
+AE --> AF[Generate Professional Profile Draft]
+AF --> AG[Review & Edit Profile]
+AG --> AH[User Validasi Data Profil]
+AH --> AI{Data sudah sesuai?}
+AI -->|Belum| AJ[Edit / Tambah / Hapus Data]
+AJ --> AG
+AI -->|Ya| AK[Save Professional Profile]
+AK --> AL[Use Selected Target Role]
+X --> AM[Build Personalized Interview Context]
+AL --> AM
+AM --> AN[Interview Onboarding]
+AN --> AO{Free interview quota tersedia?}
+AO -->|Tidak| AP[Show Quota Limit Message]
+AP --> J
+AO -->|Ya| AP2[Load Previous Interview Evaluation & Asked Question History]
+AP2 --> AP3[Set Improvement Focus from Weakness, Evidence Gap, and Next Best Action]
+AP3 --> AQ[Start Adaptive Voice Interview]
+AQ --> AR[AI HRD Ask Main Question]
+AR --> AR1{Question index = 1?}
+AR1 -->|Ya| AR2[Ask Self Introduction]
+AR1 -->|Tidak| AR3[Generate Adaptive Competency Question and Avoid Repeated Question]
+AR2 --> AS[Auto Mic On]
+AR3 --> AS
+AS --> AT[Start Recording + Start 90s Timer]
+AT --> AU{Mic Off atau 90s timer habis?}
+AU -->|Belum| AT
+AU -->|Ya| AV[Stop Recording]
+AV --> AW[Speech-to-Text Internal]
+AW --> AX[AI Evaluate Answer]
+AX --> AY{Need Clarification?}
+AY -->|Ya| AZ{Clarification limit reached?}
+AZ -->|Belum| BA[AI Generate Clarifying Question]
+BA --> AS
+AZ -->|Ya| BB[Save Answer Evaluation]
+AY -->|Tidak| BB
+BB --> BC{Masih ada pertanyaan utama?}
+BC -->|Ya| AR
+BC -->|Tidak| BD[Generate Interview Result]
+BD --> BE[Update Career Readiness Dashboard]
+BE --> BF[Update Evidence Score]
+BE --> BG[Update Role Fit Score]
+BE --> BH[Update Interview Readiness]
+BE --> BI[Update Profile Completeness]
+BE --> BJ[Update Strengths, Gaps, Next Actions]
+BE --> BK[Update Activity Timeline]
+BE --> BL[Update Interview Quota]
+BF --> BM[Show Dashboard Utama]
+BG --> BM
+BH --> BM
+BI --> BM
+BJ --> BM
+BK --> BM
+BL --> BM
+BM --> BN{User pilih aksi berikutnya?}
+BN -->|Latih interview lagi| AO
+BN -->|Lengkapi profil| P
+BN -->|Tinjau role lain| U
+BN -->|Lihat hasil interview| BO[Open Interview Result Detail]
+BN -->|Unduh ringkasan| BP{Career Score >= 90?}
+BP -->|Ya| BQ[Download Career Summary]
+BP -->|Tidak| BR[Show Locked Summary Message]
+BO --> BM
+BQ --> BS([End])
+BR --> BM
+18. System Architecture
+flowchart LR
+A[User Browser] --> B[Next.js Frontend]
+B --> C[Express.js API Gateway]
+C --> D[(PostgreSQL Database)]
+C --> E[FastAPI AI Service]
+E --> F[CV/Profile Extraction]
+E --> G[Speech-to-Text]
+E --> H[Interview State Machine]
+E --> I[Answer Evaluation Engine]
+E --> J[TensorFlow Model Inference]
+E --> K[GenAI Feedback & Question Generator]
+L[Data Science Assets] --> M[Role-Skill Matrix]
+L --> N[Competency Map & Question Seed]
+L --> O[Weakness Taxonomy]
+L --> P[Streamlit Dashboard]
+M --> E
+N --> E
+O --> E
+D --> P
+Layer
+Teknologi
+Fungsi
+Frontend
+Next.js, TypeScript, Tailwind CSS
+UI utama aplikasi.
+API Client
+Axios, TanStack Query
+Networking calls frontend ke backend.
+Backend
+Express.js
+API Gateway dan business logic utama.
+Database
+PostgreSQL, Drizzle ORM
+Menyimpan user, profile, session, answer, result, dashboard, admin data.
+AI Service
+FastAPI
+Service AI, extraction, STT, evaluation, inference.
+AI Model
+TensorFlow / Keras
+Klasifikasi kualitas jawaban sebagai supporting score.
+GenAI
+Gemini/GPT API
+Pertanyaan natural, clarification, feedback, stronger answer.
+Voice
+Speech-to-Text
+Mengubah voice menjadi transcript internal.
+DS Dashboard
+Streamlit
+EDA dan insight dashboard.
+Deployment FE
+Vercel / Netlify
+Hosting frontend.
+Deployment BE/AI
+Render / Railway
+Hosting backend dan AI service.
+19. API Overview
+19.1 Frontend ke Express API
+POST   /api/v1/auth/signup
+POST   /api/v1/auth/login
+GET    /api/v1/me
+POST   /api/v1/profiles/cv
+POST   /api/v1/profiles/manual
+GET    /api/v1/profiles/:profileId
+PATCH  /api/v1/profiles/:profileId
+GET    /api/v1/domains
+GET    /api/v1/role-families
+GET    /api/v1/roles
+POST   /api/v1/role-fit/generate
+GET    /api/v1/role-fit/:profileId
+POST   /api/v1/role-fit/confirm
+POST   /api/v1/interviews/sessions
+GET    /api/v1/interviews/sessions/:sessionId
+POST   /api/v1/interviews/sessions/:sessionId/voice-answer
+GET    /api/v1/interviews/sessions/:sessionId/result
+GET    /api/v1/dashboard
+19.2 Admin Endpoint
+GET    /api/v1/admin/users
+GET    /api/v1/admin/analytics
+POST   /api/v1/admin/domains
+PATCH  /api/v1/admin/domains/:id
+DELETE /api/v1/admin/domains/:id
+POST   /api/v1/admin/role-families
+PATCH  /api/v1/admin/role-families/:id
+DELETE /api/v1/admin/role-families/:id
+POST   /api/v1/admin/roles
+PATCH  /api/v1/admin/roles/:id
+DELETE /api/v1/admin/roles/:id
+19.3 Express API ke FastAPI AI Service
+POST /v1/context/extract-cv
+POST /v1/context/extract-profile
+POST /v1/interview/build-context
+POST /v1/interview/next-question
+POST /v1/interview/evaluate-answer
+POST /v1/stt/transcribe
+POST /v1/model/predict-answer-quality
+POST /v1/dashboard/generate-summary
+19.4 Payload Penting untuk Voice Answer 90 Detik
+POST /api/v1/interviews/sessions/:sessionId/voice-answer
+Content-Type: multipart/form-data
+fields:
+- question_id
+- question_type: main | clarification
+- answer_audio_file
+- recording_started_at
+- recording_ended_at
+- answer_duration_sec
+- max_duration_sec: 90
+- stop_reason: user_mic_off | timer_timeout
+- auto_mic_started: true
+- silence_auto_stop_enabled: false
+19.5 Payload Penting untuk Adaptive Interview Antar Session
+Pada saat membuat interview session baru, backend perlu menyiapkan practice memory dari interview sebelumnya agar AI service dapat menghasilkan pertanyaan yang adaptif antar session.
+Field yang disarankan untuk dikirim dari Express API ke FastAPI AI Service:
+- previous_interview_summary
+- previous_score_breakdown
+- previous_detected_weaknesses
+- previous_evidence_levels
+- asked_question_history
+- latest_interview_feedback
+- next_best_actions
+- improvement_focus
+- avoid_repeated_questions: true
+- retry_mode: false | true
+Endpoint yang sudah ada tetap bisa digunakan: POST /api/v1/interviews/sessions untuk membuat session, lalu backend memanggil AI build context/generate question dengan tambahan practice memory tersebut.
+20. Data Model High-Level
+Entity
+Field Utama
+Users
+id, name, email, password_hash, role: user/admin, free_interview_quota, used_interview_count, created_at, updated_at.
+Professional Profiles
+id, user_id, source: cv/manual, professional_summary, skills, tools, achievement_signals, evidence_score, profile_completeness, ai_confidence, created_at, updated_at.
+Skill Evidence
+id, profile_id, skill_name, evidence_text, evidence_level, source, created_at.
+Role
+id, domain, role_family, role_name, description.
+Role Skill
+id, role_id, skill_name, skill_type, importance_level.
+Role Fit Results
+id, profile_id, role_id, fit_score, rank, reason, strengths, gaps, created_at.
+Interview Sessions
+id, user_id, profile_id, selected_role_id, status, question_count, clarification_count, current_question_index, total_main_questions, previous_interview_result_id, improvement_focus, avoid_repeated_questions, started_at, completed_at.
+Interview Answers
+id, session_id, parent_question_id, question_text, question_type, answer_audio_url/audio_metadata, answer_transcript, stt_confidence, answer_duration_sec, max_duration_sec, stop_reason, answer_score, score_breakdown, evidence_level, weaknesses, needs_clarification, clarification_type, feedback, stronger_answer, created_at.
+Career Readiness Dashboard
+id, user_id, profile_id, selected_role_id, career_readiness_score, evidence_score, role_fit_score, interview_readiness_score, profile_completeness_score, strengths, gaps, next_best_actions, latest_interview_feedback, activity_timeline, updated_at.
+Interview Practice Memory
+id, user_id, profile_id, selected_role_id, previous_session_id, previous_result_id, previous_score_breakdown, previous_weaknesses, previous_evidence_levels, asked_question_history, latest_feedback, next_best_actions, created_at, updated_at.
+21. Pembagian Tugas dan Tanggung Jawab Tim
+21.1 Yosua — Frontend Lead / Product Experience Lead
+Fokus utama: menjaga alur user, tampilan, experience interview, konsistensi branding, dan integrasi frontend.
+Menerjemahkan activity diagram ke UI flow.
+Membuat design system Road2Work.id.
+Implement Landing Page, Login/Signup UI, Readiness Hub, Role Selection, Interview Context Setup, HRD WebM Interview Stage, dan Career Readiness Dashboard.
+Setup API services frontend.
+Menjaga UI responsive.
+Memastikan flow interview terasa natural, termasuk mic otomatis dan timer 90 detik.
+Deliverable: Frontend project Next.js, reusable UI components, halaman utama MVP, HRD Interview Stage, dashboard, dan integrasi API frontend.
+21.2 Frontend Team
+Setup Next.js + Tailwind.
+Membuat komponen reusable.
+Membuat halaman sesuai wireframe.
+Mengatur state UI.
+Menghubungkan frontend ke Express API.
+Mengelola loading, error, dan success state.
+Menampilkan HRD WebM sesuai state.
+Menghandle microphone recording, auto mic on, timer 90 detik, dan mic off manual.
+21.3 Backend & DevOps
+Setup Express.js dengan TypeScript.
+Setup PostgreSQL dan Drizzle ORM.
+Membuat database schema.
+Membuat auth sederhana.
+Membuat RESTful API contract.
+Mengelola upload CV dan audio metadata.
+Menyimpan stop_reason, duration, dan transcript untuk voice answer.
+Menghubungkan backend ke FastAPI AI service.
+Menyimpan session, answer, score, result, dan dashboard.
+Deployment backend dan environment variable.
+21.4 AI Engineer — Interview Engine & Answer Evaluation
+Setup FastAPI AI Service.
+Membangun Interview State Machine.
+Generate natural question menggunakan GenAI dengan guardrail.
+Membuat clarifying question engine.
+Implement answer evaluation.
+Implement Evidence Ladder Scoring.
+Implement weakness detection.
+Generate stronger answer.
+Integrasi TensorFlow supporting model.
+Memastikan pertanyaan adaptif mencakup introduction, interest, need of learning, self confidence, skill, solution skill, predictive based, predictive-based recruitment, dan agile culture.
+21.5 AI Engineer — Speech-to-Text & Model
+Setup speech-to-text service.
+Membuat endpoint transcribe audio.
+Menerapkan batas maksimal audio 90 detik.
+Mendukung audio yang memiliki jeda diam tanpa auto-stop berbasis silence.
+Cleanup temporary audio.
+Membuat dataset jawaban interview.
+Membangun model TensorFlow menggunakan Functional API atau Model Subclassing.
+Implement Custom Callback / Custom Loss / Custom Layer.
+Export model ke .keras atau SavedModel.
+Membuat inference code dan integrasi model ke FastAPI.
+21.6 Data Scientist — Role-Skill & Competency
+Menentukan role MVP.
+Menyusun role-skill matrix.
+Membuat skill taxonomy.
+Membuat competency map per role.
+Membuat question seed sebagai guardrail AI.
+Membuat weakness taxonomy.
+Menyediakan dataset untuk AI.
+Menyediakan mapping untuk competency adaptif seperti interest, learning needs, confidence, solution skill, predictive signal, dan agile culture.
+21.7 Data Scientist — EDA & Insight Dashboard
+Menentukan business question.
+Data wrangling.
+EDA.
+Visualisasi distribusi role, skill gap, Evidence Level, readiness score, weakness.
+Membuat Streamlit dashboard.
+Menganalisis hasil user testing.
+Memberi insight untuk perbaikan produk.
+21.8 QA / Testing PIC
+Test login/signup.
+Test role selection.
+Test upload CV path.
+Test isi profil singkat path.
+Test voice interview.
+Test auto mic on dan timer 90 detik.
+Test mic off manual sebelum 90 detik.
+Test STT.
+Test clarification.
+Test result dashboard.
+Mencatat bug dan menentukan bug priority.
+21.9 Documentation PIC
+README project.
+API documentation.
+Environment variable guide.
+Cara run frontend, backend, AI service, dan Streamlit dashboard.
+Link deployment.
+Demo guide.
+Catatan flow CV/manual dan STT 90 detik.
+22. Prioritas Pengerjaan dan Sprint Roadmap
+22.1 Prioritas Pengerjaan Terbaru
+Prioritas
+Task
+P0 — Wajib Selesai
+Auth user; Professional profile onboarding; Upload CV path; Manual profile path; AI extraction; Review & edit profile; Role fit ranking khusus CV path; Selected role confirmation; Build interview context; Adaptive voice interview; STT 90 detik; Interview result; Career readiness dashboard; Interview quota basic.
+P1 — Penting
+Admin panel basic; CRUD domain; CRUD role family; CRUD role; CRUD skill/tools per role; Admin analytics dashboard; Role fit detail page; Career summary locked/unlocked state.
+P2 — Bonus
+Interview history; Export result; Advanced CV improvement; Advanced admin analytics; Subscription/payment; Job recommendation; Learning recommendation.
+22.2 Sprint Roadmap sampai 31 Mei
+Sprint
+Tanggal
+Fokus
+Output
+Sprint 0
+14–15 Mei
+Finalisasi scope, setup repo, setup FE/BE/AI, wireframe awal.
+Flow final, wireframe awal, frontend setup, backend setup, FastAPI setup, role-skill draft.
+Sprint 1
+16–19 Mei
+Database, API contract, role-skill, competency map, TensorFlow dataset, DS dashboard draft.
+API contract, database schema, role-skill matrix, competency map, question seed, dataset, data dictionary draft.
+Sprint 2
+20–23 Mei
+Landing, Login, Role Selection, Context Setup, CV/Profile extraction, TensorFlow baseline.
+Flow awal user bisa diklik, upload/manual profile berjalan, initial evidence extraction berjalan, TensorFlow baseline tersedia.
+Sprint 3
+24–27 Mei
+HRD WebM stage, voice interview, auto mic, timer 90 detik, STT, state machine, answer evaluation, clarification, dashboard.
+Live voice interview flow berjalan, clarifying question muncul, Evidence Ladder berjalan, dashboard tampil.
+Sprint 4
+28–31 Mei
+E2E testing, bug fixing, deployment, README, Streamlit, demo script.
+MVP stabil, deployment staging/public, README final, Streamlit dashboard, demo script dan fallback demo.
+23. Demo Scenario
+1. User membuka Road2Work.id.
+2. User login.
+3. User masuk Readiness Hub.
+4. User memilih jalur upload CV atau isi profil secara manual.
+5. Jika jalur CV: user upload CV, sistem extract profile, user review & edit profile, AI menampilkan Role Fit Ranking, lalu user confirm role.
+6. Jika jalur manual: user memilih domain, role family, target role, mengisi profil singkat, sistem extract profile, user review & edit profile, lalu sistem langsung memakai selected target role tanpa Role Fit Ranking.
+7. Sistem membangun personalized interview context.
+8. User masuk Interview Onboarding.
+9. User mulai Adaptive Voice Interview.
+10. HRD WebM mengajukan pertanyaan pertama: perkenalan diri.
+11. Setelah pertanyaan siap dijawab, mic otomatis menyala dan timer 90 detik berjalan.
+12. User menjawab dengan voice. Mic tetap menyala walau user sempat diam.
+13. User menekan Mic Off sebelum 90 detik sebagai tanda selesai menjawab, atau sistem auto-stop saat timer habis.
+14. Sistem melakukan STT secara internal.
+15. AI mendeteksi jawaban masih kurang evidence dan mengajukan clarifying question.
+16. User menjawab lebih detail.
+17. AI lanjut ke pertanyaan adaptif berikutnya sesuai competency target.
+18. Setelah selesai, sistem menghasilkan interview result dan memperbarui Career Readiness Dashboard.
+19. Dashboard menampilkan Career Readiness Score, score breakdown, strengths, gaps, before-after improvement, latest feedback, activity timeline, dan next best actions.
+23.1 Demo Scenario Tambahan: Interview Ulang yang Adaptif
+1. User menyelesaikan interview pertama dan dashboard menampilkan weakness utama, misalnya Evidence Specificity dan STAR Structure.
+2. User memilih Latih Interview Lagi dari dashboard.
+3. Sistem membaca latest interview feedback, weakness history, evidence level, dan daftar pertanyaan sebelumnya.
+4. AI HRD membuat pertanyaan baru yang fokus pada weakness tersebut dan menghindari pertanyaan yang sama persis.
+5. Setelah interview kedua selesai, dashboard memperbarui Interview Readiness dan Next Best Action berdasarkan progress terbaru.
+24. Risiko dan Mitigasi
+Risiko
+Dampak
+Mitigasi
+Scope creep
+Tim menambah terlalu banyak fitur sebelum P0 stabil.
+Fokus pada interview-first MVP dan dashboard. Job portal, payment, dan advanced learning masuk future plan.
+Flow terlalu panjang
+User bingung sebelum sampai interview.
+Pisahkan dua jalur jelas: CV path dan manual path. Gunakan copywriting positif dan CTA yang jelas.
+Role Fit Ranking muncul di manual path
+Flow menjadi redundan dan bertentangan dengan update terbaru.
+Pastikan UI, backend, dan AI service hanya generate ranking pada CV path.
+Pertanyaan AI terlalu random
+Pertanyaan tidak relevan dengan role.
+Gunakan role-skill matrix, competency map, question seed, user context, dan interview state sebagai guardrail.
+Feedback terlalu generik
+Dashboard terasa seperti output chatbot biasa.
+Gunakan scoring rubric, weakness detection, Evidence Ladder, TensorFlow supporting model, dan GenAI hanya untuk wording.
+STT kurang akurat
+Jawaban voice tidak tertangkap jelas.
+Gunakan clarification mode, error handling, dan fallback demo.
+Mic auto-on bermasalah karena permission browser
+Recording tidak bisa otomatis berjalan.
+Minta microphone permission di Interview Onboarding sebelum sesi dimulai, lalu baru jalankan auto mic.
+Timer 90 detik tidak sinkron
+Jawaban terlalu panjang atau terpotong.
+Simpan started_at, ended_at, duration, max_duration_sec, dan stop_reason di backend.
+Model TensorFlow tidak terlalu akurat
+Supporting score kurang stabil.
+Jadikan TensorFlow sebagai supporting score, bukan satu-satunya penentu hasil.
+Deployment bermasalah
+Server down saat demo.
+Siapkan local demo, dummy data, dan video backup.
+25. Definition of Done MVP
+1. User bisa login/signup.
+2. User bisa memilih jalur upload CV atau isi profil manual.
+3. Pada jalur CV, sistem bisa extract CV, membuat professional profile draft, user bisa review/edit, dan sistem bisa generate Role Fit Ranking.
+4. Pada jalur manual, user bisa memilih Domain, Role Family, Target Role, mengisi profil singkat, review/edit profile, lalu sistem langsung memakai selected target role tanpa Role Fit Ranking.
+5. Sistem bisa extract skill, tools, experience, achievement signals, dan evidence.
+6. User bisa masuk ke live voice interview.
+7. HRD WebM stage tampil dengan state yang jelas: Idle, Asking, Listening, Thinking, Clarifying, dan Completed.
+8. Pertanyaan pertama adalah perkenalan diri dan pertanyaan berikutnya adaptif.
+9. Mic otomatis menyala setelah HRD memberikan pertanyaan.
+10. Timer 90 detik berjalan otomatis saat mic aktif.
+11. Mic tetap menyala walau user diam.
+12. User bisa mematikan mic sebelum 90 detik sebagai tanda selesai menjawab.
+13. STT menghasilkan transcript internal.
+14. AI bisa mengevaluasi jawaban.
+15. AI bisa menghasilkan clarifying question jika jawaban kurang jelas.
+16. Sistem bisa menghitung final readiness score.
+17. Career Readiness Dashboard ter-update setelah interview.
+18. Jika user interview lagi, sistem menggunakan evaluasi interview sebelumnya untuk menentukan improvement focus.
+19. Sistem bisa menghindari pertanyaan yang sama persis melalui asked question history.
+20. Dashboard menampilkan Career Readiness Score, Evidence Score, Role Fit Score, Interview Readiness, Profile Completeness, Strengths, Gaps, Before–After Answer Improvement, Next Best Action, dan Activity Timeline.
+21. Admin panel basic tersedia untuk domain, role family, role, skill/tools, dan analytics sederhana.
+22. README tersedia.
+23. Deployment staging tersedia atau fallback demo siap.
+26. Kesimpulan
+Overview baru Road2Work.id memperjelas bahwa platform ini bukan hanya aplikasi mock interview, tetapi AI Career Readiness Platform.
+26.1 Flow Final yang Harus Dijaga
+Path
+Flow Final
+Upload CV Path
+Upload CV → AI Extract Profile → Review & Edit Profile → Role Fit Ranking → Confirm Role → Build Interview Context → Interview → Dashboard.
+Manual Path
+Pilih Domain → Pilih Role Family → Pilih Target Role → Isi Profil Singkat → AI Extract Profile → Review & Edit Profile → Build Interview Context → Interview → Dashboard.
+26.2 Core Loop Road2Work.id
+Profile -> Role -> Practice -> Feedback -> Improve
+Perubahan penting yang digabung dalam versi ini:
+Road2Work.id diarahkan sebagai AI Career Readiness Platform, bukan hanya mock interview.
+Professional Profile menjadi fondasi role fit, interview context, evidence score, dan dashboard.
+Role Fit Ranking hanya muncul pada jalur Upload CV.
+Manual path langsung memakai target role yang dipilih user.
+Dashboard utama menjadi pusat hasil setelah interview, bukan hanya result page terpisah.
+Interview tetap voice-first dan menggunakan HRD WebM Interview Stage.
+Interview ulang membaca practice memory dari hasil sebelumnya agar pertanyaan berikutnya lebih personal dan tidak mengulang pertanyaan yang sama persis.
+Mic otomatis menyala setelah HRD memberikan pertanyaan dan timer 90 detik otomatis dimulai.
+Mic tetap menyala walau user diam, dan user bisa mematikan mic sebelum 90 detik sebagai tanda selesai menjawab.
+Pertanyaan interview berjumlah 3–5 dan adaptif berdasarkan jawaban user serta competency target.
+Pertanyaan diawali dengan perkenalan diri, lalu dapat mengarah ke interest, need of learning, self confidence, skill, solution skill, predictive based, predictive-based recruitment, dan agile culture.
+Clarifying question dihasilkan berdasarkan weakness detection, bukan asal GenAI.
+Dashboard menggunakan pendekatan hybrid: rubric, role-skill matrix, Evidence Ladder, TensorFlow supporting model, dan GenAI wording.
+Dengan alur ini, Road2Work.id memiliki arah produk yang lebih kuat, user experience yang lebih jelas, dan fondasi teknis yang lebih rapi untuk dikembangkan sebagai capstone project maupun future product.

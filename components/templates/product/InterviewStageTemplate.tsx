@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Camera, CameraOff, Square } from 'lucide-react'
+import { BrainCircuit, Camera, CameraOff, Square } from 'lucide-react'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
 import Button from '@/components/atoms/Button'
@@ -28,8 +28,11 @@ import {
   interviewQuestions,
   type InterviewState,
 } from '@/constants/interview'
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'
 import { useUserMedia } from '@/hooks/useUserMedia'
+import { dashboardService } from '@/services/dashboard.service'
 import { interviewService } from '@/services/interview.service'
+import type { PracticeMode } from '@/types/api-contract'
 
 const cameraPreferenceKey = 'road2work:user-camera-enabled'
 
@@ -38,17 +41,58 @@ const interviewCameraOptions = {
   audio: false,
 } as const
 
+const maxAnswerSeconds = 90
+const askingAutoListenDelayMs = 1800
+
+type AnswerPolicy = {
+  answerLimitSeconds?: number
+  autoStartMic?: boolean
+  silenceAutoStopEnabled?: boolean
+}
+
+type AnswerStopReason = 'user_mic_off' | 'timer_timeout'
+
 export default function InterviewStageTemplate() {
   const router = useRouter()
   const [qIndex, setQIndex] = useState(0)
-  const [state, setState] = useState<InterviewState>('asking')
+  const [state, setState] = useState<InterviewState>('idle')
   const [seconds, setSeconds] = useState(0)
+  const [answerSeconds, setAnswerSeconds] = useState(0)
+  const [answerStartedAt, setAnswerStartedAt] = useState<string | null>(null)
+  const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false)
+  const [totalQuestions] = useState(() => {
+    if (typeof window === 'undefined') return 3
+    return Number(window.sessionStorage.getItem('road2work:total-main-questions')) || 3
+  })
   const [currentQuestion, setCurrentQuestion] = useState(() => {
     if (typeof window === 'undefined') return interviewQuestions[0]
     return window.sessionStorage.getItem('road2work:current-question-text') ?? interviewQuestions[0]
   })
+  const [currentQuestionId, setCurrentQuestionId] = useState(() => {
+    if (typeof window === 'undefined') return 'question_001'
+    return window.sessionStorage.getItem('road2work:current-question-id') ?? 'question_001'
+  })
+  const [currentQuestionType, setCurrentQuestionType] = useState<'main' | 'clarification'>(() => {
+    if (typeof window === 'undefined') return 'main'
+    return (window.sessionStorage.getItem('road2work:current-question-type') as 'main' | 'clarification' | null) ?? 'main'
+  })
+  const [practiceMode] = useState<PracticeMode>(() => {
+    if (typeof window === 'undefined') return 'first_session'
+    return (window.sessionStorage.getItem('road2work:practice-mode') as PracticeMode | null) ?? 'first_session'
+  })
+  const [answerPolicy] = useState<AnswerPolicy | null>(() => {
+    if (typeof window === 'undefined') return null
+    const cached = window.sessionStorage.getItem('road2work:answer-policy')
+    return cached && cached !== 'null' ? (JSON.parse(cached) as AnswerPolicy) : null
+  })
+  const answerLimitSeconds = answerPolicy?.answerLimitSeconds ?? maxAnswerSeconds
   const [cameraVisible, setCameraVisible] = useState(true)
   const camera = useUserMedia(interviewCameraOptions)
+  const {
+    error: audioRecorderError,
+    start: startVoiceCapture,
+    stop: stopVoiceCapture,
+  } = useAudioRecorder()
   const {
     stream: cameraStream,
     status: cameraStatus,
@@ -67,12 +111,124 @@ export default function InterviewStageTemplate() {
     }
   }, [startCamera])
 
+  useEffect(() => {
+    if (state !== 'idle') return
+
+    const id = window.setTimeout(() => {
+      setState('asking')
+    }, 900)
+
+    return () => window.clearTimeout(id)
+  }, [state])
+
+  useEffect(() => {
+    if (state !== 'asking' && state !== 'clarifying') return
+
+    const id = window.setTimeout(() => {
+      setAnswerSeconds(0)
+      setAnswerStartedAt(new Date().toISOString())
+      setState('listening')
+      void startVoiceCapture().then(granted => {
+        if (!granted) {
+          toast.error('Mic belum bisa digunakan', {
+            description: audioRecorderError ?? 'Periksa izin microphone di browser, lalu coba lagi.',
+          })
+        }
+      })
+    }, askingAutoListenDelayMs)
+
+    return () => window.clearTimeout(id)
+  }, [audioRecorderError, currentQuestion, startVoiceCapture, state])
+
+  const processAnswer = useCallback(async (stopReason: AnswerStopReason = 'user_mic_off') => {
+    if (state !== 'listening' || isSubmittingAnswer) return
+
+    setIsSubmittingAnswer(true)
+    setState('thinking')
+    try {
+      const sessionId = window.sessionStorage.getItem('road2work:session-id') ?? 'session_001'
+      const endedAt = new Date().toISOString()
+      const audioBlob = await stopVoiceCapture()
+
+      const response = await interviewService.submitVoiceAnswer(sessionId, {
+        questionId: currentQuestionId,
+        questionType: currentQuestionType,
+        audioFile: audioBlob,
+        recordingStartedAt: answerStartedAt ?? endedAt,
+        recordingEndedAt: endedAt,
+        answerDurationSec: answerSeconds,
+        maxDurationSec: answerPolicy?.answerLimitSeconds ?? maxAnswerSeconds,
+        stopReason,
+        autoMicStarted: answerPolicy?.autoStartMic ?? true,
+        silenceAutoStopEnabled: answerPolicy?.silenceAutoStopEnabled ?? false,
+      })
+      setAnswerSeconds(0)
+      setAnswerStartedAt(null)
+
+      if (response.data.isCompleted) {
+        if (response.data.resultId) window.sessionStorage.setItem('road2work:result-id', response.data.resultId)
+        const profileId = window.sessionStorage.getItem('road2work:profile-id')
+        if (profileId) await dashboardService.refreshDashboard({ profileId })
+        setState('completed')
+        toast.success('Sesi selesai', {
+          description: 'Hasil interview dan dashboard kesiapanmu sudah diperbarui.',
+        })
+        window.setTimeout(() => router.push('/results'), 900)
+        return
+      }
+
+      if (response.data.nextQuestion) {
+        window.sessionStorage.setItem('road2work:current-question-id', response.data.nextQuestion.id)
+        window.sessionStorage.setItem('road2work:current-question-type', response.data.nextQuestion.questionType)
+        window.sessionStorage.setItem('road2work:current-question-text', response.data.nextQuestion.questionText)
+        setCurrentQuestionId(response.data.nextQuestion.id)
+        setCurrentQuestionType(response.data.nextQuestion.questionType)
+        setCurrentQuestion(response.data.nextQuestion.questionText)
+        if (response.data.nextQuestion.questionType === 'main') {
+          setQIndex(value => value + 1)
+        }
+        setState(response.data.nextQuestion.questionType === 'clarification' ? 'clarifying' : 'asking')
+        if (response.data.nextQuestion.questionType === 'clarification') {
+          toast.info('AI HRD meminta klarifikasi', {
+            description: 'Tambahkan tools, kontribusi pribadi, dan hasil yang lebih konkret.',
+          })
+        }
+        return
+      }
+      setState('asking')
+    } catch (error) {
+      toast.error('Jawaban belum bisa diproses', {
+        description: error instanceof Error ? error.message : 'Coba kirim jawaban lagi.',
+      })
+      setAnswerSeconds(0)
+      setState('asking')
+    } finally {
+      setIsSubmittingAnswer(false)
+    }
+  }, [answerPolicy, answerSeconds, answerStartedAt, currentQuestionId, currentQuestionType, isSubmittingAnswer, router, state, stopVoiceCapture])
+
+  useEffect(() => {
+    if (state !== 'listening') return
+
+    const id = window.setInterval(() => {
+      setAnswerSeconds(value => {
+        const nextValue = Math.min(answerLimitSeconds, value + 1)
+        if (nextValue >= answerLimitSeconds) {
+          window.setTimeout(() => void processAnswer('timer_timeout'), 0)
+        }
+        return nextValue
+      })
+    }, 1000)
+
+    return () => window.clearInterval(id)
+  }, [answerLimitSeconds, processAnswer, state])
+
   const handleCameraStart = async () => {
     const granted = await startCamera()
     if (granted) {
       window.sessionStorage.setItem(cameraPreferenceKey, 'true')
       toast.success('Kamera aktif', {
-        description: 'User canvas kamu sekarang muncul di sesi interview.',
+        description: 'Preview kamera kamu sekarang tampil di sesi interview.',
       })
     } else {
       toast.error('Kamera belum bisa diaktifkan', {
@@ -88,42 +244,9 @@ export default function InterviewStageTemplate() {
   }
 
   const handleMic = async () => {
-    if (state === 'asking' || state === 'clarifying') {
-      setState('listening')
-      return
-    }
-
     if (state !== 'listening') return
 
-    setState('thinking')
-    try {
-      const sessionId = window.sessionStorage.getItem('road2work:session-id') ?? 'session_001'
-      const answerPayload = new FormData()
-      answerPayload.append('audioFile', new Blob(['mock-audio-answer'], { type: 'audio/webm' }), 'answer.webm')
-
-      const response = await interviewService.submitVoiceAnswer(sessionId, answerPayload)
-      if (response.data.isCompleted) {
-        if (response.data.resultId) window.sessionStorage.setItem('road2work:result-id', response.data.resultId)
-        toast.success('Sesi selesai', {
-          description: 'Dashboard hasil sedang disiapkan.',
-        })
-        router.push('/results')
-        return
-      }
-
-      if (response.data.nextQuestion) {
-        window.sessionStorage.setItem('road2work:current-question-id', response.data.nextQuestion.id)
-        window.sessionStorage.setItem('road2work:current-question-text', response.data.nextQuestion.questionText)
-        setCurrentQuestion(response.data.nextQuestion.questionText)
-        setQIndex(value => value + 1)
-      }
-      setState('asking')
-    } catch (error) {
-      toast.error('Jawaban belum bisa diproses', {
-        description: error instanceof Error ? error.message : 'Coba kirim jawaban lagi.',
-      })
-      setState('asking')
-    }
+    await processAnswer('user_mic_off')
   }
 
   return (
@@ -131,15 +254,16 @@ export default function InterviewStageTemplate() {
       <InterviewTopBar
         seconds={seconds}
         questionIndex={qIndex}
-        totalQuestions={interviewQuestions.length}
+        totalQuestions={totalQuestions}
+        practiceMode={practiceMode}
         onEndInterview={() => {
           toast.success('Sesi selesai', {
-            description: 'Hasil readiness kamu sedang disiapkan.',
+            description: 'Hasil latihan kamu sedang disiapkan.',
           })
         }}
       />
       <div className="hidden sm:block">
-        <ProgressDots total={interviewQuestions.length} current={qIndex} />
+        <ProgressDots total={totalQuestions} current={qIndex} />
       </div>
 
       <div className="flex flex-1 flex-col items-center overflow-auto px-4 pb-8 pt-4 sm:px-8 sm:pt-0">
@@ -168,7 +292,12 @@ export default function InterviewStageTemplate() {
             onStopCamera={handleCameraStop}
             onToggleVisible={() => setCameraVisible(value => !value)}
           />
-          <VoiceControlPanel state={state} onMicClick={handleMic} />
+          <VoiceControlPanel
+            state={state}
+            onMicClick={handleMic}
+            answerSeconds={answerSeconds}
+            maxAnswerSeconds={answerLimitSeconds}
+          />
         </div>
       </div>
     </div>
@@ -214,20 +343,26 @@ function InterviewTopBar({
   seconds,
   questionIndex,
   totalQuestions,
+  practiceMode,
   onEndInterview,
 }: {
   seconds: number
   questionIndex: number
   totalQuestions: number
+  practiceMode: PracticeMode
   onEndInterview: () => void
 }) {
+  const isAdaptive = practiceMode === 'adaptive_from_history'
+
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-white/[0.05] px-4 sm:px-8">
       <Logo dark />
       <div className="flex min-w-0 items-center gap-2 sm:gap-5">
         <div className="hidden items-center gap-1.5 rounded-full border border-brand-red/20 bg-brand-red/10 px-3 py-1 sm:flex">
-          <div className="h-1 w-1 rounded-full bg-brand-red" />
-          <span className="font-mono text-[0.62rem] font-semibold tracking-wide text-brand-red">Data Analyst</span>
+          {isAdaptive ? <BrainCircuit className="h-3 w-3 text-brand-red" /> : <div className="h-1 w-1 rounded-full bg-brand-red" />}
+          <span className="font-mono text-[0.62rem] font-semibold tracking-wide text-brand-red">
+            {isAdaptive ? 'Sesi Adaptif' : 'Sesi Pertama'}
+          </span>
         </div>
         <div className="rounded-full border border-white/[0.07] bg-white/[0.05] px-3 py-1 font-mono text-[0.68rem] tracking-wide text-white/50">
           Q{questionIndex + 1}/{totalQuestions}

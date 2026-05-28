@@ -3,6 +3,14 @@ export const endpoints = {
     login: '/auth/login',
     signup: '/auth/signup',
     me: '/auth/me',
+    meLegacy: '/me',
+    refresh: '/auth/refresh',
+  },
+  domains: {
+    getAll: '/domains',
+  },
+  roleFamilies: {
+    getAll: '/role-families',
   },
   roles: {
     getAll: '/roles',
@@ -10,9 +18,18 @@ export const endpoints = {
   },
   profiles: {
     create: '/profiles',
+    uploadCvV2: '/profiles/cv',
+    createManual: '/profiles/manual',
     getById: (profileId: string) => `/profiles/${profileId}`,
+    update: (profileId: string) => `/profiles/${profileId}`,
+    confirm: (profileId: string) => `/profiles/${profileId}/confirm`,
     uploadCv: (profileId: string) => `/profiles/${profileId}/cv`,
     submitContext: (profileId: string) => `/profiles/${profileId}/context`,
+  },
+  roleFit: {
+    generateRanking: '/role-fit/generate-ranking',
+    score: '/role-fit/score',
+    confirm: '/role-fit/confirm',
   },
   interviews: {
     createSession: '/interviews/sessions',
@@ -21,5 +38,23 @@ export const endpoints = {
     cancelSession: (sessionId: string) => `/interviews/sessions/${sessionId}/cancel`,
     getResult: (sessionId: string) => `/interviews/sessions/${sessionId}/result`,
     history: '/interviews/history',
+    practiceMemory: '/interviews/practice-memory',
+    quota: '/interviews/quota',
+  },
+  dashboard: {
+    get: '/dashboard',
+    refresh: '/dashboard/refresh',
+    downloadSummary: '/dashboard/summary/download',
+  },
+  admin: {
+    users: '/admin/users',
+    analytics: '/admin/analytics',
+    domains: '/admin/domains',
+    domainById: (id: string) => `/admin/domains/${id}`,
+    roleFamilies: '/admin/role-families',
+    roleFamilyById: (id: string) => `/admin/role-families/${id}`,
+    roles: '/admin/roles',
+    roleById: (id: string) => `/admin/roles/${id}`,
+    roleCompetencyMap: (id: string) => `/admin/roles/${id}/competency-map`,
   },
 } as const

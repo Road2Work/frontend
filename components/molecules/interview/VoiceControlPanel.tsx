@@ -6,6 +6,8 @@ import WaveformBars from './WaveformBars'
 type VoiceControlPanelProps = {
   state: InterviewState
   onMicClick: () => void
+  answerSeconds?: number
+  maxAnswerSeconds?: number
 }
 
 const leftTicks = [16, 10, 6, 3]
@@ -23,14 +25,38 @@ function DecorativeTicks({ state, ticks }: { state: InterviewState; ticks: numbe
   )
 }
 
-export default function VoiceControlPanel({ state, onMicClick }: VoiceControlPanelProps) {
+export default function VoiceControlPanel({
+  state,
+  onMicClick,
+  answerSeconds = 0,
+  maxAnswerSeconds = 90,
+}: VoiceControlPanelProps) {
   const config = interviewStateConfig[state]
+  const answerProgress = Math.min(100, Math.round((answerSeconds / maxAnswerSeconds) * 100))
 
   return (
     <div className="mt-4 flex w-full flex-col items-center gap-4">
       <div className="flex min-h-[72px] w-full items-center rounded-2xl border border-white/[0.05] bg-white/[0.025] px-4 py-3">
         <WaveformBars active={state === 'listening'} color={state === 'listening' ? '#22C55E' : 'rgba(255,255,255,0.08)'} />
       </div>
+
+      {state === 'listening' && (
+        <div className="w-full rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.04] px-4 py-3">
+          <div className="mb-2 flex items-center justify-between font-mono text-[0.62rem] tracking-wide">
+            <span className="uppercase text-emerald-500">Mendengarkan</span>
+            <span className="text-white/35">
+              {formatDuration(answerSeconds)} / {formatDuration(maxAnswerSeconds)}
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+            <motion.div
+              className="h-full rounded-full bg-emerald-500"
+              animate={{ width: `${answerProgress}%` }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex w-full items-center justify-center gap-8">
         <DecorativeTicks state={state} ticks={leftTicks} />
@@ -52,4 +78,10 @@ export default function VoiceControlPanel({ state, onMicClick }: VoiceControlPan
       </AnimatePresence>
     </div>
   )
+}
+
+function formatDuration(value: number) {
+  const minutes = Math.floor(value / 60).toString().padStart(2, '0')
+  const seconds = (value % 60).toString().padStart(2, '0')
+  return `${minutes}:${seconds}`
 }
