@@ -30,14 +30,14 @@ export default function TeamShowcase() {
             Tim Kami
           </div>
           <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4rem)] font-black leading-[1.05] text-ink">
-            Meet the Team
+            Tim di Balik
             <br />
-            Behind
+            Road2Work.id
             <br />
-            <span className="text-brand-red">Road2Work.id</span>
+            <span className="text-brand-red">Capstone Project</span>
           </h2>
           <p className="mx-auto mt-8 max-w-lg text-sm leading-7 text-muted">
-            Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, data, backend, frontend, dan product experience.
+            Road2Work.id dikembangkan oleh tim lintas disiplin yang berfokus pada produk, data, AI, dan pengalaman pengguna.
           </p>
         </ScrollReveal>
 

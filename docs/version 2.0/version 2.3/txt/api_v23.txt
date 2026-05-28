@@ -1,0 +1,1848 @@
+API Contract Road2Work.id
+Version 2.3 — Adaptive Interview Session
+Disesuaikan dengan Overview Road2Work.id v2.3 Adaptive Session
+Field
+Value
+Project
+Road2Work.id
+Product Type
+AI Career Readiness Platform
+Tagline
+Your Roadmap to a Better Career
+Main Scope
+Professional Profile, Role Fit, Adaptive Voice Interview, Career Readiness Dashboard, Admin Panel
+Key Update v2.3
+Adaptive interview antar session: interview ulang membaca evaluasi interview sebelumnya, menghindari pertanyaan yang sama persis, dan memprioritaskan weakness terbesar user.
+Document Owner
+Road2Work.id Team
+Last Updated
+25 Mei 2026
+Daftar Isi Ringkas
+1. Tujuan Dokumen
+2. Arsitektur Komunikasi
+3. Base URL
+4. Global API Standard
+5. Core Business Rules
+6. Main Data Types
+7. Frontend ↔ Backend API Contract
+8. Admin API Contract
+9. Backend ↔ FastAPI AI Service Contract
+10. Frontend Service Mapping
+11. Frontend Page Flow Mapping
+12. Error Code List
+13. MVP Endpoint Priority
+14. Final Integration Summary
+1. Tujuan Dokumen
+Dokumen ini mendefinisikan API Contract Road2Work.id v2.3 untuk kebutuhan integrasi antara Frontend Next.js, Backend Express.js, FastAPI AI Service, PostgreSQL Database, dan Admin Panel.
+API Contract ini sudah menyesuaikan overview terbaru Road2Work.id, terutama pada flow Upload CV, flow manual profile, HRD Interview State, speech-to-text 90 detik, dan adaptive interview antar session.
+1.1 Perubahan Penting v2.3
+Interview ulang tidak dianggap sebagai sesi kosong; sistem membaca evaluasi interview sebelumnya.
+Create interview session dapat membawa practice memory seperti previousInterviewSummary, previousWeaknesses, askedQuestionHistory, dan improvementFocus.
+Pertanyaan baru harus menghindari pertanyaan yang sama persis secara default.
+Kompetensi yang sama tetap boleh ditanyakan ulang dengan wording berbeda jika weakness belum membaik.
+Dashboard Next Best Action menjadi salah satu input untuk menentukan fokus interview berikutnya.
+Recording policy tetap fixed: mic otomatis menyala setelah HRD selesai bertanya, timer 90 detik berjalan otomatis, silence tidak mematikan mic.
+State utama HRD tetap konsisten: idle, asking, listening, thinking, clarifying, completed, dan error.
+2. Arsitektur Komunikasi
+Next.js Frontend
+↓
+Express.js Backend API Gateway
+↓                    ↘
+PostgreSQL Database       FastAPI AI Service
+↓                    ↗
+Career Readiness Dashboard / Admin Analytics
+Frontend hanya memanggil Express Backend API Gateway.
+Express Backend bertanggung jawab atas auth, ownership, quota, session state, interview history, dashboard, dan penyimpanan hasil.
+FastAPI AI Service menangani AI extraction, role fit, interview context, question generation, STT, answer evaluation, clarification, TensorFlow inference, dan result generation.
+Practice memory untuk adaptive interview dibentuk oleh Backend dari database, lalu dikirim ke FastAPI sebagai input terkontrol.
+Dashboard mengambil data dari backend/database, bukan langsung dari AI service.
+3. Base URL
+Environment
+Service
+URL
+Development
+Frontend
+http://localhost:3000
+Development
+Backend
+http://localhost:5000/api/v1
+Development
+AI Service
+http://localhost:8000/v1
+Staging / Production
+Frontend
+https://road2work.id atau URL Vercel/Netlify
+Staging / Production
+Backend
+https://api.road2work.id/api/v1 atau URL Render/Railway
+Staging / Production
+AI Service
+https://ai.road2work.id/v1 atau URL Render/Railway
+4. Global API Standard
+4.1 Authentication Header
+Authorization: Bearer <access_token>
+4.2 Public dan Protected Endpoint
+Type
+Endpoint
+Public / Optional Auth
+POST /auth/signup, POST /auth/login, GET /domains, GET /role-families, GET /roles, GET /roles/:roleId
+Protected User
+GET /me, /profiles, /role-fit, /interviews, /dashboard
+Protected Admin
+/admin/* dengan role admin
+4.3 Standard Success Response
+{
+"success": true,
+"message": "Success message",
+"data": {}
+}
+4.4 Standard Error Response
+{
+"success": false,
+"message": "Error message",
+"error": {
+"code": "ERROR_CODE",
+"details": null
+}
+}
+4.5 Common HTTP Status Code
+Code
+Meaning
+Use Case
+200
+OK
+Request berhasil
+201
+Created
+Data berhasil dibuat
+400
+Bad Request
+Request tidak valid
+401
+Unauthorized
+Token tidak ada atau tidak valid
+403
+Forbidden
+Akses ditolak
+404
+Not Found
+Data tidak ditemukan
+409
+Conflict
+Data sudah ada atau state tidak sesuai
+422
+Validation Error
+Validasi gagal
+429
+Too Many Requests
+Quota habis atau rate limit
+500
+Server Error
+Error backend
+503
+Service Unavailable
+AI service tidak tersedia
+5. Core Business Rules
+Rule
+Description
+BR-01
+User harus login sebelum membuat professional profile.
+BR-02
+User dapat memilih jalur Upload CV atau Isi Profil Manual.
+BR-03
+Jika user upload CV, sistem melakukan AI extraction dan Role Fit Ranking.
+BR-04
+Jika user tidak upload CV, user wajib memilih Domain, Role Family, Target Role, dan mengisi profil singkat.
+BR-05
+Setiap hasil AI extraction harus bisa direview dan diedit user.
+BR-06
+Role Fit Ranking hanya digenerate pada jalur Upload CV.
+BR-07
+Pada jalur manual, sistem langsung memakai Target Role yang sudah dipilih user.
+BR-08
+Role Fit Score tetap dapat dihitung untuk dashboard pada semua jalur.
+BR-09
+User wajib confirm selected role sebelum interview pada jalur CV.
+BR-10
+1 user mendapatkan 5 free interview sessions.
+BR-11
+1 interview session berisi 3-5 main questions.
+BR-12
+Pertanyaan pertama interview adalah self introduction/perkenalan diri.
+BR-13
+Setelah HRD selesai memberikan pertanyaan, mic otomatis menyala dan timer 90 detik dimulai.
+BR-14
+Mic tetap menyala walau user diam; silence tidak boleh menjadi auto-stop.
+BR-15
+Voice answer selesai ketika user menekan Mic Off atau timer mencapai 90 detik.
+BR-16
+Setiap main question maksimal memiliki 1 clarification, dan setiap session maksimal memiliki 3 clarification.
+BR-17
+Setelah interview selesai, sistem wajib update Career Readiness Dashboard.
+BR-18
+Career Summary hanya bisa diunduh jika Career Readiness Score >= 90.
+BR-19
+Jika user melakukan interview lagi pada role yang sama, sistem harus membaca evaluasi interview sebelumnya.
+BR-20
+Sistem harus menghindari pertanyaan yang sama persis secara default melalui askedQuestionHistory.
+BR-21
+Kompetensi yang sama boleh ditanyakan ulang dengan wording berbeda jika weakness belum membaik.
+BR-22
+Jika target role berubah, role context dihitung ulang, tetapi weakness umum seperti STAR, clarity, confidence, dan evidence tetap dapat digunakan sebagai improvement context.
+BR-23
+Dashboard Next Best Action menjadi input untuk menentukan improvementFocus pada interview berikutnya.
+BR-24
+Pertanyaan lama boleh diulang hanya jika retryMode = true atau user memilih mode latihan ulang/focus retry.
+6. Main Data Types
+6.1 User
+type User = {
+id: string;
+name: string;
+email: string;
+role: "user" | "admin";
+status: "active" | "inactive";
+freeInterviewQuota: number;
+usedInterviewCount: number;
+createdAt: string;
+updatedAt: string;
+};
+6.2 Domain / RoleFamily / Role
+type Domain = { id: string; name: string; description?: string; isActive: boolean; };
+type RoleFamily = {
+id: string;
+domainId: string;
+name: string;
+description?: string;
+isActive: boolean;
+};
+type Role = {
+id: string;
+domainId: string;
+roleFamilyId: string;
+name: string;
+description: string;
+coreSkills: string[];
+tools: string[];
+competencyMap: InterviewCompetency[];
+isActive: boolean;
+};
+6.3 InterviewCompetency
+type InterviewCompetency =
+| "self_introduction"
+| "interest_need_of_learning"
+| "self_confidence"
+| "skill"
+| "solution_skill"
+| "predictive_based"
+| "predictive_based_recruitment"
+| "agile_culture"
+| "role_relevance_and_evidence"
+| "communication_clarity"
+| "technical_accuracy";
+6.4 ProfessionalProfile
+type ProfessionalProfile = {
+id: string;
+userId: string;
+source: "cv" | "manual";
+selectedRoleId?: string | null;
+professionalSummary: string;
+skills: string[];
+tools: string[];
+skillEvidence: SkillEvidence[];
+achievementSignals: string[];
+evidenceScore: number;
+profileCompleteness: number;
+aiConfidence: number;
+status: "draft" | "reviewed" | "confirmed";
+createdAt: string;
+updatedAt: string;
+};
+type SkillEvidence = {
+id?: string;
+skillName: string;
+evidenceText: string;
+evidenceLevel: 1 | 2 | 3 | 4 | 5;
+source: "cv" | "manual" | "interview" | "user_edit";
+};
+6.5 RoleFitResult
+type RoleFitResult = {
+id: string;
+profileId: string;
+roleId: string;
+roleName: string;
+fitScore: number;
+rank?: number | null;
+reason: string;
+strengths: string[];
+gaps: string[];
+skillOverlap: {
+matched: number;
+total: number;
+matchedSkills: string[];
+missingSkills: string[];
+};
+createdAt: string;
+};
+6.6 RecordingPolicy
+type RecordingPolicy = {
+autoStartMic: true;
+autoStartTrigger: "after_hrd_question_finished";
+answerLimitSeconds: 90;
+silenceAutoStopEnabled: false;
+userCanStopBeforeLimit: true;
+stopReasons: ["user_mic_off", "timer_timeout"];
+audioFormat: "webm" | "wav" | "mp3";
+};
+6.7 HRDInterviewState
+State ini mengikuti overview produk dan digunakan sebagai visual state utama HRD Interview Stage. Detail teknis recording disimpan melalui RecordingPolicy agar state tetap mudah dipahami oleh frontend dan user.
+State
+Fungsi
+idle
+HRD siap memulai interview
+asking
+HRD sedang mengajukan pertanyaan
+listening
+HRD sedang mendengarkan jawaban user; mic otomatis aktif dan timer 90 detik berjalan
+thinking
+AI sedang memproses jawaban, menjalankan STT, evaluasi, dan decision next question
+clarifying
+HRD meminta klarifikasi atau detail tambahan
+completed
+Sesi interview selesai
+error
+Terjadi error teknis pada interview stage
+type HRDInterviewState =
+| "idle"
+| "asking"
+| "listening"
+| "thinking"
+| "clarifying"
+| "completed"
+| "error";
+6.8 AdaptivePracticeMemory — New in v2.3
+type AdaptivePracticeMemory = {
+enabled: boolean;
+previousSessionIds: string[];
+previousInterviewSummary?: string | null;
+previousScoreBreakdown?: ScoreBreakdown | null;
+previousDetectedWeaknesses: string[];
+previousEvidenceLevels: number[];
+askedQuestionHistory: {
+questionId: string;
+questionText: string;
+questionType: "main" | "clarification";
+competencyTarget: InterviewCompetency;
+askedAt: string;
+}[];
+latestInterviewFeedback?: string | null;
+nextBestActions: NextBestAction[];
+improvementFocus: string[];
+avoidRepeatedQuestions: boolean;
+retryMode: boolean;
+};
+6.9 InterviewSession
+type InterviewSession = {
+id: string;
+userId: string;
+profileId: string;
+selectedRoleId: string;
+status: "active" | "completed" | "cancelled";
+questionCount: number;
+currentQuestionIndex: number;
+clarificationCount: number;
+maxClarification: number;
+currentState: HRDInterviewState;
+recordingPolicy: RecordingPolicy;
+practiceMode: "first_session" | "adaptive_from_history" | "retry_focus";
+adaptiveMemory?: AdaptivePracticeMemory;
+startedAt: string;
+completedAt?: string | null;
+};
+6.10 InterviewQuestion
+type InterviewQuestion = {
+id: string;
+sessionId: string;
+questionText: string;
+questionType: "main" | "clarification";
+parentQuestionId?: string | null;
+competencyTarget: InterviewCompetency;
+clarificationType?: ClarificationType | null;
+generatedFrom?: "role_context" | "weakness_history" | "next_best_action" | "retry_focus";
+repeatedFromQuestionId?: string | null;
+};
+type ClarificationType =
+| "unclear_audio"
+| "weak_evidence"
+| "missing_tools"
+| "missing_impact"
+| "missing_personal_contribution"
+| "weak_star_structure"
+| "low_role_relevance"
+| "low_self_confidence"
+| "weak_solution_skill";
+6.11 AnswerEvaluation
+type ScoreBreakdown = {
+roleRelevance: number;
+starStructure: number;
+evidenceSpecificity: number;
+technicalAccuracy: number;
+communicationClarity: number;
+selfAwareness: number;
+};
+type InterviewAnswerEvaluation = {
+id: string;
+sessionId: string;
+questionId: string;
+questionType: "main" | "clarification";
+transcriptText: string;
+sttConfidence: number;
+scoreBreakdown: ScoreBreakdown;
+answerScore: number;
+evidenceLevel: 1 | 2 | 3 | 4 | 5;
+detectedWeaknesses: string[];
+needsClarification: boolean;
+clarificationType?: ClarificationType | null;
+feedback: string;
+strongerAnswer: string;
+createdAt: string;
+};
+6.12 CareerReadinessDashboard
+type CareerReadinessDashboard = {
+user: { id: string; name: string; email: string; status: "active" | "inactive" };
+selectedRole: { id: string; name: string };
+careerReadinessScore: number;
+readinessStatus: "Belum siap" | "Mulai siap" | "Hampir siap" | "Siap melamar";
+evidenceScore: number;
+roleFitScore: number;
+interviewReadinessScore: number;
+profileCompletenessScore: number;
+nextBestActions: NextBestAction[];
+strengths: string[];
+gaps: string[];
+profileSummary: { text: string; tags: string[] };
+latestInterviewFeedback?: LatestInterviewFeedback | null;
+adaptiveInterviewInsight?: {
+lastWeaknesses: string[];
+recommendedFocus: string[];
+avoidRepeatedQuestions: boolean;
+};
+activityTimeline: ActivityItem[];
+canDownloadSummary: boolean;
+updatedAt: string;
+};
+type NextBestAction = {
+id: string;
+title: string;
+description: string;
+impactLabel: "Tinggi" | "Sedang" | "Rendah";
+impactScoreText: string;
+actionType: "complete_profile" | "practice_interview" | "review_role_fit" | "add_evidence";
+};
+7. Frontend ↔ Backend API Contract
+7.1 Auth API
+Method
+Endpoint
+Auth
+Purpose
+POST
+/api/v1/auth/signup
+Public
+Membuat akun user baru
+POST
+/api/v1/auth/login
+Public
+Login dan mendapatkan access token
+GET
+/api/v1/me
+Bearer
+Mengambil data user yang sedang login
+7.1.1 Sign Up
+POST /api/v1/auth/signup
+{
+"name": "Rizky Pratama",
+"email": "rizky.p@road2work.id",
+"password": "password123"
+}
+7.1.2 Login
+POST /api/v1/auth/login
+{
+"email": "rizky.p@road2work.id",
+"password": "password123"
+}
+7.2 Domain, Role Family, and Role API
+Method
+Endpoint
+Auth
+Purpose
+GET
+/api/v1/domains
+Optional
+List domain karier
+GET
+/api/v1/role-families?domainId=...
+Optional
+List role family berdasarkan domain
+GET
+/api/v1/roles?domainId=...&roleFamilyId=...
+Optional
+List target role
+GET
+/api/v1/roles/:roleId
+Optional
+Detail role, core skills, tools, dan competency map
+7.2.1 Get Roles Response Example
+{
+"success": true,
+"message": "Roles fetched successfully",
+"data": {
+"roles": [
+{
+"id": "role_product_analyst",
+"domainId": "domain_it",
+"roleFamilyId": "family_data_ai",
+"name": "Product Analyst",
+"description": "Analyzes product data, user behavior, and funnel performance.",
+"coreSkills": [
+"SQL",
+"Funnel Analysis",
+"A/B Testing",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel",
+"Mixpanel",
+"Amplitude"
+],
+"competencyMap": [
+"self_introduction",
+"skill",
+"solution_skill",
+"agile_culture"
+],
+"isActive": true
+}
+]
+}
+}
+7.3 Professional Profile API
+7.3.1 Upload CV and Generate Profile Draft
+POST /api/v1/profiles/cv
+Auth: Bearer Token
+Content-Type: multipart/form-data
+Field
+Type
+Required
+Description
+cvFile
+File
+Yes
+PDF CV user
+Business Rules: Endpoint ini untuk jalur Upload CV. Setelah CV diproses, sistem membuat professional profile draft. User wajib masuk ke Review & Edit Profile. Role Fit Ranking hanya dilakukan setelah profile direview/confirmed atau sesuai flow UI yang disepakati.
+{
+"success": true,
+"message": "CV processed and professional profile draft created successfully",
+"data": {
+"profile": {
+"id": "profile_001",
+"source": "cv",
+"selectedRoleId": null,
+"professionalSummary": "Profesional muda dengan pengalaman riset pengguna, analisis data, dan koordinasi tim lintas fungsi.",
+"skills": [
+"User Research",
+"Data Analysis",
+"SQL",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel",
+"Mixpanel"
+],
+"evidenceScore": 84,
+"profileCompleteness": 82,
+"aiConfidence": 74,
+"status": "draft"
+}
+}
+}
+7.3.2 Create Manual Profile Draft
+POST /api/v1/profiles/manual
+Auth: Bearer Token
+Business Rules: Endpoint ini untuk jalur tanpa upload CV. User wajib memilih domainId, roleFamilyId, dan targetRoleId. Pada jalur manual, sistem tidak membuat Role Fit Ranking karena user sudah memilih target role dari awal.
+{
+"domainId": "domain_it",
+"roleFamilyId": "family_data_ai",
+"targetRoleId": "role_product_analyst",
+"mostRelevantExperience": "Saya pernah membuat analisis funnel onboarding untuk project kampus.",
+"skillsAndTools": "SQL, Excel, funnel analysis, A/B testing dasar",
+"projectExperience": "Saya membersihkan data onboarding, membuat funnel, dan menyusun insight untuk meningkatkan completion rate.",
+"achievementOrImpact": "Completion rate meningkat 12%."
+}
+{
+"success": true,
+"message": "Manual profile draft created successfully",
+"data": {
+"profile": {
+"id": "profile_002",
+"source": "manual",
+"selectedRoleId": "role_product_analyst",
+"professionalSummary": "Profesional muda dengan pengalaman analisis funnel onboarding dan data produk digital.",
+"skills": [
+"SQL",
+"Funnel Analysis",
+"A/B Testing",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel"
+],
+"evidenceScore": 80,
+"profileCompleteness": 76,
+"status": "draft"
+}
+}
+}
+7.3.3 Get, Update, and Confirm Profile
+Method
+Endpoint
+Purpose
+GET
+/api/v1/profiles/:profileId
+Mengambil detail profile
+PATCH
+/api/v1/profiles/:profileId
+Review dan edit professional profile
+POST
+/api/v1/profiles/:profileId/confirm
+Mengunci profile sebagai confirmed untuk interview/role fit
+{
+"professionalSummary": "Profesional dengan pengalaman menganalisis perilaku pengguna untuk fitur produk digital.",
+"skills": [
+"SQL",
+"Funnel Analysis",
+"A/B Testing",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel",
+"Mixpanel",
+"Amplitude"
+],
+"skillEvidence": [
+{
+"skillName": "SQL",
+"evidenceText": "Membangun funnel analysis untuk melihat completion rate onboarding.",
+"evidenceLevel": 4,
+"source": "user_edit"
+}
+],
+"achievementSignals": [
+"Completion rate naik 12%"
+],
+"status": "reviewed"
+}
+7.4 Role Fit API
+7.4.1 Generate Role Fit Ranking — CV Path Only
+POST /api/v1/role-fit/generate-ranking
+Auth: Bearer Token
+{
+"profileId": "profile_001",
+"limit": 3
+}
+{
+"success": true,
+"message": "Role fit ranking generated successfully",
+"data": {
+"profileId": "profile_001",
+"recommendedRoles": [
+{
+"id": "rolefit_001",
+"roleId": "role_product_analyst",
+"roleName": "Product Analyst",
+"fitScore": 89,
+"rank": 1,
+"reason": "Profil menunjukkan kombinasi kuat antara analisis funnel, riset pengguna, dan dampak terukur.",
+"strengths": [
+"User Research",
+"Data Analysis"
+],
+"gaps": [
+"Advanced SQL",
+"Experiment Design"
+]
+}
+]
+}
+}
+7.4.2 Generate Role Fit Score for Selected Role
+POST /api/v1/role-fit/score
+Auth: Bearer Token
+{
+"profileId": "profile_002",
+"roleId": "role_product_analyst"
+}
+7.4.3 Confirm Selected Role
+POST /api/v1/role-fit/confirm
+Auth: Bearer Token
+{
+"profileId": "profile_001",
+"roleId": "role_product_analyst",
+"source": "recommended"
+}
+7.5 Interview API
+7.5.1 Create Interview Session — Updated v2.3
+POST /api/v1/interviews/sessions
+Auth: Bearer Token
+Business Rules: Profile harus confirmed, selectedRoleId wajib tersedia, quota masih tersedia, dan backend akan membentuk adaptivePracticeMemory dari interview history jika user pernah interview sebelumnya.
+{
+"profileId": "profile_001",
+"questionCount": 3,
+"practiceMode": "adaptive_from_history",
+"retryMode": false,
+"avoidRepeatedQuestions": true,
+"improvementFocus": [
+"evidence_specificity",
+"star_structure"
+],
+"requestedCompetencies": [
+"self_introduction",
+"skill",
+"solution_skill",
+"agile_culture"
+]
+}
+Catatan request: practiceMode dapat bernilai first_session, adaptive_from_history, atau retry_focus. Jika interview pertama, backend boleh mengabaikan adaptive memory dan memakai first_session.
+{
+"success": true,
+"message": "Interview session created successfully",
+"data": {
+"session": {
+"id": "session_001",
+"userId": "usr_001",
+"profileId": "profile_001",
+"selectedRoleId": "role_product_analyst",
+"status": "active",
+"questionCount": 3,
+"currentQuestionIndex": 1,
+"clarificationCount": 0,
+"maxClarification": 3,
+"currentState": "asking",
+"practiceMode": "adaptive_from_history",
+"recordingPolicy": {
+"autoStartMic": true,
+"autoStartTrigger": "after_hrd_question_finished",
+"answerLimitSeconds": 90,
+"silenceAutoStopEnabled": false,
+"userCanStopBeforeLimit": true
+}
+},
+"adaptiveMemory": {
+"enabled": true,
+"previousSessionIds": [
+"session_000"
+],
+"previousDetectedWeaknesses": [
+"weak_evidence",
+"weak_star_structure"
+],
+"askedQuestionHistory": [
+{
+"questionId": "question_old_001",
+"questionText": "Ceritakan pengalamanmu membuat dashboard.",
+"competencyTarget": "role_relevance_and_evidence"
+}
+],
+"improvementFocus": [
+"evidence_specificity",
+"star_structure"
+],
+"avoidRepeatedQuestions": true,
+"retryMode": false
+},
+"currentQuestion": {
+"id": "question_001",
+"sessionId": "session_001",
+"questionText": "Sebelum masuk ke pertanyaan teknis, silakan perkenalkan diri kamu dan ceritakan secara singkat pengalaman yang paling relevan dengan role Product Analyst.",
+"questionType": "main",
+"parentQuestionId": null,
+"competencyTarget": "self_introduction",
+"generatedFrom": "role_context"
+},
+"quota": {
+"freeInterviewQuota": 5,
+"usedInterviewCount": 2,
+"remainingInterviewCount": 3
+}
+}
+}
+7.5.2 Get Interview Session Detail
+GET /api/v1/interviews/sessions/:sessionId
+Auth: Bearer Token
+{
+"success": true,
+"message": "Interview session fetched successfully",
+"data": {
+"session": {
+"id": "session_001",
+"status": "active",
+"questionCount": 3,
+"currentQuestionIndex": 2,
+"clarificationCount": 1,
+"currentState": "asking",
+"practiceMode": "adaptive_from_history"
+},
+"currentQuestion": {
+"id": "question_002",
+"questionText": "Ceritakan satu pengalaman ketika kamu menggunakan data untuk mengambil keputusan, lalu jelaskan tools, kontribusi pribadi, dan dampaknya.",
+"questionType": "main",
+"competencyTarget": "skill",
+"generatedFrom": "weakness_history"
+}
+}
+}
+7.5.3 Submit Voice Answer — 90 Seconds Mic Logic
+POST /api/v1/interviews/sessions/:sessionId/voice-answer
+Auth: Bearer Token
+Content-Type: multipart/form-data
+Field
+Type
+Required
+Description
+questionId
+string
+yes
+ID pertanyaan aktif
+questionType
+main | clarification
+yes
+Jenis pertanyaan aktif
+audioFile
+File
+yes
+File audio jawaban user
+recordingStartedAt
+ISO datetime
+yes
+Waktu mic otomatis mulai aktif
+recordingEndedAt
+ISO datetime
+yes
+Waktu recording berhenti
+answerDurationSec
+number
+yes
+Durasi jawaban aktual
+maxDurationSec
+number
+yes
+Harus 90 untuk flow utama
+stopReason
+user_mic_off | timer_timeout
+yes
+Alasan recording selesai
+autoMicStarted
+boolean
+yes
+true jika mic otomatis aktif setelah HRD bertanya
+silenceAutoStopEnabled
+boolean
+yes
+false; diam tidak mematikan mic
+Business Rules: Backend tidak menerima audio di atas batas 90 detik. Jika user mematikan mic sebelum 90 detik, stopReason = user_mic_off. Jika durasi habis, stopReason = timer_timeout.
+multipart/form-data:
+questionId=question_001
+questionType=main
+audioFile=answer.webm
+recordingStartedAt=2026-05-25T13:00:00.000Z
+recordingEndedAt=2026-05-25T13:00:47.000Z
+answerDurationSec=47
+maxDurationSec=90
+stopReason=user_mic_off
+autoMicStarted=true
+silenceAutoStopEnabled=false
+7.5.4 Submit Voice Answer Response — Need Clarification
+{
+"success": true,
+"message": "Answer evaluated. Clarification needed.",
+"data": {
+"answer": {
+"id": "answer_001",
+"sessionId": "session_001",
+"questionId": "question_001",
+"questionType": "main",
+"transcriptText": "Saya pernah membuat dashboard untuk melihat data pengguna.",
+"sttConfidence": 0.91,
+"scoreBreakdown": {
+"roleRelevance": 72,
+"starStructure": 40,
+"evidenceSpecificity": 35,
+"technicalAccuracy": 50,
+"communicationClarity": 78,
+"selfAwareness": 55
+},
+"answerScore": 55,
+"evidenceLevel": 3,
+"detectedWeaknesses": [
+"missing_tools",
+"missing_impact",
+"weak_evidence"
+],
+"needsClarification": true,
+"clarificationType": "weak_evidence",
+"feedback": "Jawabanmu sudah relevan, tetapi masih perlu detail tools, kontribusi pribadi, dan dampak.",
+"strongerAnswer": "Jawaban ini akan lebih kuat jika kamu menambahkan tools yang digunakan, proses yang kamu lakukan, dan dampaknya."
+},
+"nextQuestion": {
+"id": "question_001_clarification_001",
+"questionText": "Bisa kamu jelaskan tools yang digunakan, bagian yang kamu kerjakan sendiri, dan dampak dari dashboard tersebut?",
+"questionType": "clarification",
+"parentQuestionId": "question_001",
+"competencyTarget": "evidence_specificity",
+"clarificationType": "weak_evidence",
+"generatedFrom": "weakness_history"
+},
+"session": {
+"id": "session_001",
+"currentState": "clarifying",
+"currentQuestionIndex": 1,
+"clarificationCount": 1
+},
+"isCompleted": false
+}
+}
+7.5.5 Submit Voice Answer Response — Continue to Next Main Question
+{
+"success": true,
+"message": "Answer evaluated successfully",
+"data": {
+"answer": {
+"id": "answer_002",
+"questionType": "clarification",
+"transcriptText": "Saya menggunakan SQL dan Excel untuk membersihkan data onboarding, membuat funnel, lalu menyusun insight yang membantu completion rate naik 12%.",
+"answerScore": 81,
+"evidenceLevel": 5,
+"detectedWeaknesses": [],
+"needsClarification": false
+},
+"nextQuestion": {
+"id": "question_002",
+"questionText": "Ceritakan satu situasi ketika kamu harus belajar hal baru untuk menyelesaikan masalah kerja atau project. Bagaimana proses belajarmu?",
+"questionType": "main",
+"competencyTarget": "interest_need_of_learning",
+"generatedFrom": "next_best_action"
+},
+"session": {
+"id": "session_001",
+"currentState": "asking",
+"currentQuestionIndex": 2,
+"clarificationCount": 1
+},
+"isCompleted": false
+}
+}
+7.5.6 Submit Voice Answer Response — Interview Completed
+{
+"success": true,
+"message": "Interview completed successfully",
+"data": {
+"answer": {
+"id": "answer_005",
+"questionId": "question_003",
+"answerScore": 76,
+"evidenceLevel": 4,
+"detectedWeaknesses": [
+"weak_star_structure"
+]
+},
+"nextQuestion": null,
+"session": {
+"id": "session_001",
+"status": "completed",
+"currentState": "completed",
+"completedAt": "2026-05-25T13:15:00.000Z"
+},
+"isCompleted": true,
+"resultId": "result_001",
+"dashboardUpdated": true,
+"adaptiveMemoryUpdated": true
+}
+}
+7.5.7 Get Interview Result Detail
+GET /api/v1/interviews/sessions/:sessionId/result
+Auth: Bearer Token
+{
+"success": true,
+"message": "Interview result fetched successfully",
+"data": {
+"result": {
+"id": "result_001",
+"sessionId": "session_001",
+"selectedRole": {
+"id": "role_product_analyst",
+"name": "Product Analyst"
+},
+"interviewReadinessScore": 78,
+"readinessStatus": "Hampir siap",
+"summary": "Komunikasi sudah cukup jelas, tetapi struktur STAR dan evidence perlu dibuat lebih konsisten.",
+"strengths": [
+"Komunikasi cukup jelas",
+"Mampu menyebut pengalaman yang relevan"
+],
+"improvementAreas": [
+"Gunakan struktur STAR lebih konsisten",
+"Tambahkan contoh konkret",
+"Perjelas tools dan impact"
+],
+"beforeAfterImprovement": [
+{
+"questionText": "Ceritakan pengalamanmu menganalisis data produk.",
+"beforeAnswer": "Saya pernah membuat dashboard untuk melihat data pengguna.",
+"afterAnswer": "Saya menggunakan SQL dan Excel untuk membersihkan data onboarding, membuat funnel analysis, lalu menyusun insight yang membantu completion rate naik 12%.",
+"improvementNotes": [
+"Tools disebutkan",
+"Kontribusi pribadi lebih jelas",
+"Ada impact terukur"
+]
+}
+],
+"adaptiveSessionSuggestion": {
+"recommendedFocus": [
+"star_structure",
+"evidence_specificity"
+],
+"avoidRepeatedQuestions": true,
+"suggestedPracticeMode": "adaptive_from_history"
+}
+}
+}
+}
+7.5.8 Interview History and Practice Memory — New in v2.3
+Method
+Endpoint
+Purpose
+GET
+/api/v1/interviews/history?profileId=...&roleId=...
+Mengambil riwayat interview untuk user dan role tertentu
+GET
+/api/v1/interviews/practice-memory?profileId=...&roleId=...
+Mengambil ringkasan practice memory yang akan dipakai untuk interview berikutnya
+PATCH
+/api/v1/interviews/sessions/:sessionId/cancel
+Membatalkan session aktif
+GET
+/api/v1/interviews/quota
+Mengambil sisa quota interview
+{
+"success": true,
+"message": "Practice memory fetched successfully",
+"data": {
+"adaptiveMemory": {
+"enabled": true,
+"previousSessionIds": [
+"session_000"
+],
+"previousInterviewSummary": "User cukup jelas berkomunikasi, tetapi evidence dan STAR masih lemah.",
+"previousDetectedWeaknesses": [
+"weak_evidence",
+"weak_star_structure",
+"missing_impact"
+],
+"askedQuestionHistory": [
+{
+"questionId": "question_old_001",
+"questionText": "Ceritakan pengalamanmu membuat dashboard.",
+"competencyTarget": "role_relevance_and_evidence"
+}
+],
+"latestInterviewFeedback": "Tambahkan tools, kontribusi pribadi, dan impact terukur.",
+"improvementFocus": [
+"evidence_specificity",
+"star_structure"
+],
+"avoidRepeatedQuestions": true,
+"retryMode": false
+}
+}
+}
+7.6 Career Readiness Dashboard API
+7.6.1 Get Main Dashboard
+GET /api/v1/dashboard
+Auth: Bearer Token
+{
+"success": true,
+"message": "Career readiness dashboard fetched successfully",
+"data": {
+"dashboard": {
+"user": {
+"id": "usr_001",
+"name": "Rizky Pratama",
+"email": "rizky.p@road2work.id",
+"status": "active"
+},
+"selectedRole": {
+"id": "role_product_analyst",
+"name": "Product Analyst"
+},
+"careerReadinessScore": 82,
+"readinessStatus": "Hampir siap",
+"scoreMessage": "Kamu 82% siap untuk melamar Product Analyst.",
+"evidenceScore": 84,
+"roleFitScore": 88,
+"interviewReadinessScore": 78,
+"profileCompletenessScore": 82,
+"nextBestActions": [
+{
+"id": "action_001",
+"title": "Latih jawaban dengan struktur STAR",
+"description": "Fokus pada pertanyaan behavioral dan evidence.",
+"impactLabel": "Tinggi",
+"impactScoreText": "+8 Interview Readiness",
+"actionType": "practice_interview"
+}
+],
+"adaptiveInterviewInsight": {
+"lastWeaknesses": [
+"weak_star_structure",
+"weak_evidence"
+],
+"recommendedFocus": [
+"star_structure",
+"evidence_specificity"
+],
+"avoidRepeatedQuestions": true
+},
+"canDownloadSummary": false,
+"downloadRequirement": "Tersedia saat skor >= 90"
+}
+}
+}
+7.6.2 Refresh Dashboard Score
+POST /api/v1/dashboard/refresh
+Auth: Bearer Token
+{
+"profileId": "profile_001"
+}
+7.6.3 Download Career Summary
+GET /api/v1/dashboard/summary/download
+Auth: Bearer Token
+8. Admin API Contract
+Semua endpoint admin menggunakan prefix /api/v1/admin, wajib Bearer Token, dan user role harus admin.
+Method
+Endpoint
+Purpose
+GET
+/api/v1/admin/users
+User management sederhana
+GET
+/api/v1/admin/analytics
+Admin analytics dashboard
+POST
+/api/v1/admin/domains
+Create domain
+PATCH
+/api/v1/admin/domains/:id
+Update domain
+DELETE
+/api/v1/admin/domains/:id
+Delete domain
+POST
+/api/v1/admin/role-families
+Create role family
+PATCH
+/api/v1/admin/role-families/:id
+Update role family
+DELETE
+/api/v1/admin/role-families/:id
+Delete role family
+POST
+/api/v1/admin/roles
+Create role
+PATCH
+/api/v1/admin/roles/:id
+Update role
+DELETE
+/api/v1/admin/roles/:id
+Delete role
+PATCH
+/api/v1/admin/roles/:id/competency-map
+Update skill, tools, question seed, dan competency map role
+8.1 Admin Analytics Response Example
+{
+"success": true,
+"message": "Admin analytics fetched successfully",
+"data": {
+"analytics": {
+"totalUsers": 120,
+"activeUsers": 95,
+"totalCompletedInterviews": 320,
+"totalCvUploaded": 80,
+"totalManualProfiles": 40,
+"averageCareerReadinessScore": 76,
+"averageEvidenceScore": 72,
+"mostSelectedRoles": [
+{
+"roleName": "Product Analyst",
+"count": 32
+}
+],
+"mostCommonWeaknesses": [
+{
+"weakness": "weak_star_structure",
+"count": 84
+},
+{
+"weakness": "missing_impact",
+"count": 63
+}
+],
+"cvUploadRatio": 66.7,
+"manualProfileRatio": 33.3,
+"interviewCompletionRate": 82,
+"repeatInterviewRate": 41,
+"adaptiveQuestionReuseRate": 0
+}
+}
+}
+9. Backend ↔ FastAPI AI Service Contract
+Base AI URL: http://localhost:8000/v1. Frontend tidak boleh memanggil endpoint ini langsung.
+Method
+Endpoint
+Purpose
+POST
+/v1/profile/extract-cv
+Ekstraksi CV menjadi professional profile draft
+POST
+/v1/profile/extract-manual
+Ekstraksi profil manual menjadi professional profile draft
+POST
+/v1/role-fit/generate-ranking
+Generate Role Fit Ranking untuk CV path
+POST
+/v1/role-fit/calculate-score
+Calculate Role Fit Score untuk selected role
+POST
+/v1/interview/build-context
+Build personalized interview context + practice memory
+POST
+/v1/interview/generate-question
+Generate main question adaptif
+POST
+/v1/stt/transcribe
+Speech-to-text dari audio jawaban
+POST
+/v1/interview/evaluate-answer
+Evaluasi jawaban
+POST
+/v1/interview/generate-clarification
+Generate pertanyaan klarifikasi
+POST
+/v1/interview/generate-result
+Generate final interview result
+POST
+/v1/model/predict-answer-quality
+TensorFlow supporting model inference
+POST
+/v1/dashboard/generate-summary
+Generate career summary jika score unlock terpenuhi
+9.1 AI Build Personalized Interview Context — Updated v2.3
+POST /v1/interview/build-context
+{
+"session_id": "session_001",
+"profile": {
+"id": "profile_001",
+"professional_summary": "Profesional dengan pengalaman menganalisis perilaku pengguna.",
+"skills": [
+"SQL",
+"Funnel Analysis",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel",
+"Mixpanel"
+],
+"skill_evidence": [],
+"achievement_signals": [
+"Completion rate naik 12%"
+]
+},
+"selected_role": {
+"id": "role_product_analyst",
+"name": "Product Analyst",
+"core_skills": [
+"SQL",
+"Funnel Analysis",
+"A/B Testing",
+"Data Storytelling"
+],
+"competency_map": [
+"self_introduction",
+"skill",
+"solution_skill",
+"agile_culture"
+]
+},
+"practice_memory": {
+"enabled": true,
+"previous_interview_summary": "Jawaban sebelumnya relevan tetapi kurang evidence dan STAR structure.",
+"previous_score_breakdown": {
+"role_relevance": 78,
+"star_structure": 52,
+"evidence_specificity": 48,
+"technical_accuracy": 70,
+"communication_clarity": 82,
+"self_awareness": 76
+},
+"previous_detected_weaknesses": [
+"weak_evidence",
+"weak_star_structure",
+"missing_impact"
+],
+"previous_evidence_levels": [
+3,
+4,
+3
+],
+"asked_question_history": [
+{
+"question_id": "question_old_001",
+"question_text": "Ceritakan pengalamanmu membuat dashboard.",
+"competency_target": "role_relevance_and_evidence"
+}
+],
+"latest_interview_feedback": "Tambahkan tools, kontribusi pribadi, dan impact terukur.",
+"next_best_actions": [
+"Latih jawaban dengan struktur STAR",
+"Tambahkan contoh A/B testing di profil"
+],
+"improvement_focus": [
+"evidence_specificity",
+"star_structure"
+],
+"avoid_repeated_questions": true,
+"retry_mode": false
+}
+}
+{
+"interview_context_id": "ctx_001",
+"recommended_competency_order": [
+"self_introduction",
+"evidence_specificity",
+"interest_need_of_learning",
+"solution_skill",
+"agile_culture"
+],
+"improvement_focus": [
+"evidence_specificity",
+"star_structure"
+],
+"question_guardrail": {
+"avoid_repeated_questions": true,
+"allowed_same_competency_rewording": true,
+"retry_mode": false
+},
+"context_summary": "Interview berikutnya fokus pada evidence dan STAR tanpa mengulang pertanyaan dashboard secara persis."
+}
+9.2 AI Generate Interview Question — Updated v2.3
+POST /v1/interview/generate-question
+{
+"session_id": "session_001",
+"interview_context_id": "ctx_001",
+"profile": {
+"skills": [
+"SQL",
+"Funnel Analysis",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel"
+]
+},
+"selected_role": {
+"id": "role_product_analyst",
+"name": "Product Analyst"
+},
+"session_state": {
+"current_question_index": 2,
+"question_count": 3,
+"asked_questions": [
+"Sebelum masuk ke pertanyaan teknis, silakan perkenalkan diri kamu..."
+],
+"detected_weaknesses": [
+"weak_evidence"
+],
+"clarification_count": 1
+},
+"practice_memory": {
+"previous_detected_weaknesses": [
+"weak_evidence",
+"weak_star_structure"
+],
+"asked_question_history": [
+{
+"question_text": "Ceritakan pengalamanmu membuat dashboard.",
+"competency_target": "role_relevance_and_evidence"
+}
+],
+"improvement_focus": [
+"evidence_specificity"
+],
+"avoid_repeated_questions": true,
+"retry_mode": false
+}
+}
+{
+"question_text": "Ceritakan satu pengalaman ketika kamu menggunakan data untuk mengambil keputusan. Jelaskan tools yang kamu pakai, kontribusi pribadi, dan dampak akhirnya.",
+"question_type": "main",
+"competency_target": "skill",
+"generated_from": "weakness_history",
+"repeated_from_question_id": null,
+"reason": "Pertanyaan diarahkan ke evidence specificity tanpa mengulang pertanyaan dashboard secara persis."
+}
+9.3 AI Speech-to-Text
+POST /v1/stt/transcribe
+Content-Type: multipart/form-data
+Field
+Type
+Required
+audioFile
+File
+yes
+language
+string
+no
+maxDurationSec
+number
+yes, 90
+silenceAutoStopEnabled
+boolean
+yes, false
+{
+"status": "success",
+"transcript_text": "Saya menggunakan SQL dan Excel untuk membuat funnel analysis.",
+"stt_confidence": 0.94,
+"duration_seconds": 47,
+"needs_clarification": false
+}
+9.4 AI Evaluate Answer
+POST /v1/interview/evaluate-answer
+{
+"question": {
+"question_text": "Ceritakan satu pengalaman ketika kamu menggunakan data untuk mengambil keputusan.",
+"question_type": "main",
+"competency_target": "skill"
+},
+"answer": {
+"transcript_text": "Saya pernah membuat dashboard untuk melihat data pengguna.",
+"stt_confidence": 0.91
+},
+"profile": {
+"skills": [
+"SQL",
+"Funnel Analysis",
+"Data Storytelling"
+],
+"tools": [
+"SQL",
+"Excel"
+],
+"skill_evidence": [],
+"achievement_signals": [
+"Completion rate naik 12%"
+]
+},
+"selected_role": {
+"id": "role_product_analyst",
+"name": "Product Analyst"
+},
+"session_state": {
+"clarification_count": 0,
+"max_clarification": 3
+},
+"practice_memory": {
+"improvement_focus": [
+"evidence_specificity",
+"star_structure"
+],
+"previous_detected_weaknesses": [
+"weak_evidence",
+"weak_star_structure"
+]
+}
+}
+{
+"score_breakdown": {
+"role_relevance": 72,
+"star_structure": 40,
+"evidence_specificity": 35,
+"technical_accuracy": 50,
+"communication_clarity": 78,
+"self_awareness": 55
+},
+"answer_score": 55,
+"evidence_level": 3,
+"detected_weaknesses": [
+"missing_tools",
+"missing_impact",
+"weak_evidence"
+],
+"needs_clarification": true,
+"clarification_type": "weak_evidence",
+"feedback": "Jawaban sudah relevan, tetapi masih perlu detail tools, kontribusi pribadi, dan dampak.",
+"stronger_answer": "Jawaban ini akan lebih kuat jika ditambahkan tools, proses, dan dampak."
+}
+9.5 AI Generate Clarifying Question
+POST /v1/interview/generate-clarification
+{
+"question_text": "Ceritakan pengalamanmu menggunakan data untuk mengambil keputusan.",
+"answer_text": "Saya pernah membuat dashboard untuk melihat data pengguna.",
+"detected_weaknesses": [
+"missing_tools",
+"missing_impact",
+"weak_evidence"
+],
+"clarification_type": "weak_evidence",
+"selected_role": "Product Analyst",
+"practice_memory": {
+"improvement_focus": [
+"evidence_specificity"
+]
+}
+}
+{
+"question_text": "Bisa kamu jelaskan tools yang digunakan, bagian yang kamu kerjakan sendiri, dan dampak dari dashboard tersebut?",
+"question_type": "clarification",
+"clarification_type": "weak_evidence"
+}
+9.6 AI Generate Interview Result
+POST /v1/interview/generate-result
+{
+"session_id": "session_001",
+"selected_role": "Product Analyst",
+"practice_mode": "adaptive_from_history",
+"answers": [
+{
+"question_text": "Ceritakan pengalamanmu menggunakan data untuk mengambil keputusan.",
+"answer_text": "Saya menggunakan SQL dan Excel untuk membuat funnel analysis.",
+"answer_score": 81,
+"evidence_level": 5,
+"detected_weaknesses": []
+}
+],
+"practice_memory": {
+"previous_detected_weaknesses": [
+"weak_evidence",
+"weak_star_structure"
+],
+"improvement_focus": [
+"evidence_specificity",
+"star_structure"
+]
+}
+}
+{
+"interview_readiness_score": 78,
+"readiness_status": "Hampir siap",
+"summary": "Komunikasi sudah cukup jelas, tetapi struktur STAR perlu dibuat lebih konsisten.",
+"strengths": [
+"Komunikasi cukup jelas",
+"Menyebut pengalaman yang relevan"
+],
+"improvement_areas": [
+"Gunakan struktur STAR",
+"Tambahkan contoh konkret"
+],
+"before_after_improvement": [],
+"next_practice_recommendation": {
+"practice_type": "Behavioral STAR Practice",
+"reason": "Struktur STAR masih perlu dibuat lebih konsisten.",
+"focus_areas": [
+"Situation",
+"Task",
+"Action",
+"Result"
+]
+},
+"updated_practice_memory": {
+"new_detected_weaknesses": [
+"weak_star_structure"
+],
+"recommended_next_focus": [
+"star_structure"
+],
+"asked_questions_to_avoid": [
+"Ceritakan pengalamanmu menggunakan data untuk mengambil keputusan."
+]
+}
+}
+10. Frontend Service Mapping
+services/authService.ts
+services/domainService.ts
+services/roleFamilyService.ts
+services/roleService.ts
+services/profileService.ts
+services/roleFitService.ts
+services/interviewService.ts
+services/dashboardService.ts
+services/adminService.ts
+10.1 interviewService.ts — Updated v2.3
+export const interviewService = {
+createSession: (payload) => api.post('/interviews/sessions', payload),
+getSession: (sessionId: string) => api.get(`/interviews/sessions/${sessionId}`),
+submitVoiceAnswer: (sessionId: string, formData: FormData) =>
+api.post(`/interviews/sessions/${sessionId}/voice-answer`, formData),
+getResult: (sessionId: string) => api.get(`/interviews/sessions/${sessionId}/result`),
+getHistory: (params) => api.get('/interviews/history', { params }),
+getPracticeMemory: (params) => api.get('/interviews/practice-memory', { params }),
+cancelSession: (sessionId: string) => api.patch(`/interviews/sessions/${sessionId}/cancel`),
+getQuota: () => api.get('/interviews/quota'),
+};
+11. Frontend Page Flow Mapping
+11.1 Upload CV Path
+Onboarding Page
+↓
+POST /profiles/cv
+↓
+Review Profile Page
+↓
+PATCH /profiles/:profileId
+↓
+POST /profiles/:profileId/confirm
+↓
+POST /role-fit/generate-ranking
+↓
+Role Fit Recommendation Page
+↓
+POST /role-fit/confirm
+↓
+Interview Onboarding
+↓
+POST /interviews/sessions
+↓
+Interview Stage
+11.2 Manual Profile Path
+Onboarding Page
+↓
+GET /domains
+↓
+GET /role-families?domainId=...
+↓
+GET /roles?roleFamilyId=...
+↓
+POST /profiles/manual
+↓
+Review Profile Page
+↓
+PATCH /profiles/:profileId
+↓
+POST /profiles/:profileId/confirm
+↓
+POST /role-fit/score
+↓
+POST /role-fit/confirm
+↓
+Interview Onboarding
+↓
+POST /interviews/sessions
+↓
+Interview Stage
+11.3 Interview Stage Flow — 90 Seconds
+Display current question
+↓
+HRD State: asking
+↓
+After HRD question finished -> mic automatically starts
+↓
+HRD State: listening
+↓
+Timer 90 seconds starts automatically
+↓
+User answers; mic stays on even if user is silent
+↓
+User Mic Off OR 90s timer timeout
+↓
+POST /interviews/sessions/:sessionId/voice-answer
+↓
+HRD State: thinking
+↓
+If nextQuestion exists -> asking/clarifying
+If isCompleted true -> completed -> dashboard/result
+11.4 Repeat Interview Adaptive Flow — New in v2.3
+User clicks Latih Interview Lagi from dashboard
+↓
+Frontend calls POST /interviews/sessions with practiceMode=adaptive_from_history
+↓
+Backend checks profile, selected role, quota
+↓
+Backend loads previous interview result, weaknesses, score breakdown, asked question history, latest feedback, and next best actions
+↓
+Backend builds adaptivePracticeMemory
+↓
+Backend calls FastAPI /v1/interview/build-context and /v1/interview/generate-question
+↓
+AI generates new question focused on weaknesses and avoids exact repeated questions
+↓
+Interview continues adaptively
+↓
+Result and dashboard update again
+12. Error Code List
+Code
+Description
+AUTH_EMAIL_ALREADY_EXISTS
+Email sudah digunakan
+AUTH_INVALID_CREDENTIALS
+Email/password salah
+AUTH_UNAUTHORIZED
+Token tidak valid
+FORBIDDEN_ADMIN_ONLY
+Endpoint hanya untuk admin
+DOMAIN_NOT_FOUND
+Domain tidak ditemukan
+ROLE_FAMILY_NOT_FOUND
+Role family tidak ditemukan
+ROLE_NOT_FOUND
+Role tidak ditemukan
+PROFILE_NOT_FOUND
+Profile tidak ditemukan
+PROFILE_NOT_CONFIRMED
+Profile belum dikonfirmasi
+PROFILE_SELECTED_ROLE_REQUIRED
+Profile belum memiliki selected role
+CV_INVALID_FORMAT
+Format CV tidak valid
+CV_FILE_TOO_LARGE
+File CV terlalu besar
+ROLE_FIT_RANKING_CV_ONLY
+Role Fit Ranking hanya untuk CV path
+INTERVIEW_QUOTA_EXCEEDED
+Kuota interview habis
+INTERVIEW_SESSION_NOT_FOUND
+Interview session tidak ditemukan
+INTERVIEW_ALREADY_COMPLETED
+Interview sudah selesai
+AUDIO_INVALID_FORMAT
+Format audio tidak valid
+AUDIO_TOO_LONG
+Audio melebihi batas 90 detik
+AUDIO_DURATION_MISMATCH
+Durasi audio tidak sesuai metadata
+AUTO_MIC_REQUIRED
+autoMicStarted wajib true untuk flow utama
+SILENCE_AUTOSTOP_NOT_ALLOWED
+silenceAutoStopEnabled harus false
+STT_FAILED
+Speech-to-text gagal
+AI_SERVICE_UNAVAILABLE
+AI service tidak tersedia
+GENAI_FAILED
+GenAI gagal
+PRACTICE_MEMORY_NOT_FOUND
+Practice memory tidak ditemukan, fallback ke first session
+QUESTION_REPEAT_BLOCKED
+Pertanyaan terlalu mirip dengan history dan avoidRepeatedQuestions aktif
+RETRY_MODE_REQUIRED
+Pengulangan pertanyaan lama hanya boleh jika retryMode true
+CAREER_SUMMARY_LOCKED
+Career summary belum bisa diunduh
+13. MVP Endpoint Priority
+13.1 P0 — Wajib
+POST /auth/signup
+POST /auth/login
+GET /me
+GET /domains
+GET /role-families
+GET /roles
+POST /profiles/cv
+POST /profiles/manual
+GET /profiles/:profileId
+PATCH /profiles/:profileId
+POST /profiles/:profileId/confirm
+POST /role-fit/generate-ranking
+POST /role-fit/score
+POST /role-fit/confirm
+POST /interviews/sessions
+POST /interviews/sessions/:sessionId/voice-answer
+GET /interviews/sessions/:sessionId/result
+GET /dashboard
+GET /interviews/quota
+13.2 P1 — Penting
+GET /roles/:roleId
+GET /interviews/sessions/:sessionId
+GET /interviews/history
+GET /interviews/practice-memory
+PATCH /interviews/sessions/:sessionId/cancel
+POST /dashboard/refresh
+GET /dashboard/summary/download
+GET /admin/users
+GET /admin/analytics
+Admin CRUD domain, role family, role, skill/tools, competency map
+13.3 P2 — Bonus
+GET /admin/interviews
+GET /admin/weaknesses
+GET /admin/role-fit-analytics
+Advanced export result
+Advanced learning recommendation
+14. Final Integration Summary
+14.1 Upload CV Path
+POST /profiles/cv
+↓
+PATCH /profiles/:profileId
+↓
+POST /profiles/:profileId/confirm
+↓
+POST /role-fit/generate-ranking
+↓
+POST /role-fit/confirm
+↓
+POST /interviews/sessions
+↓
+POST /interviews/sessions/:sessionId/voice-answer
+↓
+GET /interviews/sessions/:sessionId/result
+↓
+GET /dashboard
+14.2 Manual Path
+GET /domains
+↓
+GET /role-families
+↓
+GET /roles
+↓
+POST /profiles/manual
+↓
+PATCH /profiles/:profileId
+↓
+POST /profiles/:profileId/confirm
+↓
+POST /role-fit/score
+↓
+POST /role-fit/confirm
+↓
+POST /interviews/sessions
+↓
+GET /dashboard
+14.3 Adaptive Repeat Interview Path — New in v2.3
+GET /dashboard
+↓
+User clicks Latih Interview Lagi
+↓
+POST /interviews/sessions
+practiceMode=adaptive_from_history
+avoidRepeatedQuestions=true
+retryMode=false
+↓
+Backend loads previous result + askedQuestionHistory + nextBestActions
+↓
+Backend sends adaptivePracticeMemory to FastAPI
+↓
+AI generates new question from weakness history
+↓
+Voice answer 90 seconds
+↓
+Updated result + updated dashboard + updated practice memory
+14.4 Kesimpulan Contract
+API Contract v2.3 memastikan Road2Work.id tidak hanya adaptif di dalam satu session, tetapi juga adaptif antar session. Interview ulang harus memakai evaluasi sebelumnya sebagai konteks improvement, menghindari pertanyaan yang sama persis, dan memperbarui dashboard sebagai pusat perkembangan user.

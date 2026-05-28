@@ -8,7 +8,7 @@ export default function NextPracticeCard() {
       <FiTrendingUp className="mb-5 h-7 w-7 text-brand-red" />
       <h2 className="font-display text-2xl font-black text-ink">Rekomendasi Latihan Berikutnya</h2>
       <p className="mt-4 text-sm leading-7 text-muted">
-        Evidence Booster Practice. Fokus latihan berikutnya adalah memperjelas tools, kontribusi pribadi, dan impact agar jawaban lebih meyakinkan.
+        Fokus latihan berikutnya: perjelas tools, kontribusi pribadi, dan dampak agar jawabanmu lebih meyakinkan.
       </p>
       <div className="mt-7">
         <Button href="/interview" withArrow>

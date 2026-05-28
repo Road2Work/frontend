@@ -22,42 +22,42 @@ export type IconItem = {
 
 export const navItems = [
   { label: 'Produk', href: '/#product' },
-  { label: 'How It Works', href: '/how-it-works' },
-  { label: 'Features', href: '/#features' },
+  { label: 'Cara Kerja', href: '/how-it-works' },
+  { label: 'Fitur', href: '/#features' },
   { label: 'Demo', href: '/interview' },
 ]
 
-export const valuePillars = ['Role-specific', 'Voice-based', 'Evidence-focused', 'Adaptive feedback']
+export const valuePillars = ['Sesuai role', 'Berbasis suara', 'Fokus bukti', 'Feedback adaptif']
 
 export const features: IconItem[] = [
   {
-    title: 'Adaptive HRD Interview',
-    description: 'Pertanyaan mengikuti target role, konteks pengalaman, dan kualitas jawaban user.',
+    title: 'Interview Adaptif',
+    description: 'Pertanyaan mengikuti target role, konteks pengalaman, dan kualitas jawabanmu.',
     icon: FiUserCheck,
   },
   {
-    title: 'Voice-Only Practice',
-    description: 'Latihan terasa seperti interview asli dengan state asking, listening, thinking, dan clarifying.',
+    title: 'Latihan Berbasis Suara',
+    description: 'Latihan terasa seperti interview sungguhan karena kamu menjawab langsung dengan suara.',
     icon: FiMic,
   },
   {
-    title: 'Evidence Ladder Scoring',
+    title: 'Penilaian Bukti Jawaban',
     description: 'Jawaban dinilai dari bukti, kontribusi pribadi, dampak, dan relevansi terhadap role.',
     icon: FiTrendingUp,
   },
   {
-    title: 'Clarifying Follow-Up',
-    description: 'AI HRD menggali detail jika jawaban masih umum, impact belum jelas, atau tools tidak disebutkan.',
+    title: 'Pertanyaan Lanjutan',
+    description: 'AI HRD menggali detail jika jawaban masih umum, dampak belum jelas, atau tools belum disebutkan.',
     icon: FiMessageCircle,
   },
   {
-    title: 'Before-After Answer',
-    description: 'Dashboard memperlihatkan contoh perbaikan jawaban tanpa mengarang fakta baru.',
+    title: 'Contoh Perbaikan Jawaban',
+    description: 'Lihat contoh jawaban yang lebih kuat tanpa mengubah fakta pengalamanmu.',
     icon: FiFileText,
   },
   {
-    title: 'Readiness Dashboard',
-    description: 'Skor akhir, strengths, improvement areas, breakdown, dan latihan berikutnya dalam satu halaman.',
+    title: 'Dashboard Kesiapan',
+    description: 'Lihat skor akhir, kekuatan, area perbaikan, rincian penilaian, dan latihan berikutnya.',
     icon: FiBarChart2,
   },
 ]
@@ -69,8 +69,8 @@ export const workflowSteps: IconItem[] = [
     icon: FiTarget,
   },
   {
-    title: 'Upload CV / Profil',
-    description: 'Upload CV atau isi profil singkat agar AI memahami skill, tools, pengalaman, dan evidence yang kamu miliki.',
+    title: 'Upload CV atau Isi Profil',
+    description: 'Upload CV atau isi profil singkat agar Road2Work memahami skill, tools, pengalaman, dan bukti yang kamu miliki.',
     icon: FiUploadCloud,
   },
   {
@@ -88,7 +88,7 @@ export const workflowSteps: IconItem[] = [
 export const roleFamilies = [
   {
     family: 'Data & AI',
-    description: 'Untuk role analitik, machine learning, dan AI product implementation.',
+    description: 'Untuk role analitik, machine learning, dan implementasi produk AI.',
     roles: ['Data Analyst', 'Data Scientist', 'AI Engineer', 'ML Engineer'],
   },
   {
@@ -101,18 +101,18 @@ export const roleFamilies = [
 export const allRoles = roleFamilies.flatMap(item => item.roles)
 
 export const dashboardBreakdown = [
-  { label: 'Role Relevance', score: 82 },
-  { label: 'STAR Structure', score: 74 },
-  { label: 'Evidence Specificity', score: 58 },
-  { label: 'Technical Accuracy', score: 69 },
-  { label: 'Communication Clarity', score: 86 },
-  { label: 'Self-Awareness', score: 71 },
+  { label: 'Relevansi Role', score: 82 },
+  { label: 'Struktur STAR', score: 74 },
+  { label: 'Kekuatan Bukti', score: 58 },
+  { label: 'Akurasi Teknis', score: 69 },
+  { label: 'Kejelasan Komunikasi', score: 86 },
+  { label: 'Kesadaran Diri', score: 71 },
 ]
 
 export const strengths = [
   'Jawaban relevan dengan tanggung jawab Data Analyst.',
   'Komunikasi cukup jelas dan mudah diikuti.',
-  'Sudah menyebut project dashboard sebagai evidence utama.',
+  'Sudah menyebut project dashboard sebagai bukti utama.',
 ]
 
 export const improvements = [
@@ -165,5 +165,5 @@ export const hubStats = [
   { label: 'Skor terbaru', value: '72%', note: 'Hampir Siap', icon: FiBarChart2 },
   { label: 'Target role', value: 'Data Analyst', note: 'Sesi terakhir', icon: FiBriefcase },
   { label: 'Runtutan latihan', value: '3 hari', note: 'Jaga momentum', icon: FiFlag },
-  { label: 'Fokus berikutnya', value: 'Evidence', note: 'Tambahkan metrik impact', icon: FiCheckCircle },
+  { label: 'Fokus berikutnya', value: 'Bukti', note: 'Tambahkan metrik dampak', icon: FiCheckCircle },
 ]

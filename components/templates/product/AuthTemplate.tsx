@@ -42,13 +42,18 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
         : await authService.signup({ name, email, password });
 
       localStorage.setItem("token", response.data.accessToken);
+      const refreshToken = "refreshToken" in response.data ? response.data.refreshToken : undefined;
+      if (typeof refreshToken === "string" && refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
       localStorage.setItem("user", JSON.stringify(response.data.user));
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      document.cookie = `userRole=${response.data.user.role ?? "user"}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 
       toast.success(isLogin ? "Berhasil masuk" : "Akun berhasil dibuat", {
-        description: "Kamu akan diarahkan ke Readiness Hub.",
+        description: response.data.user.role === "admin" ? "Kamu akan diarahkan ke Admin Panel." : "Kamu akan diarahkan ke Readiness Hub.",
       });
-      router.push("/hub");
+      router.push(response.data.user.role === "admin" ? "/admin" : "/hub");
     } catch (error) {
       toast.error(isLogin ? "Gagal masuk" : "Gagal membuat akun", {
         description: error instanceof Error ? error.message : "Coba lagi beberapa saat lagi.",
@@ -87,7 +92,7 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
           >
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="font-mono text-[0.62rem] font-bold uppercase tracking-widest text-white/35">Readiness Score</p>
+                <p className="font-mono text-[0.62rem] font-bold uppercase tracking-widest text-white/35">Skor Kesiapan</p>
                 <h1 className="mt-3 font-display text-2xl font-black">Hampir Siap</h1>
               </div>
               <motion.div
@@ -100,15 +105,15 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
             </div>
 
             <div className="space-y-4">
-              <ProgressBar label="STAR Structure" value={82} tone="green" inverse />
-              <ProgressBar label="Evidence" value={61} inverse />
-              <ProgressBar label="Role Relevance" value={75} tone="amber" inverse />
+              <ProgressBar label="Struktur STAR" value={82} tone="green" inverse />
+              <ProgressBar label="Bukti Jawaban" value={61} inverse />
+              <ProgressBar label="Relevansi Role" value={75} tone="amber" inverse />
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <FiMic className="mb-3 h-5 w-5 text-brand-red" />
-                <p className="text-sm font-bold">Voice-first</p>
+                <p className="text-sm font-bold">Berbasis Suara</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <FiZap className="mb-3 h-5 w-5 text-brand-red" />
@@ -200,7 +205,7 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
           </Button>
 
           <p className="mt-6 text-center text-xs leading-6 text-muted">
-            Dengan lanjut, kamu menyetujui Terms dan Privacy Policy Road2Work.id.
+            Dengan melanjutkan, kamu menyetujui Ketentuan Layanan dan Kebijakan Privasi Road2Work.id.
           </p>
         </motion.div>
       </section>

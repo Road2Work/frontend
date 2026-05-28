@@ -12,14 +12,14 @@ export default function AboutPage() {
           <SectionHeader
             eyebrow="Tentang Road2Work.id"
             title="Membantu talenta muda mengubah pengalaman nyata menjadi komunikasi yang siap karier."
-            description="Road2Work.id dikembangkan sebagai capstone product yang menggabungkan frontend, backend, AI service, TensorFlow supporting model, dan data science dashboard."
+            description="Road2Work.id membantu mahasiswa, fresh graduate, dan career switcher berlatih interview dengan konteks yang lebih personal dan terukur."
           />
 
           <section className="mt-12 grid gap-6 lg:grid-cols-3">
             {[
               ['Visi', 'Menjadi platform latihan interview berbasis AI yang membantu talenta muda membangun kepercayaan diri.'],
-              ['Misi', 'Membantu user memahami ekspektasi interview, melatih jawaban lisan, dan mendapat feedback yang actionable.'],
-              ['Positioning', 'Bukan job portal, tetapi AI interview readiness platform berbasis role, voice, dan evidence.'],
+              ['Misi', 'Membantu user memahami ekspektasi interview, melatih jawaban lisan, dan mendapat feedback yang mudah ditindaklanjuti.'],
+              ['Positioning', 'Bukan job portal, tetapi platform latihan interview berbasis role, suara, dan bukti pengalaman.'],
             ].map(([title, text]) => (
               <Card key={title} className="p-7">
                 <Badge tone="red">{title}</Badge>
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <SectionHeader
               eyebrow="Tim"
               title="Tim di Balik Road2Work.id"
-              description="Tim capstone lintas role yang berfokus pada AI, data, backend, frontend, dan product experience."
+              description="Tim lintas disiplin yang membangun pengalaman latihan interview dari sisi produk, data, AI, dan engineering."
             />
             <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {teamMembers.map(member => (

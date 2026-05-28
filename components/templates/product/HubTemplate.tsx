@@ -1,150 +1,342 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, BarChart2, ChevronRight, Flame, Lightbulb, Target } from 'lucide-react'
+import { ArrowRight, BarChart2, BrainCircuit, BriefcaseBusiness, CheckCircle2, Download, FileText, History, Lock, Target, TrendingUp } from 'lucide-react'
 import { motion } from 'motion/react'
+import { toast } from 'sonner'
 import AppHeader from '@/components/organisms/AppHeader'
+import Badge from '@/components/atoms/Badge'
+import Button from '@/components/atoms/Button'
+import Card from '@/components/atoms/Card'
+import AuthUserMenu from '@/components/molecules/AuthUserMenu'
+import PageState from '@/components/molecules/PageState'
+import { dashboardService } from '@/services/dashboard.service'
+import type { CareerReadinessDashboard } from '@/types/api-contract'
 
-const card = {
-  backgroundColor: '#FDFDFD',
-  border: '1px solid rgba(0,0,0,0.07)',
-  borderRadius: 20,
-  boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.05)',
-}
-
-function MiniScoreRing({ score, size = 48 }: { score: number; size?: number }) {
-  const sw = 4
-  const r = (size - sw * 2) / 2
-  const circ = 2 * Math.PI * r
-  const dash = (score / 100) * circ
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F0F0F0" strokeWidth={sw} />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="#E63946"
-        strokeDasharray={`${dash} ${circ}`}
-        strokeLinecap="round"
-        strokeWidth={sw}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-      <text x="50%" y="50%" textAnchor="middle" dy="0.35em" fontSize={size / 4.2} fontWeight="700" fill="#1F2937">
-        {score}%
-      </text>
-    </svg>
-  )
-}
-
-const statCards = [
-  { icon: BarChart2, label: 'Skor Terakhir', value: '72%', sub: 'Hampir Siap', color: '#E63946', bg: 'rgba(230,57,70,0.08)' },
-  { icon: Target, label: 'Target Role', value: 'Data Analyst', sub: 'Information Technology', color: '#1F2937', bg: 'rgba(31,41,55,0.07)' },
-  { icon: Flame, label: 'Runtutan Latihan', value: '3 hari', sub: 'Jaga momentum', color: '#F97316', bg: 'rgba(249,115,22,0.08)' },
-  { icon: Lightbulb, label: 'Fokus Berikutnya', value: 'Evidence', sub: 'Kurang spesifik', color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)' },
+const scoreWeights = [
+  { label: 'Bukti Pengalaman', weight: '30%', hint: 'Seberapa kuat skill didukung pengalaman nyata' },
+  { label: 'Role Fit Score', weight: '30%', hint: 'Seberapa cocok profilmu dengan target role' },
+  { label: 'Interview Readiness', weight: '25%', hint: 'Kualitas jawaban dari sesi latihan' },
+  { label: 'Kelengkapan Profil', weight: '15%', hint: 'Berapa banyak bagian profil yang sudah diisi' },
 ]
 
 export default function HubTemplate() {
+  const [dashboard, setDashboard] = useState<CareerReadinessDashboard | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    dashboardService
+      .getDashboard()
+      .then(response => {
+        setDashboard(response.data.dashboard)
+        setError(null)
+      })
+      .catch(error => {
+        setError(error instanceof Error ? error.message : 'Dashboard belum bisa dimuat.')
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  const userName = dashboard?.user.name ?? 'Sari Dewi'
+  const selectedRole = dashboard?.selectedRole.name ?? 'Data Analyst'
+  const score = dashboard?.careerReadinessScore ?? 0
+  const nextActions = dashboard?.nextBestActions ?? []
+  const profileSummaryText = typeof dashboard?.profileSummary === 'object'
+    ? dashboard.profileSummary.text
+    : dashboard?.profileSummary
+  const profileTags = typeof dashboard?.profileSummary === 'object' ? dashboard.profileSummary.tags : []
+  const stats = useMemo(
+    () => [
+      { icon: BarChart2, label: 'Bukti', sublabel: 'Pengalaman nyata', value: dashboard?.evidenceScore ?? 0, tone: '#E63946' },
+      { icon: Target, label: 'Role Fit', sublabel: 'Kecocokan target role', value: dashboard?.roleFitScore ?? 0, tone: '#16A34A' },
+      { icon: TrendingUp, label: 'Interview', sublabel: 'Kualitas jawaban', value: dashboard?.interviewReadinessScore ?? 0, tone: '#F59E0B' },
+      { icon: FileText, label: 'Profil', sublabel: 'Kelengkapan isian', value: dashboard?.profileCompletenessScore ?? 0, tone: '#6366F1' },
+    ],
+    [dashboard],
+  )
+
+  const handleDownloadSummary = async () => {
+    if (!dashboard?.canDownloadSummary) {
+      toast.info('Career Summary masih terkunci', {
+        description: 'Capai skor 90+ untuk membuka ringkasan karier yang bisa diunduh.',
+      })
+      return
+    }
+
+    const response = await dashboardService.downloadSummary()
+    toast.success('Career Summary siap diunduh', {
+      description: response.data.downloadUrl || 'Ringkasan karier akan tersedia saat fitur unduhan aktif.',
+    })
+  }
+
   return (
     <div className="min-h-screen bg-paper">
       <AppHeader
         backTo="/"
         backLabel="Kembali ke Beranda"
-        right={
-          <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-muted sm:block">Sari Dewi</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-red to-brand-red-deep font-display text-sm font-bold text-white shadow-[0_2px_8px_rgba(230,57,70,0.25)]">
-              S
-            </div>
-          </div>
-        }
+        right={<AuthUserMenu fallbackName={userName} />}
       />
 
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-10">
-          <div className="mb-2 font-mono text-xs font-medium uppercase text-brand-red">Kamis, 21 Mei</div>
-          <h1 className="font-display text-[clamp(1.7rem,3vw,2.2rem)] font-extrabold leading-tight text-ink">
-            Hai Sari, siap latihan?
-          </h1>
-          <p className="mt-2 text-muted">Sesi terakhir kamu 2 hari lalu. Jaga momentumnya.</p>
-        </motion.div>
+      <main className="mx-auto max-w-6xl px-5 py-8 sm:px-6 sm:py-10">
+        {isLoading && (
+          <PageState
+            type="loading"
+            title="Memuat Career Readiness Dashboard"
+            description="Road2Work sedang menyiapkan skor, prioritas latihan, feedback terbaru, dan riwayat aktivitasmu."
+          />
+        )}
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.06 }}>
-          <Link href="/start" className="mb-5 block">
-            <div className="flex items-center justify-between rounded-3xl bg-gradient-to-br from-brand-red to-brand-red-deep p-8 text-white shadow-[0_8px_32px_rgba(230,57,70,0.25),0_2px_8px_rgba(0,0,0,0.1)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(230,57,70,0.35),0_4px_12px_rgba(0,0,0,0.12)]">
-              <div>
-                <div className="mb-2 font-mono text-xs font-semibold uppercase tracking-widest opacity-70">Lanjut Latihan</div>
-                <h2 className="font-display text-2xl font-extrabold">Mulai Interview Baru</h2>
-                <p className="mt-1 text-sm opacity-60">Data Analyst - 5 pertanyaan - ~15 menit</p>
-              </div>
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20">
-                <ArrowRight size={20} />
-              </div>
-            </div>
-          </Link>
-        </motion.div>
+        {!isLoading && error && (
+          <PageState
+            type="error"
+            title="Dashboard belum bisa dimuat"
+            description={error}
+            actionLabel="Coba Lagi"
+            onAction={() => window.location.reload()}
+          />
+        )}
 
-        <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {statCards.map((item, index) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 + index * 0.05 }}
-              className="rounded-2xl p-5 transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)]"
-              style={card}
-            >
-              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg" style={{ backgroundColor: item.bg }}>
-                <item.icon size={16} style={{ color: item.color }} />
-              </div>
-              <div className="mb-1 font-mono text-[0.62rem] uppercase tracking-wide text-[#A0A0A0]">{item.label}</div>
-              <div className="font-display text-sm font-bold leading-tight text-ink">{item.value}</div>
-              <div className="mt-0.5 text-xs text-[#A0A0A0]">{item.sub}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }} className="mb-5 overflow-hidden rounded-2xl" style={card}>
-          <div className="flex items-center justify-between border-b border-black/[0.06] px-6 py-4">
-            <h3 className="font-display font-bold text-ink">Sesi Terbaru</h3>
-            <Link href="/results" className="flex items-center gap-1 text-xs font-medium text-brand-red">
-              Lihat semua <ChevronRight size={12} />
-            </Link>
-          </div>
-          {[
-            { role: 'Data Analyst', date: '2 hari lalu', score: 72, status: 'Hampir Siap', color: '#B45309', bg: 'rgba(234,179,8,0.1)' },
-            { role: 'Data Scientist', date: '5 hari lalu', score: 58, status: 'Perlu Latihan', color: '#DC2626', bg: 'rgba(239,68,68,0.08)' },
-          ].map(session => (
-            <Link key={session.role} href="/results" className="flex items-center justify-between border-b border-black/[0.05] px-6 py-4 transition last:border-b-0 hover:bg-paper">
-              <div className="flex items-center gap-4">
-                <MiniScoreRing score={session.score} />
-                <div>
-                  <div className="text-sm font-semibold text-ink">{session.role}</div>
-                  <div className="mt-0.5 text-xs text-[#A0A0A0]">{session.date}</div>
+        {!isLoading && !error && (
+          <>
+        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <Card className="overflow-hidden p-0">
+            <div className="grid gap-0 lg:grid-cols-[1.1fr_360px]">
+              <div className="relative overflow-hidden bg-ink p-7 text-white sm:p-8">
+                <div className="pointer-events-none absolute right-0 top-0 h-72 w-72 rounded-full bg-brand-red/20 blur-3xl" />
+                <Badge tone="red" className="relative border-white/15 bg-white/10 text-white">Career Readiness Dashboard</Badge>
+                <h1 className="relative mt-5 max-w-2xl font-display text-[clamp(2rem,4vw,3.8rem)] font-black leading-[1.04]">
+                  Hai {userName.split(' ')[0]}, {dashboard?.scoreMessage ?? `kamu ${score}% siap untuk melamar ${selectedRole}.`}
+                </h1>
+                <p className="relative mt-5 max-w-xl text-sm leading-7 text-white/62">
+                  {dashboard?.readinessStatus ?? 'Hampir siap'}. Selesaikan prioritas berikutnya untuk mencapai skor 90+ dan membuka ringkasan karier.
+                </p>
+                <div className="relative mt-7 flex flex-col gap-3 sm:flex-row">
+                  <Button href="/career-onboarding" size="lg" withArrow>
+                    Latihan Sekarang
+                  </Button>
+                  <Button href="/profile-review" variant="secondary" size="lg">
+                    Perbarui Profil
+                  </Button>
+                  <Button href="/interview-history" variant="secondary" size="lg">
+                    <History className="h-4 w-4" />
+                    Riwayat Sesi
+                  </Button>
                 </div>
               </div>
-              <div className="rounded-full px-3 py-1 text-xs font-semibold" style={{ backgroundColor: session.bg, color: session.color }}>
-                {session.status}
-              </div>
-            </Link>
-          ))}
-        </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="rounded-2xl border border-brand-red/15 bg-brand-red/5 p-6">
-          <div className="mb-3 flex items-center gap-2 font-mono text-[0.62rem] font-semibold uppercase tracking-widest text-brand-red">
-            <span className="h-px w-4 bg-brand-red" />
-            Latihan Berikutnya
+              <div className="flex flex-col justify-between p-7 sm:p-8">
+                <div>
+                  <div className="mb-4 flex items-center gap-2 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-brand-red">
+                    <BriefcaseBusiness className="h-4 w-4" />
+                    Target Role
+                  </div>
+                  <h2 className="font-display text-2xl font-black text-ink">{selectedRole}</h2>
+                  <p className="mt-3 text-sm leading-7 text-muted">
+                    {dashboard?.roleRecommendation?.reason ?? 'Role dipilih berdasarkan profil dan hasil latihan terbaru.'}
+                  </p>
+                </div>
+                <div className="mt-6 rounded-2xl border border-black/[0.06] bg-paper p-4">
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-muted">Career Summary</span>
+                    {dashboard?.canDownloadSummary ? <Download className="h-4 w-4 text-brand-red" /> : <Lock className="h-4 w-4 text-muted" />}
+                  </div>
+                  <p className="text-xs leading-5 text-muted">
+                    {dashboard?.canDownloadSummary
+                      ? 'Profil kariermu sudah cukup kuat. Unduh ringkasannya untuk melampirkan ke lamaran.'
+                      : 'Capai skor 90+ untuk membuka ringkasan kariermu yang bisa dilampirkan ke lamaran kerja.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleDownloadSummary}
+                    className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 font-display text-sm font-bold transition ${
+                      dashboard?.canDownloadSummary
+                        ? 'bg-brand-red text-white hover:-translate-y-0.5 hover:bg-brand-red-dark'
+                        : 'border border-ink/10 bg-white text-muted hover:border-ink/20'
+                    }`}
+                  >
+                    {dashboard?.canDownloadSummary ? <Download className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                    {dashboard?.canDownloadSummary ? 'Unduh Ringkasan' : 'Terkunci'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.section>
+
+        <section className="mt-5 grid gap-4 md:grid-cols-4">
+          {stats.map((item, index) => (
+            <ScoreCard key={item.label} {...item} delay={index * 0.05} />
+          ))}
+        </section>
+
+        <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-5">
+            <Card className="p-6">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div>
+              <h2 className="font-display text-xl font-black text-ink">Yang Perlu Dilakukan</h2>
+                  <p className="mt-1 text-sm text-muted">Langkah-langkah berikut paling berdampak untuk menaikkan skormu.</p>
+                </div>
+                <Badge tone="amber">Prioritas</Badge>
+              </div>
+              <div className="grid gap-3">
+                {nextActions.map((action, index) => (
+                  <Link key={action.id} href={getNextActionHref(action.actionType)} className="group rounded-2xl border border-black/[0.06] p-4 transition hover:border-brand-red/25 hover:bg-brand-red/5">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">{index + 1}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-display font-bold text-ink">{action.title}</h3>
+                          <span className="rounded-full bg-ink/5 px-2 py-0.5 text-xs font-bold text-muted">{action.impactLabel}</span>
+                          {action.impactScoreText && <span className="rounded-full bg-brand-red/10 px-2 py-0.5 text-xs font-bold text-brand-red">{action.impactScoreText}</span>}
+                        </div>
+                        <p className="mt-1 text-sm leading-6 text-muted">{action.description}</p>
+                      </div>
+                      <ArrowRight className="mt-1 h-4 w-4 text-muted transition group-hover:translate-x-0.5 group-hover:text-brand-red" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="font-display text-xl font-black text-ink">Bagaimana skor ini dihitung?</h2>
+              <p className="mt-2 text-sm leading-7 text-muted">
+                Skor kesiapan kariermu berasal dari empat hal. Fokus pada yang bobotnya paling besar untuk hasil tercepat.
+              </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-4">
+                {scoreWeights.map(item => (
+                  <div key={item.label} className="rounded-2xl bg-paper p-4">
+                    <div className="font-display text-2xl font-black text-brand-red">{item.weight}</div>
+                    <div className="mt-1 text-xs font-semibold leading-4 text-ink">{item.label}</div>
+                    <div className="mt-1 text-[0.65rem] leading-4 text-muted">{item.hint}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
-          <p className="text-sm leading-relaxed text-ink">
-            Fokus pada <strong>spesifisitas evidence</strong>. Gunakan metode STAR dan sertakan angka atau hasil terukur di sesi berikutnya.
-          </p>
-          <Link href="/start" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-red">
-            Latihan sekarang <ArrowRight size={14} />
-          </Link>
-        </motion.div>
+
+          <aside className="space-y-5">
+            <Card className="p-6">
+              <h2 className="font-display text-xl font-black text-ink">Profil Latihanmu</h2>
+              <p className="mt-1 text-xs text-muted">Ringkasan yang digunakan sistem untuk menyesuaikan pertanyaan interview.</p>
+              <p className="mt-3 text-sm leading-7 text-muted">{profileSummaryText ?? 'Profil belum lengkap. Isi profil agar latihan lebih relevan dengan pengalamanmu.'}</p>
+              {profileTags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profileTags.map(tag => (
+                    <span key={tag} className="rounded-full bg-ink/5 px-2.5 py-1 text-xs font-bold text-muted">{tag}</span>
+                  ))}
+                </div>
+              )}
+              <Button href="/profile-review" variant="secondary" className="mt-5 w-full">
+                Perbarui Profil
+              </Button>
+            </Card>
+
+            {dashboard?.adaptiveInterviewInsight && (
+              <Card className="p-6">
+                <div className="mb-3 flex items-center gap-2 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-brand-red">
+                  <BrainCircuit className="h-4 w-4" />
+                  Sesi Adaptif
+                </div>
+                <h2 className="font-display text-xl font-black text-ink">Fokus sesi berikutnya</h2>
+                <p className="mt-2 text-xs leading-5 text-muted">Berdasarkan riwayat latihanmu, sistem sudah menyiapkan fokus yang lebih terarah untuk sesi berikutnya.</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {dashboard.adaptiveInterviewInsight.recommendedFocus.map(item => (
+                    <span key={item} className="rounded-full bg-brand-red/10 px-3 py-1 text-xs font-bold text-brand-red">
+                      {item.replaceAll('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs leading-5 text-muted">
+                  Area yang masih perlu diperkuat: <span className="font-semibold text-ink">{dashboard.adaptiveInterviewInsight.lastWeaknesses.map(item => item.replaceAll('_', ' ')).join(', ')}</span>.
+                </p>
+              </Card>
+            )}
+
+            <Card className="p-6">
+              <h2 className="font-display text-xl font-black text-ink">Feedback Terbaru</h2>
+              <p className="mt-1 text-xs text-muted">Hasil dari sesi latihan terakhirmu.</p>
+              <div className="mt-4 rounded-2xl bg-paper p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="font-mono text-xs text-muted">Skor Interview</span>
+                  <span className="font-display font-black text-brand-red">{dashboard?.latestInterviewFeedback?.score ?? 0}</span>
+                </div>
+                <p className="text-sm leading-6 text-muted">{dashboard?.latestInterviewFeedback?.summary ?? 'Belum ada sesi latihan. Mulai sesi pertamamu untuk mendapat feedback.'}</p>
+              </div>
+              <Button href="/results" variant="ghost" className="mt-4 w-full">
+                Lihat Detail Feedback
+              </Button>
+              <Button href="/interview-history" variant="secondary" className="mt-3 w-full">
+                Semua Riwayat Sesi
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="font-display text-xl font-black text-ink">Aktivitas Terbaru</h2>
+              <p className="mt-1 text-xs text-muted">Hal-hal yang sudah kamu selesaikan di Road2Work.</p>
+              <div className="mt-4 space-y-4">
+                {(dashboard?.activityTimeline ?? []).map(item => (
+                  <div key={item.id} className="flex gap-3">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-ink">{item.title}</p>
+                      <p className="mt-0.5 text-xs leading-5 text-muted">{item.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </aside>
+        </section>
+          </>
+        )}
       </main>
     </div>
+  )
+}
+
+function getNextActionHref(actionType: string) {
+  if (actionType === 'practice_interview') return '/onboarding'
+  if (actionType === 'review_role' || actionType === 'review_role_fit') return '/role-fit/detail'
+  if (actionType === 'download_summary') return '/hub'
+  return '/profile-review'
+}
+
+function ScoreCard({
+  icon: Icon,
+  label,
+  sublabel,
+  value,
+  tone,
+  delay,
+}: {
+  icon: typeof BarChart2
+  label: string
+  sublabel: string
+  value: number
+  tone: string
+  delay: number
+}) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay }}>
+      <Card className="p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl" style={{ backgroundColor: `${tone}14`, color: tone }}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <span className="font-display text-2xl font-black text-ink">{value}</span>
+        </div>
+        <div className="mb-0.5 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-muted">{label}</div>
+        <div className="mb-2 text-[0.65rem] leading-4 text-muted/70">{sublabel}</div>
+        <div className="h-2 overflow-hidden rounded-full bg-ink/5">
+          <motion.div className="h-full rounded-full" style={{ backgroundColor: tone }} initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.8, delay: delay + 0.2 }} />
+        </div>
+      </Card>
+    </motion.div>
   )
 }

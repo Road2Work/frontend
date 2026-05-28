@@ -31,7 +31,7 @@ export default function ProductPreview() {
           <div className="mb-8 flex items-center justify-between text-xs font-bold uppercase text-white/40">
             <span className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-brand-red" />
-              Live HRD Interview
+              Live Interview
             </span>
             <span>Q2/5 04:21</span>
           </div>
@@ -57,17 +57,17 @@ export default function ProductPreview() {
         </div>
 
         <div className="bg-paper p-6">
-          <h3 className="font-display text-lg font-black text-ink">Readiness Score</h3>
+          <h3 className="font-display text-lg font-black text-ink">Skor Kesiapan</h3>
           <div className="my-6 flex justify-center">
             <ScoreRing score={72} size={112} />
           </div>
           <div className="space-y-4">
             <ProgressBar label="STAR Structure" value={78} tone="green" />
-            <ProgressBar label="Kedalaman Evidence" value={55} />
+            <ProgressBar label="Kekuatan Bukti" value={55} />
             <ProgressBar label="Komunikasi" value={82} tone="green" />
           </div>
           <div className="mt-6 rounded-2xl border border-brand-red/15 bg-brand-red/5 p-4 text-sm text-ink">
-            <strong className="text-brand-red">Berikutnya:</strong> perkuat evidence dengan tools, kontribusi, dan impact yang konkret.
+            <strong className="text-brand-red">Berikutnya:</strong> perkuat jawaban dengan tools, kontribusi, dan dampak yang konkret.
           </div>
         </div>
       </div>

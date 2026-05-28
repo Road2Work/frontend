@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Check, ChevronRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { toast } from 'sonner'
 import AppHeader from '@/components/organisms/AppHeader'
-import { getRoleIdByName } from '@/services/role.service'
 import { profileService } from '@/services/profile.service'
+import { domainService, roleFamilyService, roleService } from '@/services/role.service'
+import type { Domain, Role, RoleFamily } from '@/types/api-contract'
 
 const card = {
   backgroundColor: '#FDFDFD',
@@ -16,49 +17,72 @@ const card = {
   boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.05)',
 }
 
-const domains = [
-  { id: 'it', label: 'Information Technology', desc: 'Data, AI, Software, Cloud & Infrastructure', icon: 'IT', tag: 'Paling populer' },
-  { id: 'business', label: 'Business & Management', desc: 'Marketing, Operations, Product, Strategy', icon: 'BM', soon: true },
-  { id: 'design', label: 'Design & Creative', desc: 'UI/UX, Brand, Motion, Visual Design', icon: 'DC', soon: true },
-]
-
-const roleFamilies: Record<string, { id: string; label: string; desc: string; icon: string }[]> = {
-  it: [
-    { id: 'data-ai', label: 'Data & AI', desc: 'Data analysis, machine learning, AI engineering', icon: 'DA' },
-    { id: 'software', label: 'Software Engineering', desc: 'Backend, frontend, full-stack development', icon: 'SE' },
-    { id: 'cloud', label: 'Cloud & DevOps', desc: 'Infrastructure, CI/CD, cloud platforms', icon: 'CD' },
-  ],
-}
-
-const roles: Record<string, string[]> = {
-  'data-ai': ['Data Analyst', 'Data Scientist', 'AI Engineer', 'ML Engineer'],
-  software: ['Backend Developer', 'Frontend Developer', 'Full-Stack Developer'],
-  cloud: ['DevOps Engineer', 'Cloud Engineer', 'SRE'],
-}
-
 const stepLabels = ['Domain', 'Family', 'Role']
 
 export default function RoleSelectionTemplate() {
   const router = useRouter()
   const [step, setStep] = useState(1)
-  const [selected, setSelected] = useState({ domain: '', family: '', role: '' })
+  const [domains, setDomains] = useState<Domain[]>([])
+  const [roleFamilies, setRoleFamilies] = useState<RoleFamily[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
+  const [selected, setSelected] = useState({ domainId: '', familyId: '', roleId: '', roleName: '' })
+  const [isLoading, setIsLoading] = useState(true)
   const [isCreatingProfile, setIsCreatingProfile] = useState(false)
-  const currentFamilies = roleFamilies[selected.domain] || []
-  const currentRoles = roles[selected.family] || []
+
+  useEffect(() => {
+    domainService
+      .getDomains()
+      .then(response => setDomains(response.data.domains.filter(domain => domain.isActive)))
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  const loadRoleFamilies = async (domainId: string) => {
+    setIsLoading(true)
+    try {
+      const response = await roleFamilyService.getRoleFamilies(domainId)
+      setRoleFamilies(response.data.roleFamilies.filter(family => family.isActive))
+      setRoles([])
+      setSelected(value => ({ ...value, domainId, familyId: '', roleId: '', roleName: '' }))
+      setStep(2)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadRoles = async (familyId: string) => {
+    setIsLoading(true)
+    try {
+      const response = await roleService.getRolesByFamily(familyId)
+      setRoles(response.data.roles.filter(role => role.isActive ?? true))
+      setSelected(value => ({ ...value, familyId, roleId: '', roleName: '' }))
+      setStep(3)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSelectRole = (role: Role) => {
+    setSelected(value => ({ ...value, roleId: role.id, roleName: role.roleName }))
+    toast.success('Target role dipilih', {
+      description: `Kamu akan latihan untuk ${role.roleName}.`,
+    })
+  }
 
   const handleContinue = async () => {
-    if (!selected.role || isCreatingProfile) return
+    if (!selected.roleId || isCreatingProfile) return
 
-    const roleId = getRoleIdByName(selected.role)
     setIsCreatingProfile(true)
     try {
-      const response = await profileService.createProfile({ targetRoleId: roleId })
-      window.sessionStorage.setItem('road2work:selected-role-id', roleId)
-      window.sessionStorage.setItem('road2work:selected-role-name', selected.role)
+      const response = await profileService.createProfile({ targetRoleId: selected.roleId })
+      window.sessionStorage.setItem('road2work:onboarding-path', 'manual')
+      window.sessionStorage.setItem('road2work:selected-domain-id', selected.domainId)
+      window.sessionStorage.setItem('road2work:selected-role-family-id', selected.familyId)
+      window.sessionStorage.setItem('road2work:selected-role-id', selected.roleId)
+      window.sessionStorage.setItem('road2work:selected-role-name', selected.roleName)
       window.sessionStorage.setItem('road2work:profile-id', response.data.profile.id)
 
       toast.success('Profil latihan dibuat', {
-        description: `Context interview akan disiapkan untuk ${selected.role}.`,
+        description: `Context interview akan disiapkan untuk ${selected.roleName}.`,
       })
       router.push('/setup')
     } catch (error) {
@@ -70,9 +94,25 @@ export default function RoleSelectionTemplate() {
     }
   }
 
+  const handleBack = () => {
+    if (step === 3) {
+      setSelected(value => ({ ...value, familyId: '', roleId: '', roleName: '' }))
+      setRoles([])
+      setStep(2)
+      return
+    }
+
+    if (step === 2) {
+      setSelected({ domainId: '', familyId: '', roleId: '', roleName: '' })
+      setRoleFamilies([])
+      setRoles([])
+      setStep(1)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo="/hub" backLabel="Kembali ke Hub" />
+      <AppHeader backTo="/career-onboarding" backLabel="Kembali ke Onboarding" />
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-12 flex items-center">
@@ -123,113 +163,65 @@ export default function RoleSelectionTemplate() {
             </div>
 
             <h1 className="mb-2 font-display text-[clamp(1.6rem,3vw,2rem)] font-extrabold leading-tight text-ink">
-              {step === 1 ? 'Pilih domain kamu' : step === 2 ? 'Pilih role family' : 'Pilih target role'}
+              {step === 1 ? 'Pilih bidang karier' : step === 2 ? 'Pilih area role' : 'Pilih target role'}
             </h1>
             <p className="mb-8 text-sm leading-relaxed text-muted">
               {step === 1
-                ? 'Bidang apa yang kamu targetkan untuk role berikutnya?'
+                ? 'Mulai dari bidang yang paling dekat dengan tujuan kariermu.'
                 : step === 2
-                  ? 'Area mana yang paling sesuai dengan background dan tujuan kamu?'
-                  : 'Role spesifik apa yang ingin kamu latih?'}
+                  ? 'Pilih area yang paling sesuai dengan pengalaman dan minatmu.'
+                  : 'Pilih role yang ingin kamu jadikan fokus latihan interview.'}
             </p>
 
-            <div className="space-y-3">
-              {step === 1 &&
-                domains.map((domain, index) => (
-                  <motion.button
-                    key={domain.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.06 }}
-                    disabled={domain.soon}
-                    onClick={() => {
-                      setSelected(value => ({ ...value, domain: domain.id }))
-                      setStep(2)
-                    }}
-                    className="group flex w-full items-center justify-between rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
-                    style={card}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-red/8 font-display text-sm font-bold text-brand-red">
-                        {domain.icon}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 font-display font-bold text-ink">
-                          {domain.label}
-                          {domain.tag && !domain.soon && <span className="rounded-full bg-brand-red/10 px-2 py-0.5 font-mono text-[0.6rem] tracking-wide text-brand-red">{domain.tag}</span>}
-                          {domain.soon && <span className="rounded-full bg-ink/5 px-2 py-0.5 font-mono text-[0.6rem] text-muted">Segera</span>}
-                        </div>
-                        <div className="mt-0.5 text-sm text-[#A0A0A0]">{domain.desc}</div>
-                      </div>
-                    </div>
-                    {!domain.soon && <ChevronRight size={18} className="shrink-0 text-[#D0D0D0]" />}
-                  </motion.button>
-                ))}
+            {isLoading ? (
+              <LoadingCard />
+            ) : (
+              <div className="space-y-3">
+                {step === 1 &&
+                  domains.map((domain, index) => (
+                    <SelectionButton
+                      key={domain.id}
+                      delay={index * 0.06}
+                      icon={getInitials(domain.name)}
+                      title={domain.name}
+                      description={domain.description ?? 'Bidang karier tersedia'}
+                      badge={index === 0 ? 'Paling populer' : undefined}
+                      onClick={() => void loadRoleFamilies(domain.id)}
+                    />
+                  ))}
 
-              {step === 2 &&
-                currentFamilies.map((family, index) => (
-                  <motion.button
-                    key={family.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.07 }}
-                    onClick={() => {
-                      setSelected(value => ({ ...value, family: family.id }))
-                      setStep(3)
-                    }}
-                    className="flex w-full items-center justify-between rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)]"
-                    style={card}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-red/8 font-display text-sm font-bold text-brand-red">{family.icon}</div>
-                      <div>
-                        <div className="font-display font-bold text-ink">{family.label}</div>
-                        <div className="mt-0.5 text-sm text-[#A0A0A0]">{family.desc}</div>
-                      </div>
-                    </div>
-                    <ChevronRight size={18} className="shrink-0 text-[#D0D0D0]" />
-                  </motion.button>
-                ))}
+                {step === 2 &&
+                  roleFamilies.map((family, index) => (
+                    <SelectionButton
+                      key={family.id}
+                      delay={index * 0.07}
+                      icon={getInitials(family.name)}
+                      title={family.name}
+                      description={family.description ?? 'Area role tersedia'}
+                      onClick={() => void loadRoles(family.id)}
+                    />
+                  ))}
 
-              {step === 3 &&
-                currentRoles.map((role, index) => (
-                  <motion.button
-                    key={role}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.07 }}
-                    onClick={() => {
-                      setSelected(value => ({ ...value, role }))
-                      toast.success('Target role dipilih', {
-                        description: `Kamu akan latihan untuk ${role}.`,
-                      })
-                    }}
-                    className="flex w-full items-center justify-between rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)]"
-                    style={{
-                      ...card,
-                      backgroundColor: selected.role === role ? 'rgba(230,57,70,0.03)' : '#FDFDFD',
-                      border: selected.role === role ? '2px solid #E63946' : '1px solid rgba(0,0,0,0.07)',
-                    }}
-                  >
-                    <span className="font-display font-bold text-ink">{role}</span>
-                    {selected.role === role ? (
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-white shadow-[0_2px_8px_rgba(230,57,70,0.35)]">
-                        <Check size={13} />
-                      </div>
-                    ) : (
-                      <div className="h-7 w-7 shrink-0 rounded-full border-2 border-[#E8E8E8]" />
-                    )}
-                  </motion.button>
-                ))}
-            </div>
+                {step === 3 &&
+                  roles.map((role, index) => (
+                    <RoleButton
+                      key={role.id}
+                      role={role}
+                      delay={index * 0.07}
+                      selected={selected.roleId === role.id}
+                      onClick={() => handleSelectRole(role)}
+                    />
+                  ))}
+              </div>
+            )}
 
             {step > 1 && (
-              <button onClick={() => setStep(value => value - 1)} className="mt-6 flex items-center gap-1.5 text-sm font-medium text-[#A0A0A0] transition hover:text-ink">
+              <button onClick={handleBack} className="mt-6 flex items-center gap-1.5 text-sm font-medium text-[#A0A0A0] transition hover:text-ink">
                 <ArrowLeft size={14} /> Kembali
               </button>
             )}
 
-            {step === 3 && selected.role && (
+            {step === 3 && selected.roleId && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mt-8">
                 <div className="mb-5 flex items-center gap-3 rounded-2xl border border-brand-red/15 bg-brand-red/5 px-5 py-4">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red">
@@ -237,7 +229,7 @@ export default function RoleSelectionTemplate() {
                   </div>
                   <div className="text-sm">
                     <span className="text-[#A0A0A0]">Latihan untuk: </span>
-                    <strong className="font-display text-ink">{selected.role}</strong>
+                    <strong className="font-display text-ink">{selected.roleName}</strong>
                   </div>
                 </div>
                 <button
@@ -246,7 +238,7 @@ export default function RoleSelectionTemplate() {
                   disabled={isCreatingProfile}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-red py-4 font-display font-bold text-white shadow-[0_4px_20px_rgba(230,57,70,0.32),0_1px_3px_rgba(0,0,0,0.1)] transition hover:-translate-y-0.5 hover:bg-brand-red-dark disabled:cursor-wait disabled:opacity-70"
                 >
-                  {isCreatingProfile ? 'Membuat profil...' : 'Lanjut ke Interview Setup'} <ChevronRight size={16} />
+                  {isCreatingProfile ? 'Menyiapkan profil...' : 'Lanjut ke Setup Interview'} <ChevronRight size={16} />
                 </button>
               </motion.div>
             )}
@@ -255,4 +247,95 @@ export default function RoleSelectionTemplate() {
       </main>
     </div>
   )
+}
+
+function SelectionButton({
+  delay,
+  icon,
+  title,
+  description,
+  badge,
+  onClick,
+}: {
+  delay: number
+  icon: string
+  title: string
+  description: string
+  badge?: string
+  onClick: () => void
+}) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay }}
+      onClick={onClick}
+      className="group flex w-full items-center justify-between rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)]"
+      style={card}
+    >
+      <div className="flex items-center gap-4">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-red/8 font-display text-sm font-bold text-brand-red">
+          {icon}
+        </div>
+        <div>
+          <div className="flex items-center gap-2 font-display font-bold text-ink">
+            {title}
+            {badge && <span className="rounded-full bg-brand-red/10 px-2 py-0.5 font-mono text-[0.6rem] tracking-wide text-brand-red">{badge}</span>}
+          </div>
+          <div className="mt-0.5 text-sm text-[#A0A0A0]">{description}</div>
+        </div>
+      </div>
+      <ChevronRight size={18} className="shrink-0 text-[#D0D0D0]" />
+    </motion.button>
+  )
+}
+
+function RoleButton({ role, delay, selected, onClick }: { role: Role; delay: number; selected: boolean; onClick: () => void }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay }}
+      onClick={onClick}
+      className="flex w-full items-center justify-between rounded-2xl p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08),0_24px_48px_rgba(0,0,0,0.06)]"
+      style={{
+        ...card,
+        backgroundColor: selected ? 'rgba(230,57,70,0.03)' : '#FDFDFD',
+        border: selected ? '2px solid #E63946' : '1px solid rgba(0,0,0,0.07)',
+      }}
+    >
+      <div>
+        <span className="font-display font-bold text-ink">{role.roleName}</span>
+        <p className="mt-1 text-sm leading-6 text-muted">{role.description}</p>
+      </div>
+      {selected ? (
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-red text-white shadow-[0_2px_8px_rgba(230,57,70,0.35)]">
+          <Check size={13} />
+        </div>
+      ) : (
+        <div className="h-7 w-7 shrink-0 rounded-full border-2 border-[#E8E8E8]" />
+      )}
+    </motion.button>
+  )
+}
+
+function LoadingCard() {
+  return (
+    <div className="rounded-2xl p-5" style={card}>
+      <div className="flex items-center gap-3">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-red/20 border-t-brand-red" />
+        <p className="text-sm text-muted">Memuat taxonomy role...</p>
+      </div>
+    </div>
+  )
+}
+
+function getInitials(value: string) {
+  return value
+    .split(/\s|&/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
 }

@@ -2,13 +2,45 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { LogOut, Menu, ShieldCheck, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import Button from '@/components/atoms/Button'
 import Logo from '@/components/atoms/Logo'
 import { navItems } from '@/data/road2work'
 
 export default function SiteNavbar() {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return Boolean(window.localStorage.getItem('token'))
+  })
+  const [userRole] = useState<'user' | 'admin'>(() => {
+    if (typeof window === 'undefined') return 'user'
+    const stored = window.localStorage.getItem('user')
+    if (!stored) return 'user'
+
+    try {
+      const parsed = JSON.parse(stored) as { role?: 'user' | 'admin' }
+      return parsed.role ?? 'user'
+    } catch {
+      return 'user'
+    }
+  })
+  const isAdmin = userRole === 'admin'
+
+  const handleLogout = () => {
+    window.localStorage.removeItem('token')
+    window.localStorage.removeItem('user')
+    document.cookie = 'token=; path=/; max-age=0; SameSite=Lax'
+    document.cookie = 'userRole=; path=/; max-age=0; SameSite=Lax'
+    setIsAuthenticated(false)
+    setOpen(false)
+    toast.success('Berhasil keluar')
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <header className="sticky left-0 right-0 top-0 z-50 border-b border-transparent bg-surface/95 backdrop-blur">
@@ -21,14 +53,36 @@ export default function SiteNavbar() {
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 md:flex">
-          <Button href="/login" variant="ghost" size="sm">
-            Masuk
-          </Button>
-          <Button href="/signup" size="sm">
-            Mulai Interview Practice
-          </Button>
-        </div>
+        {isAuthenticated ? (
+          <div className="hidden items-center gap-3 md:flex">
+            <Button href={isAdmin ? '/admin' : '/hub'} variant="ghost" size="sm">
+              {isAdmin ? (
+                <>
+                  <ShieldCheck className="h-4 w-4" />
+                  Admin Panel
+                </>
+              ) : 'Dashboard'}
+            </Button>
+            {isAdmin && (
+              <Button href="/hub" variant="ghost" size="sm">
+                Dashboard
+              </Button>
+            )}
+            <Button type="button" variant="secondary" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              Keluar
+            </Button>
+          </div>
+        ) : (
+          <div className="hidden items-center gap-3 md:flex">
+            <Button href="/login" variant="ghost" size="sm">
+              Masuk
+            </Button>
+            <Button href="/signup" size="sm">
+              Mulai Interview Practice
+            </Button>
+          </div>
+        )}
         <button
           type="button"
           aria-label="Buka tutup navigasi"
@@ -51,12 +105,36 @@ export default function SiteNavbar() {
                 {item.label}
               </Link>
             ))}
-            <Button href="/login" variant="secondary" className="w-full">
-              Masuk
-            </Button>
-            <Button href="/signup" className="w-full">
-              Mulai Interview Practice
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button href={isAdmin ? '/admin' : '/hub'} variant="secondary" className="w-full">
+                  {isAdmin ? (
+                    <>
+                      <ShieldCheck className="h-4 w-4" />
+                      Admin Panel
+                    </>
+                  ) : 'Dashboard'}
+                </Button>
+                {isAdmin && (
+                  <Button href="/hub" variant="ghost" className="w-full">
+                    Dashboard
+                  </Button>
+                )}
+                <Button type="button" variant="ghost" className="w-full" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                  Keluar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button href="/login" variant="secondary" className="w-full">
+                  Masuk
+                </Button>
+                <Button href="/signup" className="w-full">
+                  Mulai Interview Practice
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}

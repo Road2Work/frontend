@@ -8,12 +8,15 @@ import {
   Award,
   BarChart2,
   BookOpen,
+  BrainCircuit,
   Calendar,
   CheckCircle2,
   ChevronRight,
   Clock,
   Cpu,
+  Gauge,
   Eye,
+  History,
   Lightbulb,
   MessageSquare,
   RotateCcw,
@@ -54,14 +57,16 @@ const practiceSteps = [
   'Rekam respons 90 detik untuk P3, lalu dengarkan kembali dan tandai bagian yang masih samar.',
 ]
 
-const sessionStats = [
-  { icon: MessageSquare, label: 'Pertanyaan', value: '5 / 5' },
-  { icon: Clock, label: 'Durasi', value: '14 menit' },
-  { icon: Calendar, label: 'Tanggal', value: '21 Mei 2026' },
-]
-
 export default function ResultsTemplate() {
   const [result, setResult] = useState<InterviewResult | null>(null)
+  const [sessionStats] = useState(() => {
+    const totalQuestions = typeof window === 'undefined' ? '3' : (window.sessionStorage.getItem('road2work:total-main-questions') ?? '3')
+    return [
+      { icon: MessageSquare, label: 'Pertanyaan', value: `${totalQuestions} / ${totalQuestions}` },
+      { icon: Clock, label: 'Durasi', value: '3-8 menit' },
+      { icon: Calendar, label: 'Tanggal', value: '17 Mei 2026' },
+    ]
+  })
 
   useEffect(() => {
     const sessionId = window.sessionStorage.getItem('road2work:session-id') ?? 'session_001'
@@ -82,7 +87,9 @@ export default function ResultsTemplate() {
       <AppHeader backTo="/hub" backLabel="Kembali ke Hub" />
 
       <main className="mx-auto max-w-5xl space-y-4 px-5 py-10">
-        <ResultHeroCard result={result} />
+        <DashboardUpdatedNotice />
+
+        <ResultHeroCard result={result} sessionStats={sessionStats} />
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <InsightCard
@@ -106,13 +113,46 @@ export default function ResultsTemplate() {
           <NextPracticeCard result={result} items={practiceItems} />
         </section>
 
-        <ResultActions />
+        <AdaptiveSessionSuggestionCard result={result} />
+
+        <ResultActions result={result} />
       </main>
     </div>
   )
 }
 
-function ResultHeroCard({ result }: { result: InterviewResult | null }) {
+function DashboardUpdatedNotice() {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45 }}
+      className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.08] p-5"
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/12 text-emerald-700">
+            <Gauge className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-display text-lg font-black text-ink">Career Readiness Dashboard diperbarui</h2>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Hasil interview ini sudah memperbarui skor kesiapan, prioritas latihan, dan feedback terbaru di dashboard.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/hub"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 font-display text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-ink-soft"
+        >
+          Lihat Dashboard <ArrowRight size={14} />
+        </Link>
+      </div>
+    </motion.section>
+  )
+}
+
+function ResultHeroCard({ result, sessionStats }: { result: InterviewResult | null; sessionStats: Array<{ icon: LucideIcon; label: string; value: string }> }) {
   const targetRole = result?.targetRole.roleName ?? 'Analis Data'
   const score = result?.finalScore ?? 72
   const readinessStatus = translateReadiness(result?.readinessStatus ?? 'Almost Ready')
@@ -460,7 +500,51 @@ function NextPracticeCard({ result, items }: { result: InterviewResult | null; i
   )
 }
 
-function ResultActions() {
+function AdaptiveSessionSuggestionCard({ result }: { result: InterviewResult | null }) {
+  const suggestion = result?.adaptiveSessionSuggestion
+
+  if (!suggestion) return null
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.32 }}
+      className="rounded-2xl border border-brand-red/15 bg-brand-red/[0.05] p-5"
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="mb-2 flex items-center gap-2 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-brand-red">
+            <BrainCircuit className="h-4 w-4" />
+            Fokus Latihan Berikutnya
+          </div>
+          <h3 className="font-display text-xl font-black text-ink">Sesi berikutnya akan fokus pada area terlemah.</h3>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            Road2Work akan memakai hasil sesi ini agar pertanyaan berikutnya tidak berulang dan lebih fokus pada bagian yang perlu diperkuat.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 sm:max-w-xs sm:justify-end">
+          {suggestion.recommendedFocus.map(item => (
+            <span key={item} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-red shadow-soft">
+              {item.replaceAll('_', ' ')}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  )
+}
+
+function ResultActions({ result }: { result: InterviewResult | null }) {
+  const handlePracticeAgain = () => {
+    if (!result?.adaptiveSessionSuggestion) return
+
+    window.sessionStorage.setItem('road2work:practice-mode', result.adaptiveSessionSuggestion.suggestedPracticeMode)
+    window.sessionStorage.setItem('road2work:adaptive-retry-mode', 'false')
+    window.sessionStorage.setItem('road2work:adaptive-avoid-repeated-questions', String(result.adaptiveSessionSuggestion.avoidRepeatedQuestions))
+    window.sessionStorage.setItem('road2work:adaptive-improvement-focus', JSON.stringify(result.adaptiveSessionSuggestion.recommendedFocus))
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -469,18 +553,33 @@ function ResultActions() {
       className="flex flex-col items-center justify-center gap-3 pb-10 pt-4 sm:flex-row"
     >
       <Link
-        href="/start"
+        href="/hub"
         className="inline-flex items-center gap-2 rounded-full bg-brand-red px-7 py-3.5 font-display text-sm font-semibold tracking-[-0.01em] text-white shadow-[0_4px_20px_rgba(230,57,70,0.28),0_1px_3px_rgba(0,0,0,0.1)] transition hover:-translate-y-0.5 hover:bg-brand-red-dark"
+      >
+        <Gauge size={14} />
+        Buka Dashboard
+      </Link>
+      <Link
+        href="/onboarding"
+        onClick={handlePracticeAgain}
+        className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-7 py-3.5 font-display text-sm font-medium text-ink transition hover:-translate-y-0.5 hover:border-ink"
       >
         <RotateCcw size={14} />
         Latihan Lagi
       </Link>
       <Link
-        href="/start"
+        href="/career-onboarding"
         className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-7 py-3.5 font-display text-sm font-medium text-ink transition hover:-translate-y-0.5 hover:border-ink"
       >
-        Coba Peran Lain
+        Coba Path Lain
         <ArrowRight size={14} />
+      </Link>
+      <Link
+        href="/interview-history"
+        className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-7 py-3.5 font-display text-sm font-medium text-ink transition hover:-translate-y-0.5 hover:border-ink"
+      >
+        <History size={14} />
+        Riwayat
       </Link>
     </motion.div>
   )

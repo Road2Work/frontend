@@ -37,7 +37,7 @@ export default function SiteFooter() {
             <div>
               <Logo />
               <p className="mt-5 max-w-sm text-sm leading-7 text-muted">
-                AI Interview Readiness Platform untuk mahasiswa, fresh graduate, dan career switcher. Berlatih interview sesuai role tujuan dengan AI HRD berbasis suara.
+                Platform latihan interview untuk mahasiswa, fresh graduate, dan career switcher. Berlatih sesuai role tujuan dengan pertanyaan adaptif dan feedback yang jelas.
               </p>
               <p className="mt-5 text-sm text-muted">
                 <span className="font-bold text-ink">Email:</span> hello@road2work.id
@@ -63,7 +63,7 @@ export default function SiteFooter() {
             <div>
               <h3 className="font-display text-sm font-bold text-ink">Mulai Latihan</h3>
               <p className="mt-5 max-w-xs text-sm leading-6 text-ink/80">
-                Bergabung dan latih interview kamu sekarang. Gratis untuk memulai.
+                Mulai dari role tujuanmu dan latih jawaban interview dengan lebih terarah.
               </p>
               <Button href="/signup" size="lg" className="mt-6">
                 Mulai Latihan
@@ -73,7 +73,7 @@ export default function SiteFooter() {
         </div>
 
         <div className="mx-auto mt-10 flex max-w-6xl flex-col gap-4 border-t border-ink/10 pt-7 text-xs text-muted md:flex-row md:items-center md:justify-between">
-          <span>(c) Copyright 2026 Road2Work.id - All Rights Reserved. Developed as part of DBS Dicoding Capstone Project.</span>
+          <span>(c) 2026 Road2Work.id. All rights reserved.</span>
           <span className="font-bold text-brand-red">Your Roadmap to a Better Career</span>
         </div>
       </div>

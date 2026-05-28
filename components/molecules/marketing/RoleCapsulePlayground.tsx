@@ -16,7 +16,7 @@ const capsuleLayout = [
 
 export default function RoleCapsulePlayground() {
   const constraintsRef = useRef<HTMLDivElement | null>(null)
-  const items = [...allRoles, 'Lainnya setelah MVP']
+  const items = [...allRoles, 'Role lain segera hadir']
 
   return (
     <Card className="overflow-hidden p-5 sm:p-7 lg:p-8">
@@ -25,7 +25,7 @@ export default function RoleCapsulePlayground() {
         className="relative min-h-[300px] cursor-grab rounded-[28px] border border-dashed border-ink/10 bg-[radial-gradient(circle_at_30%_20%,rgba(230,57,70,0.08),transparent_34%),linear-gradient(135deg,#ffffff_0%,#fbf8f3_100%)] active:cursor-grabbing sm:min-h-[280px] lg:min-h-[310px]"
       >
         <div className="pointer-events-none absolute left-5 top-5 rounded-full bg-white/70 px-3 py-1 font-mono text-[0.62rem] font-semibold uppercase tracking-widest text-muted shadow-soft">
-          Drag role caps
+          Geser role
         </div>
 
         <div className="hidden sm:block">
@@ -70,7 +70,7 @@ function DraggableCapsule({
   style?: React.CSSProperties
   baseRotate?: number
 }) {
-  const isSoon = role.includes('Lainnya')
+  const isSoon = role.includes('segera hadir')
 
   return (
     <motion.button

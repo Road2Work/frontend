@@ -12,7 +12,7 @@ export default function BreakdownCard({ items }: { items: BreakdownItem[] }) {
     <Card className="p-8">
       <Badge tone="red">Rincian Skor</Badge>
       <h2 className="mt-4 font-display text-3xl font-black text-ink">
-        Jawaban kamu relevan, tetapi evidence masih perlu detail tambahan.
+        Jawaban kamu sudah relevan, tetapi bukti pengalaman masih perlu dibuat lebih spesifik.
       </h2>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         {items.map(item => (
