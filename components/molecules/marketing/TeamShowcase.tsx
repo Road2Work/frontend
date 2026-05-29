@@ -32,12 +32,12 @@ export default function TeamShowcase() {
           <h2 className="mt-5 font-display text-[clamp(2.2rem,5vw,4rem)] font-black leading-[1.05] text-ink">
             Tim di Balik
             <br />
-            Road2Work.id
+            Road2Work<span className="text-brand-red">.id</span>
             <br />
-            <span className="text-brand-red">Capstone Project</span>
+            
           </h2>
           <p className="mx-auto mt-8 max-w-lg text-sm leading-7 text-muted">
-            Road2Work.id dikembangkan oleh tim lintas disiplin yang berfokus pada produk, data, AI, dan pengalaman pengguna.
+            Road2Work.id dikerjakan oleh tim lintas disiplin yang menyatukan produk, data, AI, backend, frontend, dan UX.
           </p>
         </ScrollReveal>
 

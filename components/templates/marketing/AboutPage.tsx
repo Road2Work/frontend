@@ -11,15 +11,15 @@ export default function AboutPage() {
         <div className="mx-auto max-w-6xl">
           <SectionHeader
             eyebrow="Tentang Road2Work.id"
-            title="Membantu talenta muda mengubah pengalaman nyata menjadi komunikasi yang siap karier."
-            description="Road2Work.id membantu mahasiswa, fresh graduate, dan career switcher berlatih interview dengan konteks yang lebih personal dan terukur."
+            title="Road2Work.id mengubah pengalaman nyata menjadi latihan interview yang lebih terarah."
+            description="Kami membangun platform kesiapan karier untuk membaca profil, menemukan role yang relevan, melatih jawaban berbasis suara, dan memberi feedback yang bisa ditindaklanjuti."
           />
 
           <section className="mt-12 grid gap-6 lg:grid-cols-3">
             {[
-              ['Visi', 'Menjadi platform latihan interview berbasis AI yang membantu talenta muda membangun kepercayaan diri.'],
-              ['Misi', 'Membantu user memahami ekspektasi interview, melatih jawaban lisan, dan mendapat feedback yang mudah ditindaklanjuti.'],
-              ['Positioning', 'Bukan job portal, tetapi platform latihan interview berbasis role, suara, dan bukti pengalaman.'],
+              ['Visi', 'Menjadi roadmap kesiapan karier untuk talenta muda yang ingin menjelaskan pengalaman dengan lebih terarah.'],
+              ['Misi', 'Membantu user membangun profil, memilih role yang masuk akal, melatih jawaban lisan, dan tahu bagian yang perlu diperbaiki.'],
+              ['Positioning', 'Bukan job portal dan bukan CV builder penuh. Road2Work fokus pada profile intelligence, role fit, interview practice, dan readiness dashboard.'],
             ].map(([title, text]) => (
               <Card key={title} className="p-7">
                 <Badge tone="red">{title}</Badge>
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <SectionHeader
               eyebrow="Tim"
               title="Tim di Balik Road2Work.id"
-              description="Tim lintas disiplin yang membangun pengalaman latihan interview dari sisi produk, data, AI, dan engineering."
+              description="Tim lintas disiplin yang membangun pengalaman Road2Work dari sisi produk, data, AI, backend, frontend, dan UX."
             />
             <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {teamMembers.map(member => (

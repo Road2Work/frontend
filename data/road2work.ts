@@ -3,14 +3,14 @@ import {
   FiBarChart2,
   FiBriefcase,
   FiCheckCircle,
-  FiFileText,
   FiFlag,
+  FiMap,
   FiMic,
   FiMessageCircle,
+  FiSearch,
   FiTarget,
   FiTrendingUp,
   FiUploadCloud,
-  FiUserCheck,
 } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
 
@@ -31,56 +31,69 @@ export const valuePillars = ['Sesuai role', 'Berbasis suara', 'Fokus bukti', 'Fe
 
 export const features: IconItem[] = [
   {
-    title: 'Interview Adaptif',
-    description: 'Pertanyaan mengikuti target role, konteks pengalaman, dan kualitas jawabanmu.',
-    icon: FiUserCheck,
+    title: 'Professional Profile Intelligence',
+    description: 'CV atau profil singkat dirapikan menjadi ringkasan profesional, daftar skill, tools, dan bukti pengalaman.',
+    icon: FiSearch,
   },
   {
-    title: 'Latihan Berbasis Suara',
-    description: 'Latihan terasa seperti interview sungguhan karena kamu menjawab langsung dengan suara.',
+    title: 'Role Fit Recommendation',
+    description: 'Lihat role yang paling masuk akal untuk dilatih berdasarkan profil, skill, tools, dan bukti yang sudah terbaca.',
+    icon: FiTarget,
+  },
+  {
+    title: 'Adaptive Voice Interview',
+    description: 'Jawab pertanyaan dengan suara. Jika jawaban belum jelas, AI HRD akan meminta detail yang lebih spesifik.',
     icon: FiMic,
   },
   {
-    title: 'Penilaian Bukti Jawaban',
-    description: 'Jawaban dinilai dari bukti, kontribusi pribadi, dampak, dan relevansi terhadap role.',
-    icon: FiTrendingUp,
+    title: 'Evidence-Based Feedback',
+    description: 'Setiap jawaban dinilai dari bukti, relevansi role, struktur, kejelasan, dan bagian yang masih perlu diperkuat.',
+    icon: FiCheckCircle,
   },
   {
-    title: 'Pertanyaan Lanjutan',
-    description: 'AI HRD menggali detail jika jawaban masih umum, dampak belum jelas, atau tools belum disebutkan.',
+    title: 'Career Readiness Dashboard',
+    description: 'Lihat skor kesiapan, kekuatan, gap, feedback terbaru, riwayat aktivitas, dan prioritas latihan berikutnya.',
+    icon: FiMap,
+  },
+]
+
+export const proofPoints: IconItem[] = [
+  {
+    title: 'Clarifying Question Engine',
+    description: 'Pertanyaan lanjutan muncul saat jawaban terlalu umum, impact belum terlihat, atau kontribusi pribadi belum jelas.',
     icon: FiMessageCircle,
   },
   {
-    title: 'Contoh Perbaikan Jawaban',
-    description: 'Lihat contoh jawaban yang lebih kuat tanpa mengubah fakta pengalamanmu.',
-    icon: FiFileText,
+    title: 'Evidence Ladder Scoring',
+    description: 'Jawaban dipetakan dari bukti paling lemah sampai paling kuat, bukan hanya dinilai benar atau salah.',
+    icon: FiTrendingUp,
   },
   {
-    title: 'Dashboard Kesiapan',
-    description: 'Lihat skor akhir, kekuatan, area perbaikan, rincian penilaian, dan latihan berikutnya.',
+    title: 'Adaptive Practice Memory',
+    description: 'Riwayat latihan dipakai untuk menentukan fokus sesi berikutnya dan mengurangi pertanyaan yang berulang.',
     icon: FiBarChart2,
   },
 ]
 
 export const workflowSteps: IconItem[] = [
   {
-    title: 'Pilih Role Tujuan',
-    description: 'Tentukan role yang ingin kamu latih, seperti Data Analyst, AI Engineer, ML Engineer, atau Backend Developer.',
-    icon: FiTarget,
-  },
-  {
-    title: 'Upload CV atau Isi Profil',
-    description: 'Upload CV atau isi profil singkat agar Road2Work memahami skill, tools, pengalaman, dan bukti yang kamu miliki.',
+    title: 'Profile',
+    description: 'Upload CV atau isi profil singkat. Sistem membaca pengalaman, skill, tools, dan bukti yang bisa dipakai saat interview.',
     icon: FiUploadCloud,
   },
   {
-    title: 'Live Voice Interview',
-    description: 'Masuk ke sesi interview dengan AI HRD dan jawab pertanyaan menggunakan suara seperti interview sungguhan.',
+    title: 'Role',
+    description: 'Gunakan rekomendasi role dari CV atau pilih target role sendiri jika kamu sudah punya tujuan yang jelas.',
+    icon: FiTarget,
+  },
+  {
+    title: 'Practice',
+    description: 'Masuk ke interview berbasis suara. Jawab natural, lalu biarkan sistem membaca kualitas jawabanmu.',
     icon: FiMic,
   },
   {
-    title: 'Dapatkan Dashboard',
-    description: 'Lihat kekuatan, area perbaikan, contoh jawaban yang lebih baik, dan rekomendasi latihan berikutnya.',
+    title: 'Improve',
+    description: 'Baca feedback, cek dashboard kesiapan, lalu lanjutkan latihan pada gap yang paling berdampak.',
     icon: FiActivity,
   },
 ]

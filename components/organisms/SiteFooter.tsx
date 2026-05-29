@@ -26,8 +26,8 @@ export default function SiteFooter() {
         <div className="overflow-hidden rounded-[22px] bg-gradient-to-r from-[#ff6b5f] via-brand-red to-[#f45b2e] py-12 shadow-[0_20px_60px_rgba(230,57,70,0.22)]">
           <div className="whitespace-nowrap font-display text-[clamp(2.7rem,6.2vw,5.4rem)] font-black leading-none text-white">
             <div className="animate-[footer-marquee_18s_linear_infinite]">
-              <span className="mx-8">Siap berlatih hari ini? Mulai dari role tujuanmu.</span>
-              <span className="mx-8">Siap berlatih hari ini? Mulai dari role tujuanmu.</span>
+              <span className="mx-8">Mulai dari profilmu. Temukan role. Latih jawabanmu.</span>
+              <span className="mx-8">Mulai dari profilmu. Temukan role. Latih jawabanmu.</span>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default function SiteFooter() {
             <div>
               <Logo />
               <p className="mt-5 max-w-sm text-sm leading-7 text-muted">
-                Platform latihan interview untuk mahasiswa, fresh graduate, dan career switcher. Berlatih sesuai role tujuan dengan pertanyaan adaptif dan feedback yang jelas.
+                Platform kesiapan karier untuk membaca profil, menemukan role yang relevan, melatih jawaban interview, dan memahami langkah perbaikan berikutnya.
               </p>
               <p className="mt-5 text-sm text-muted">
                 <span className="font-bold text-ink">Email:</span> hello@road2work.id
@@ -61,12 +61,12 @@ export default function SiteFooter() {
             </FooterColumn>
 
             <div>
-              <h3 className="font-display text-sm font-bold text-ink">Mulai Latihan</h3>
+              <h3 className="font-display text-sm font-bold text-ink">Mulai dari Profil</h3>
               <p className="mt-5 max-w-xs text-sm leading-6 text-ink/80">
-                Mulai dari role tujuanmu dan latih jawaban interview dengan lebih terarah.
+                Bangun profil latihan lebih dulu, lalu lanjut ke role fit dan interview berbasis suara.
               </p>
               <Button href="/signup" size="lg" className="mt-6">
-                Mulai Latihan
+                Mulai Bangun Profil
               </Button>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default function SiteFooter() {
 
         <div className="mx-auto mt-10 flex max-w-6xl flex-col gap-4 border-t border-ink/10 pt-7 text-xs text-muted md:flex-row md:items-center md:justify-between">
           <span>(c) 2026 Road2Work.id. All rights reserved.</span>
-          <span className="font-bold text-brand-red">Your Roadmap to a Better Career</span>
+          <span className="font-bold text-brand-red">Your Roadmap to Interview Readiness</span>
         </div>
       </div>
 
