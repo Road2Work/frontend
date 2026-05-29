@@ -79,7 +79,7 @@ export default function SiteNavbar() {
               Masuk
             </Button>
             <Button href="/signup" size="sm">
-              Mulai Interview Practice
+              Mulai Bangun Profil
             </Button>
           </div>
         )}
@@ -131,7 +131,7 @@ export default function SiteNavbar() {
                   Masuk
                 </Button>
                 <Button href="/signup" className="w-full">
-                  Mulai Interview Practice
+                  Mulai Bangun Profil
                 </Button>
               </>
             )}

@@ -11,6 +11,13 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
 NEXT_PUBLIC_USE_MOCK_API=false
 ```
 
+Untuk production:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.road2work.id/api/v1
+NEXT_PUBLIC_USE_MOCK_API=false
+```
+
 Gunakan mock hanya untuk demo tanpa backend:
 
 ```env

@@ -11,6 +11,7 @@ import Button from '@/components/atoms/Button'
 import Card from '@/components/atoms/Card'
 import AuthUserMenu from '@/components/molecules/AuthUserMenu'
 import PageState from '@/components/molecules/PageState'
+import { AppError } from '@/lib/api'
 import { dashboardService } from '@/services/dashboard.service'
 import type { CareerReadinessDashboard } from '@/types/api-contract'
 
@@ -25,6 +26,7 @@ export default function HubTemplate() {
   const [dashboard, setDashboard] = useState<CareerReadinessDashboard | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [needsProfile, setNeedsProfile] = useState(false)
 
   useEffect(() => {
     dashboardService
@@ -32,14 +34,26 @@ export default function HubTemplate() {
       .then(response => {
         setDashboard(response.data.dashboard)
         setError(null)
+        setNeedsProfile(false)
       })
       .catch(error => {
+        const isMissingProfile =
+          error instanceof AppError &&
+          error.status === 404 &&
+          /profile/i.test(error.message)
+
+        if (isMissingProfile) {
+          setNeedsProfile(true)
+          setError(null)
+          return
+        }
+
         setError(error instanceof Error ? error.message : 'Dashboard belum bisa dimuat.')
       })
       .finally(() => setIsLoading(false))
   }, [])
 
-  const userName = dashboard?.user.name ?? 'Sari Dewi'
+  const userName = dashboard?.user.name ?? getStoredUserName()
   const selectedRole = dashboard?.selectedRole.name ?? 'Data Analyst'
   const score = dashboard?.careerReadinessScore ?? 0
   const nextActions = dashboard?.nextBestActions ?? []
@@ -88,7 +102,17 @@ export default function HubTemplate() {
           />
         )}
 
-        {!isLoading && error && (
+        {!isLoading && needsProfile && (
+          <PageState
+            type="empty"
+            title="Profil latihan belum dibuat"
+            description="Akunmu sudah aktif. Mulai dengan upload CV atau isi profil singkat agar Road2Work bisa menyiapkan role fit, interview context, dan dashboard kesiapanmu."
+            actionLabel="Bangun Profil"
+            actionHref="/career-onboarding"
+          />
+        )}
+
+        {!isLoading && !needsProfile && error && (
           <PageState
             type="error"
             title="Dashboard belum bisa dimuat"
@@ -98,7 +122,7 @@ export default function HubTemplate() {
           />
         )}
 
-        {!isLoading && !error && (
+        {!isLoading && !needsProfile && !error && (
           <>
         <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="overflow-hidden p-0">
@@ -298,6 +322,20 @@ export default function HubTemplate() {
       </main>
     </div>
   )
+}
+
+function getStoredUserName() {
+  if (typeof window === 'undefined') return 'Road2Work User'
+
+  const stored = window.localStorage.getItem('user')
+  if (!stored) return 'Road2Work User'
+
+  try {
+    const user = JSON.parse(stored) as { name?: string; email?: string }
+    return user.name || user.email || 'Road2Work User'
+  } catch {
+    return 'Road2Work User'
+  }
 }
 
 function getNextActionHref(actionType: string) {

@@ -7,11 +7,11 @@ import { workflowSteps } from '@/data/road2work'
 
 const systemSteps = [
   'Baca CV atau profil singkat',
-  'Susun pertanyaan sesuai role',
-  'Rekam jawaban berbasis suara',
-  'Evaluasi kualitas jawaban',
-  'Ajukan pertanyaan lanjutan',
-  'Tampilkan dashboard latihan',
+  'Tentukan role yang relevan',
+  'Siapkan konteks interview',
+  'Dengarkan jawaban berbasis suara',
+  'Berikan klarifikasi saat perlu',
+  'Tampilkan dashboard kesiapan',
 ]
 
 export default function HowItWorksPage() {
@@ -20,9 +20,9 @@ export default function HowItWorksPage() {
       <main className="px-5 py-16">
         <div className="mx-auto max-w-6xl">
           <SectionHeader
-            eyebrow="How It Works"
-            title="Dari pengalaman mentah menjadi komunikasi yang siap interview."
-            description="Road2Work memandu kamu dari memilih role, menyiapkan konteks, menjawab dengan suara, sampai melihat feedback yang bisa langsung dilatih."
+            eyebrow="Cara Kerja"
+            title="Dari profil mentah menjadi latihan interview yang punya arah."
+            description="Road2Work memulai dari profilmu, membaca role yang relevan, menyiapkan sesi interview, lalu merangkum feedback ke dashboard kesiapan karier."
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {workflowSteps.map((step, index) => (
@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
                   <span className="font-mono text-xs font-black text-brand-red">0{index + 1}</span>
                   <h2 className="mt-4 font-display text-xl font-black text-ink">{step}</h2>
                   <p className="mt-3 text-sm leading-7 text-muted">
-                    Setiap tahap dirancang agar latihan terasa personal, fokus, dan mudah dipahami.
+                    Setiap tahap punya fungsi jelas agar latihan tidak berhenti di skor, tetapi berlanjut ke langkah perbaikan.
                   </p>
                 </Card>
               ))}
