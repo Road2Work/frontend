@@ -18,7 +18,6 @@ export default function Logo({ dark = false }: { dark?: boolean }) {
         width={34}
         height={40}
         className="h-9 w-8 shrink-0 object-contain"
-        priority
         unoptimized
       />
       <span className={cn('font-display text-[1.05rem] font-semibold tracking-normal', dark ? 'text-white' : 'text-ink')}>

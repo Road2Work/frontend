@@ -45,7 +45,7 @@ export default function RoleFitRecommendationTemplate() {
 
     setIsConfirming(true)
     try {
-      const response = await roleFitService.confirmRole({ profileId, roleId: selectedRoleId })
+      const response = await roleFitService.confirmRole({ profileId, roleId: selectedRoleId }, selectedRoleFit)
       window.sessionStorage.setItem('road2work:selected-role-id', response.data.selectedRoleId)
       window.sessionStorage.setItem('road2work:selected-role-name', response.data.roleFit.roleName)
       window.sessionStorage.setItem('road2work:selected-role-fit', JSON.stringify(response.data.roleFit))

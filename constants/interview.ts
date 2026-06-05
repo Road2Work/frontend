@@ -31,20 +31,20 @@ export const clarifyingQuestion =
 export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> = {
   idle: {
     label: 'Siap Mulai',
-    videoSrc: '/videos/hrd/male/Idle%20State%20(HRD%20siap%20memulai%20interview).webm',
+    videoSrc: '/videos/hrd/male/IDLE.mp4',
     color: 'rgba(255,255,255,0.55)',
     badgeBg: 'rgba(255,255,255,0.094)',
     badgeBorder: 'rgba(255,255,255,0.188)',
     ringColor: 'rgba(255,255,255,0.12)',
     glowColor: 'rgba(100,120,200,0.12)',
-    hint: 'HRD siap memulai interview',
+    hint: 'Interview siap dimulai. Pastikan microphone kamu aktif.',
     orbGradient: 'linear-gradient(135deg, #E63946 0%, #A50F17 100%)',
     micBg: 'rgba(255,255,255,0.05)',
     micShadow: '0 4px 24px rgba(0,0,0,0.3)',
   },
   asking: {
     label: 'Bertanya',
-    videoSrc: '/videos/hrd/male/Asking%20State%20(HRD%20sedang%20mengajukan%20pertanyaan).webm',
+    videoSrc: '/videos/hrd/male/ASKING.mp4',
     color: 'rgba(255,255,255,0.55)',
     badgeBg: 'rgba(255,255,255,0.094)',
     badgeBorder: 'rgba(255,255,255,0.188)',
@@ -57,7 +57,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
   },
   listening: {
     label: 'Mendengarkan',
-    videoSrc: '/videos/hrd/male/Listening%20State%20(HRD%20sedang%20mendengarkan%20jawaban%20user).webm',
+    videoSrc: '/videos/hrd/male/LISTENING.mp4',
     color: '#22C55E',
     badgeBg: 'rgba(34,197,94,0.094)',
     badgeBorder: 'rgba(34,197,94,0.188)',
@@ -70,7 +70,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
   },
   thinking: {
     label: 'Memproses',
-    videoSrc: '/videos/hrd/male/Thinking%20State%20(AI%20sedang%20memproses%20jawaban).webm',
+    videoSrc: '/videos/hrd/male/THINKING.mp4',
     color: '#F59E0B',
     badgeBg: 'rgba(245,158,11,0.094)',
     badgeBorder: 'rgba(245,158,11,0.188)',
@@ -83,7 +83,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
   },
   clarifying: {
     label: 'Klarifikasi',
-    videoSrc: '/videos/hrd/male/Clarifying%20State%20(HRD%20meminta%20klarifikasi_detail%20tambahan).webm',
+    videoSrc: '/videos/hrd/male/CLARIFYING.mp4',
     color: '#E63946',
     badgeBg: 'rgba(230,57,70,0.094)',
     badgeBorder: 'rgba(230,57,70,0.188)',
@@ -96,7 +96,7 @@ export const interviewStateConfig: Record<InterviewState, InterviewStateConfig> 
   },
   completed: {
     label: 'Selesai',
-    videoSrc: '/videos/hrd/male/Completed%20State%20(Sesi%20interview%20selesai).webm',
+    videoSrc: '/videos/hrd/male/COMPLETED.mp4',
     color: '#22C55E',
     badgeBg: 'rgba(34,197,94,0.094)',
     badgeBorder: 'rgba(34,197,94,0.188)',

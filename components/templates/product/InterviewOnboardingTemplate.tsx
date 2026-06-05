@@ -25,6 +25,7 @@ import { onboardingChecklistItems } from '@/constants/interview'
 import { useAudioRecorder } from '@/hooks/useAudioRecorder'
 import { useUserMedia } from '@/hooks/useUserMedia'
 import { interviewService } from '@/services/interview.service'
+import type { InterviewQuotaResponse } from '@/services/interview.service'
 import type { AdaptivePracticeMemory, InterviewCompetency, PracticeMode } from '@/types/api-contract'
 
 const cameraPreferenceKey = 'road2work:user-camera-enabled'
@@ -34,11 +35,16 @@ const onboardingCameraOptions = {
   audio: false,
 } as const
 
+const defaultQuestionCount = 3
+
 export default function InterviewOnboardingTemplate() {
   const router = useRouter()
   const [checked, setChecked] = useState<Record<number, boolean>>({})
   const [isStartingSession, setIsStartingSession] = useState(false)
   const [remainingQuota, setRemainingQuota] = useState<number | null>(null)
+  const [quotaTotal, setQuotaTotal] = useState(5)
+  const [roleName, setRoleName] = useState('Role belum dipilih')
+  const [questionCount] = useState(defaultQuestionCount)
   const [practiceMemory, setPracticeMemory] = useState<AdaptivePracticeMemory | null>(null)
   const [practiceMode, setPracticeMode] = useState<PracticeMode>('first_session')
   const [isCheckingMic, setIsCheckingMic] = useState(false)
@@ -54,14 +60,32 @@ export default function InterviewOnboardingTemplate() {
   useEffect(() => {
     const profileId = window.sessionStorage.getItem('road2work:profile-id') ?? 'profile_001'
     const roleId = window.sessionStorage.getItem('road2work:selected-role-id') ?? 'role_data_analyst'
+    const cachedRoleName = window.sessionStorage.getItem('road2work:selected-role-name')
+    const cachedRoleFit = readCachedSelectedRoleFitName()
     const cachedPracticeMode = window.sessionStorage.getItem('road2work:practice-mode') as PracticeMode | null
 
-    interviewService.getQuota().then(response => setRemainingQuota(response.data.remainingQuota))
-    interviewService.getPracticeMemory({ profileId, roleId }).then(response => {
-      const memory = response.data.adaptiveMemory
-      setPracticeMemory(memory)
-      setPracticeMode(cachedPracticeMode ?? (memory.enabled && memory.previousSessionIds.length > 0 ? 'adaptive_from_history' : 'first_session'))
-    })
+    setRoleName(cachedRoleName ?? cachedRoleFit ?? 'Role belum dipilih')
+
+    interviewService
+      .getQuota()
+      .then(response => {
+        const quota = response.data as InterviewQuotaResponse
+        setQuotaTotal(quota.quota?.total ?? quota.freeInterviewQuota ?? 5)
+        setRemainingQuota(quota.quota?.remaining ?? quota.remainingQuota ?? quota.remainingInterviewCount ?? 0)
+      })
+      .catch(() => setRemainingQuota(null))
+
+    interviewService
+      .getPracticeMemory({ profileId, roleId })
+      .then(response => {
+        const memory = response.data.adaptiveMemory
+        setPracticeMemory(memory)
+        setPracticeMode(cachedPracticeMode ?? (memory.enabled && memory.previousSessionIds.length > 0 ? 'adaptive_from_history' : 'first_session'))
+      })
+      .catch(() => {
+        setPracticeMemory(null)
+        setPracticeMode(cachedPracticeMode ?? 'first_session')
+      })
   }, [])
 
   const toggleCheck = (index: number) => {
@@ -119,6 +143,15 @@ export default function InterviewOnboardingTemplate() {
     if (isStartingSession) return
 
     const profileId = window.sessionStorage.getItem('road2work:profile-id') ?? 'profile_001'
+    const roleId = window.sessionStorage.getItem('road2work:selected-role-id')
+
+    if (!roleId) {
+      toast.error('Target role belum dipilih', {
+        description: 'Pilih role terlebih dahulu agar konteks interview bisa disiapkan.',
+      })
+      router.push('/career-onboarding')
+      return
+    }
 
     if (remainingQuota !== null && remainingQuota <= 0) {
       toast.error('Kuota interview habis', {
@@ -135,7 +168,8 @@ export default function InterviewOnboardingTemplate() {
       const avoidRepeatedQuestions = window.sessionStorage.getItem('road2work:adaptive-avoid-repeated-questions')
       const response = await interviewService.createSession({
         profileId,
-        questionCount: 3,
+        roleId,
+        totalMainQuestions: questionCount,
         practiceMode,
         retryMode: false,
         avoidRepeatedQuestions: avoidRepeatedQuestions ? avoidRepeatedQuestions === 'true' : (practiceMemory?.avoidRepeatedQuestions ?? true),
@@ -143,13 +177,14 @@ export default function InterviewOnboardingTemplate() {
         requestedCompetencies,
       })
       window.sessionStorage.setItem('road2work:session-id', response.data.session.id)
-      window.sessionStorage.setItem('road2work:total-main-questions', String(response.data.session.questionCount ?? response.data.session.totalMainQuestions ?? 3))
+      window.sessionStorage.setItem('road2work:total-main-questions', String(response.data.session.questionCount ?? response.data.session.totalMainQuestions ?? questionCount))
       window.sessionStorage.setItem('road2work:current-question-id', response.data.currentQuestion.id)
       window.sessionStorage.setItem('road2work:current-question-type', response.data.currentQuestion.questionType)
       window.sessionStorage.setItem('road2work:current-question-text', response.data.currentQuestion.questionText)
       window.sessionStorage.setItem('road2work:practice-mode', response.data.session.practiceMode ?? practiceMode)
       window.sessionStorage.setItem('road2work:adaptive-memory', JSON.stringify(response.data.adaptiveMemory ?? response.data.session.adaptiveMemory ?? null))
       window.sessionStorage.setItem('road2work:answer-policy', JSON.stringify(response.data.session.recordingPolicy ?? null))
+      window.sessionStorage.setItem('road2work:interview-started', 'false')
 
       toast.success('Sesi interview dimulai', {
         description: response.data.session.practiceMode === 'adaptive_from_history'
@@ -185,7 +220,7 @@ export default function InterviewOnboardingTemplate() {
           </p>
 
           {/* Session Summary + Quota in one card */}
-          <SessionSummaryCard checkedCount={checkedCount} totalCount={totalCount} />
+          <SessionSummaryCard checkedCount={checkedCount} totalCount={totalCount} roleName={roleName} questionCount={questionCount} />
 
           {/* Quota + Adaptive — inline info row */}
           <div className="mb-4 grid grid-cols-2 gap-3">
@@ -194,7 +229,7 @@ export default function InterviewOnboardingTemplate() {
               <div>
                 <div className="font-mono text-[0.58rem] font-bold uppercase tracking-widest text-brand-red">Kuota</div>
                 <p className="mt-0.5 text-xs font-semibold text-ink">
-                  {remainingQuota ?? '…'} / 5 sesi gratis
+                  {remainingQuota ?? '...'} / {quotaTotal} sesi gratis
                 </p>
               </div>
             </div>
@@ -376,4 +411,16 @@ function StartInterviewButton({
       {allChecked && !loading && <ArrowRight size={18} />}
     </motion.button>
   )
+}
+
+function readCachedSelectedRoleFitName() {
+  const raw = window.sessionStorage.getItem('road2work:selected-role-fit')
+  if (!raw) return null
+
+  try {
+    const roleFit = JSON.parse(raw) as { roleName?: string }
+    return roleFit.roleName ?? null
+  } catch {
+    return null
+  }
 }

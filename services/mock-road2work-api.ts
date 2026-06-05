@@ -680,6 +680,7 @@ export const mockRoad2WorkApi = {
     const role = roles.find(item => item.id === selectedRoleId) ?? roles[0]
     const dashboard: CareerReadinessDashboard = {
       user: { id: mockUser.id, name: mockUser.name, email: mockUser.email, status: 'active' },
+      profileId: activeProfile.id,
       selectedRole: { id: role.id, name: role.roleName },
       careerReadinessScore: 82,
       readinessStatus: 'Hampir siap',

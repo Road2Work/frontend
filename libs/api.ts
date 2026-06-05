@@ -3,8 +3,12 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 export type ApiFieldErrors = Record<string, string[]>
 
 export type ApiErrorResponse = {
-  message?: string
+  message?: unknown
   errors?: ApiFieldErrors
+  error?: {
+    code?: string
+    details?: unknown
+  }
 }
 
 export class AppError extends Error {
@@ -33,6 +37,26 @@ const clearAuthStorage = () => {
   localStorage.removeItem('user')
 }
 
+const formatApiMessage = (value: unknown, fallback = 'Terjadi kesalahan pada server'): string => {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value
+      .map(item => formatApiMessage(item, ''))
+      .filter(Boolean)
+      .join('; ') || fallback
+  }
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    if (typeof record.message === 'string') return record.message
+    if (typeof record.msg === 'string') {
+      const location = Array.isArray(record.loc) ? record.loc.join('.') : ''
+      return location ? `${location}: ${record.msg}` : record.msg
+    }
+    return JSON.stringify(value)
+  }
+  return fallback
+}
+
 export const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -55,8 +79,10 @@ apiClient.interceptors.response.use(
   response => response,
   (error: AxiosError<ApiErrorResponse>) => {
     const status = error.response?.status
-    const message =
-      error.response?.data?.message || error.message || 'Terjadi kesalahan pada server'
+    const responseData = error.response?.data
+    const message = formatApiMessage(
+      responseData?.message ?? responseData?.error?.details ?? error.message,
+    )
     const errors = error.response?.data?.errors
 
     if (status === 401) {

@@ -338,6 +338,7 @@ export type NextBestAction = {
 
 export type CareerReadinessDashboard = {
   user: Pick<User, 'id' | 'name' | 'email' | 'status'>
+  profileId: string
   selectedRole: { id: string; name: string }
   careerReadinessScore: number
   readinessStatus: 'Belum siap' | 'Mulai siap' | 'Hampir siap' | 'Siap melamar'

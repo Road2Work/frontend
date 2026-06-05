@@ -9,20 +9,29 @@ type RankingData = {
   recommendedRoles?: RoleFitResult[]
 }
 
-function normalizeRoleFit(item: RoleFitResult): RoleFitResult {
-  const strengths = item.strengths ?? []
-  const gaps = item.gaps ?? []
+export function normalizeRoleFit(item: Partial<RoleFitResult> | null | undefined, fallback?: Partial<RoleFitResult>): RoleFitResult {
+  const source = { ...fallback, ...item }
+  const strengths = source.strengths ?? []
+  const gaps = source.gaps ?? []
+  const roleId = source.roleId ?? fallback?.roleId ?? ''
 
   return {
-    ...item,
+    id: source.id ?? `role_fit_${roleId || 'selected'}`,
+    profileId: source.profileId ?? fallback?.profileId ?? '',
+    roleId,
+    roleName: source.roleName ?? fallback?.roleName ?? 'Role terpilih',
+    fitScore: source.fitScore ?? fallback?.fitScore ?? 0,
+    rank: source.rank ?? fallback?.rank ?? null,
+    reason: source.reason ?? fallback?.reason ?? 'Role ini dipilih sebagai target latihan interview kamu.',
     strengths,
     gaps,
-    skillOverlap: item.skillOverlap ?? {
+    skillOverlap: source.skillOverlap ?? {
       matched: strengths.length,
       total: strengths.length + gaps.length,
       matchedSkills: strengths,
       missingSkills: gaps,
     },
+    createdAt: source.createdAt ?? fallback?.createdAt ?? new Date().toISOString(),
   }
 }
 
@@ -38,7 +47,7 @@ export const roleFitService = {
       ...response,
       data: {
         ...response.data,
-        recommendations: (response.data.recommendations ?? response.data.recommendedRoles ?? []).map(normalizeRoleFit),
+        recommendations: (response.data.recommendations ?? response.data.recommendedRoles ?? []).map(item => normalizeRoleFit(item)),
       },
     }
   },
@@ -55,9 +64,9 @@ export const roleFitService = {
     }
   },
 
-  async confirmRole(payload: ConfirmRolePayload) {
+  async confirmRole(payload: ConfirmRolePayload, fallbackRoleFit?: Partial<RoleFitResult>) {
     if (useMockApi) return mockRoad2WorkApi.confirmRole(payload)
-    const response = await http.post<ApiSuccess<{ selectedRoleId?: string; roleFit: RoleFitResult }>, ConfirmRolePayload>(
+    const response = await http.post<ApiSuccess<{ selectedRoleId?: string; roleFit?: RoleFitResult }>, ConfirmRolePayload>(
       endpoints.roleFit.confirm,
       payload,
     )
@@ -67,7 +76,11 @@ export const roleFitService = {
       data: {
         ...response.data,
         selectedRoleId: response.data.selectedRoleId ?? payload.roleId,
-        roleFit: normalizeRoleFit(response.data.roleFit),
+        roleFit: normalizeRoleFit(response.data.roleFit, {
+          ...fallbackRoleFit,
+          profileId: fallbackRoleFit?.profileId ?? payload.profileId,
+          roleId: fallbackRoleFit?.roleId ?? payload.roleId,
+        }),
       },
     }
   },

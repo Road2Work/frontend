@@ -3,16 +3,18 @@ import { motion } from 'motion/react'
 type SessionSummaryCardProps = {
   checkedCount: number
   totalCount: number
+  roleName: string
+  questionCount: number
 }
 
-const summaryItems = [
-  { label: 'Role', value: 'Data Analyst', mono: false },
-  { label: 'Durasi', value: '~15 menit', mono: true },
-  { label: 'Pertanyaan', value: '5 utama', mono: true },
-]
-
-export default function SessionSummaryCard({ checkedCount, totalCount }: SessionSummaryCardProps) {
+export default function SessionSummaryCard({ checkedCount, totalCount, roleName, questionCount }: SessionSummaryCardProps) {
   const allChecked = checkedCount === totalCount
+  const estimatedMinutes = Math.max(8, questionCount * 3)
+  const summaryItems = [
+    { label: 'Role', value: roleName || 'Role belum dipilih', mono: false },
+    { label: 'Durasi', value: `~${estimatedMinutes} menit`, mono: true },
+    { label: 'Pertanyaan', value: `${questionCount} utama`, mono: true },
+  ]
 
   return (
     <div className="mb-5 rounded-2xl border border-black/[0.07] bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.05)]">

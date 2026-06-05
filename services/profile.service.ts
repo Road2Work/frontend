@@ -25,22 +25,17 @@ export const profileService = {
 
   async uploadCvForExtraction(formData: FormData) {
     if (useMockApi) return mockRoad2WorkApi.uploadCvForExtraction(formData)
-    try {
-      return await http.post<ApiSuccess<{ profile: Profile; extraction: { status: string; source: 'cv' } }>, FormData>(
-        endpoints.profiles.uploadCvV2,
-        formData,
-      )
-    } catch (error) {
-      if (!(error instanceof AppError) || error.status !== 404) throw error
 
-      const targetRoleId =
-        typeof window !== 'undefined'
-          ? (window.sessionStorage.getItem('road2work:selected-role-id') ?? 'role_data_analyst')
-          : 'role_data_analyst'
-      const created = await this.createProfile({ targetRoleId })
+    const targetRoleId = String(
+      formData.get('targetRoleId') ??
+        (typeof window !== 'undefined'
+          ? window.sessionStorage.getItem('road2work:selected-role-id')
+          : null) ??
+        'role_data_analyst',
+    )
+    const created = await this.createProfile({ targetRoleId })
 
-      return this.uploadCV(created.data.profile.id, formData)
-    }
+    return this.uploadCV(created.data.profile.id, formData)
   },
 
   async createManualProfile(payload: ManualProfilePayload) {

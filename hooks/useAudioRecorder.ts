@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 type VoiceCaptureStatus = 'idle' | 'requesting' | 'capturing' | 'stopped' | 'denied' | 'unsupported'
 
-const fallbackAudio = () => new Blob(['mock-audio-answer'], { type: 'audio/webm' })
+const emptyAudio = () => new Blob([], { type: 'audio/webm' })
 
 function getSupportedMimeType() {
   if (typeof MediaRecorder === 'undefined') return ''
@@ -56,7 +56,7 @@ export function useAudioRecorder() {
       recorder.onstop = () => {
         const blob = chunksRef.current.length > 0
           ? new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
-          : fallbackAudio()
+          : emptyAudio()
         pendingResolveRef.current?.(blob)
         cleanup()
         setStatus('stopped')
@@ -79,7 +79,7 @@ export function useAudioRecorder() {
     if (!recorder || recorder.state === 'inactive') {
       cleanup()
       setStatus('stopped')
-      return fallbackAudio()
+      return emptyAudio()
     }
 
     return new Promise<Blob>(resolve => {
