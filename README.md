@@ -1,36 +1,207 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Road2Work.id Frontend
 
-## Getting Started
+Road2Work.id adalah AI Career Readiness Platform yang membantu user membangun profil profesional, menemukan role yang relevan, latihan interview berbasis suara dengan AI HRD, menerima feedback berbasis evidence, dan memantau perkembangan melalui Career Readiness Dashboard.
 
-First, run the development server:
+Frontend ini dibangun menggunakan Next.js App Router dengan pendekatan component-based dan struktur Atomic Design.
 
-```bash
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- Framer Motion / Motion
+- Lenis Smooth Scroll
+- Axios
+- TanStack Query
+- React Hook Form
+- Zod
+- Sonner Toast
+- Lucide React
+- Fontsource:
+  - Space Grotesk
+  - Plus Jakarta Sans
+  - DM Mono
+
+## Struktur Folder
+
+```txt
+frontend/
+├── app/                  # Routing Next.js App Router
+├── components/
+│   ├── atoms/            # Komponen dasar: Button, Input, Badge, Card
+│   ├── molecules/        # Gabungan atom: form group, cards, checklist item
+│   ├── organisms/        # Section besar: Navbar, Header, Footer
+│   └── templates/        # Page-level UI untuk marketing dan product flow
+├── constants/            # Konstanta UI dan state interview
+├── data/                 # Data statis pendukung UI
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility/helper
+├── public/               # Asset publik: logo, image, video
+├── services/             # API client dan service layer
+└── types/                # TypeScript API contract types
+Fitur Frontend
+Landing page Road2Work.id
+Auth page: login dan signup
+Career onboarding:
+Upload CV path
+Manual profile path
+Profile review
+Role fit recommendation
+Interview preparation checklist
+Adaptive voice interview UI
+HRD video state:
+IDLE
+ASKING
+LISTENING
+THINKING
+CLARIFYING
+COMPLETED
+Live caption preview
+Interview result
+Career Readiness Dashboard
+Admin panel
+Toast notification
+Responsive layout untuk desktop dan mobile
+Prasyarat
+Pastikan sudah terinstall:
+
+Node.js versi 20 atau lebih baru
+npm
+Backend Road2Work.id sudah berjalan
+Machine Learning service sudah berjalan jika ingin mencoba flow interview penuh
+Setup Local
+Clone repository, lalu masuk ke folder frontend:
+
+cd frontend
+Install dependency:
+
+npm install
+Buat file .env.local berdasarkan .env.example:
+
+cp .env.example .env.local
+Contoh konfigurasi local:
+
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_USE_MOCK_API=false
+Jalankan development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Buka browser:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000
+Environment Variables
+Variable	Keterangan
+NEXT_PUBLIC_API_URL	Base URL backend API
+NEXT_PUBLIC_USE_MOCK_API	Gunakan mock API lokal jika true
+Contoh production:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+NEXT_PUBLIC_API_URL=https://api.road2work.id/api/v1
+NEXT_PUBLIC_USE_MOCK_API=false
+Script
+npm run dev
+Menjalankan development server.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+npm run build
+Membuat production build.
 
-## Learn More
+npm run start
+Menjalankan hasil production build.
 
-To learn more about Next.js, take a look at the following resources:
+npm run lint
+Menjalankan ESLint.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Alur Utama User
+1. User Baru
+Landing Page
+→ Signup/Login
+→ Career Onboarding
+→ Pilih Upload CV atau Isi Profil Manual
+2. Upload CV Path
+Upload CV
+→ Profile Review
+→ Role Fit Recommendation
+→ Interview Onboarding
+→ Interview Session
+→ Result
+→ Career Readiness Dashboard
+3. Manual Profile Path
+Isi Profil Manual
+→ Pilih Domain, Role Family, dan Target Role
+→ Profile Review
+→ Interview Onboarding
+→ Interview Session
+→ Result
+→ Career Readiness Dashboard
+4. User yang Sudah Punya Dashboard
+Dashboard
+→ Perbarui Profile
+→ Profile Review mode edit
+→ Kembali ke Dashboard
+Pada mode edit, user tidak diarahkan ulang ke role ranking. Role aktif tetap menjadi konteks latihan.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Interview State
+Frontend mengikuti state interview berikut:
 
-## Deploy on Vercel
+IDLE
+→ ASKING
+→ LISTENING
+→ THINKING
+→ CLARIFYING / ASKING
+→ COMPLETED
+Mapping asset video:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+IDLE       -> /videos/hrd/male/IDLE.mp4
+ASKING     -> /videos/hrd/male/ASKING.mp4
+LISTENING  -> /videos/hrd/male/LISTENING.mp4
+THINKING   -> /videos/hrd/male/THINKING.mp4
+CLARIFYING -> /videos/hrd/male/CLARIFYING.mp4
+COMPLETED  -> /videos/hrd/male/COMPLETED.mp4
+Catatan Deployment
+Sebelum deploy, pastikan:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+npm run build
+berhasil tanpa error.
+
+Pastikan environment production:
+
+NEXT_PUBLIC_API_URL=https://api.road2work.id/api/v1
+NEXT_PUBLIC_USE_MOCK_API=false
+Jangan commit file berikut:
+
+.env
+.env.local
+.env.production
+.next/
+node_modules/
+Troubleshooting
+Font tidak berubah di browser
+Coba hard refresh:
+
+Ctrl + Shift + R
+Jika masih belum berubah, hapus cache browser atau restart dev server.
+
+Hydration warning bis_skin_checked
+Biasanya berasal dari browser extension. Coba buka di Incognito atau disable extension yang menyisipkan atribut ke DOM.
+
+API tidak terhubung
+Pastikan backend berjalan dan NEXT_PUBLIC_API_URL sudah benar.
+
+Local:
+
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+Production:
+
+NEXT_PUBLIC_API_URL=https://api.road2work.id/api/v1
+CORS Error
+Cek konfigurasi CORS di backend. Origin frontend production harus masuk allowlist backend.
+
+Contoh:
+
+CORS_ORIGINS=https://www.road2work.id,https://road2work.id
+Status MVP
+MVP Road2Work.id saat ini berfokus pada domain Information Technology. Ekspansi domain lain direncanakan pada fase berikutnya.
+
+Author
+Road2Work.id
+Capstone Project CC26-PSU050
