@@ -69,15 +69,21 @@ export default function InterviewSetupTemplate() {
       } else {
         const formData = new FormData(form!)
         const roleId = window.sessionStorage.getItem('road2work:selected-role-id') ?? 'role_data_analyst'
-        const response = await profileService.createManualProfile({
-          domainId: window.sessionStorage.getItem('road2work:selected-domain-id') ?? 'domain_it',
-          roleFamilyId: window.sessionStorage.getItem('road2work:selected-role-family-id') ?? 'family_data_ai',
-          targetRoleId: roleId,
+        const shortProfilePayload = {
           mostRelevantExperience: String(formData.get('experience') ?? ''),
           skillsAndTools: String(formData.get('skills') ?? ''),
           projectExperience: String(formData.get('project') ?? ''),
           achievementOrImpact: String(formData.get('impact') ?? ''),
-        })
+        }
+        const existingProfileId = window.sessionStorage.getItem('road2work:profile-id')
+        const response = existingProfileId
+          ? await profileService.submitShortProfile(existingProfileId, shortProfilePayload)
+          : await profileService.createManualProfile({
+              domainId: window.sessionStorage.getItem('road2work:selected-domain-id') ?? 'domain_it',
+              roleFamilyId: window.sessionStorage.getItem('road2work:selected-role-family-id') ?? 'family_data_ai',
+              targetRoleId: roleId,
+              ...shortProfilePayload,
+            })
         window.sessionStorage.setItem('road2work:profile-id', response.data.profile.id)
         window.sessionStorage.setItem('road2work:profile-cache', JSON.stringify(response.data.profile))
         window.sessionStorage.setItem('road2work:profile-context-source', 'manual')
@@ -100,7 +106,10 @@ export default function InterviewSetupTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo={source === 'cv' ? '/career-onboarding' : '/start'} backLabel="Kembali" />
+      <AppHeader
+        backTo={source === 'cv' ? '/career-onboarding' : '/start'}
+        backLabel={source === 'cv' ? 'Ganti Jalur Mulai' : 'Ubah Pilihan Role'}
+      />
       <main className="px-6 py-12">
         <div className="mx-auto max-w-2xl">
           <Badge tone="red">Siapkan Profil Latihan</Badge>

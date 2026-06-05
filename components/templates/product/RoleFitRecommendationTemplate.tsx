@@ -64,7 +64,7 @@ export default function RoleFitRecommendationTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo="/profile-review" backLabel="Kembali ke Profil" />
+      <AppHeader backTo="/profile-review" backLabel="Review Profil" />
 
       <main className="mx-auto max-w-5xl px-5 py-10">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="mb-8">
@@ -73,7 +73,7 @@ export default function RoleFitRecommendationTemplate() {
             Pilih role yang paling relevan.
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-            Rekomendasi ini dibuat dari isi CV dan profil yang sudah kamu review. Kamu tetap bisa memilih role lain secara manual.
+Rekomendasi ini dibuat dari CV dan profil yang sudah kamu review. Pilih role yang paling kuat sebagai fokus latihan interview pertamamu.
           </p>
         </motion.div>
 
@@ -108,9 +108,6 @@ export default function RoleFitRecommendationTemplate() {
         )}
 
         {!isLoading && !error && items.length > 0 && <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Button href="/start" variant="secondary" size="lg">
-            Pilih Role Sendiri
-          </Button>
           <Button
             href="/role-fit/detail"
             variant="secondary"
@@ -189,8 +186,8 @@ function MiniList({ title, items, danger }: { title: string; items: string[]; da
         {title}
       </div>
       <div className="space-y-1.5">
-        {items.slice(0, 3).map(item => (
-          <p key={item} className="text-xs leading-5 text-muted">
+        {items.slice(0, 3).map((item, index) => (
+          <p key={`${item}-${index}`} className="text-xs leading-5 text-muted">
             {item}
           </p>
         ))}

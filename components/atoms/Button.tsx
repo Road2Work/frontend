@@ -5,7 +5,7 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'reac
 import { FiArrowRight } from 'react-icons/fi'
 import { cn } from '@/lib/utils'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'dark'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'dark' | 'white'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 const variants: Record<ButtonVariant, string> = {
@@ -15,6 +15,7 @@ const variants: Record<ButtonVariant, string> = {
     'border border-ink/15 bg-white text-ink shadow-soft hover:border-ink/35 hover:bg-white',
   ghost: 'text-ink/70 hover:bg-ink/5 hover:text-ink',
   dark: 'bg-ink text-white hover:bg-ink-soft',
+  white: 'bg-white text-brand-red hover:bg-white/90',
 }
 
 const sizes: Record<ButtonSize, string> = {

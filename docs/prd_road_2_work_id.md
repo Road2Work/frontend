@@ -1,5 +1,5 @@
-# Product Requirements Document (PRD)
-# Road2Work.id — AI Interview Readiness Platform
+﻿# Product Requirements Document (PRD)
+# Road2Work.id â€” AI Interview Readiness Platform
 
 **Versi:** 1.0  
 **Project:** Road2Work.id  
@@ -82,7 +82,7 @@ Road2Work.id adalah **AI-powered interview readiness platform** untuk mahasiswa,
 
 ## 6. Target User
 
-### 6.1 Primary User — Mahasiswa Tingkat Akhir
+### 6.1 Primary User â€” Mahasiswa Tingkat Akhir
 
 Mahasiswa yang sedang mempersiapkan magang, kerja pertama, atau program career readiness.
 
@@ -93,7 +93,7 @@ Mahasiswa yang sedang mempersiapkan magang, kerja pertama, atau program career r
 - Butuh feedback yang jelas.
 - Butuh percaya diri sebelum interview asli.
 
-### 6.2 Secondary User — Fresh Graduate
+### 6.2 Secondary User â€” Fresh Graduate
 
 Fresh graduate yang mulai apply kerja, tetapi belum terbiasa menjawab interview secara profesional.
 
@@ -104,7 +104,7 @@ Fresh graduate yang mulai apply kerja, tetapi belum terbiasa menjawab interview 
 - Rekomendasi perbaikan.
 - Contoh jawaban yang lebih kuat.
 
-### 6.3 Tertiary User — Career Switcher Pemula
+### 6.3 Tertiary User â€” Career Switcher Pemula
 
 User yang ingin pindah bidang, misalnya dari non-IT ke IT atau dari general role ke Data/AI/Software.
 
@@ -118,7 +118,7 @@ User yang ingin pindah bidang, misalnya dari non-IT ke IT atau dari general role
 
 ## 7. User Persona
 
-### Persona 1 — Raka, Mahasiswa Tingkat Akhir
+### Persona 1 â€” Raka, Mahasiswa Tingkat Akhir
 
 **Profil:**  
 Raka adalah mahasiswa semester akhir yang sedang apply internship Data Analyst. Ia punya pengalaman membuat dashboard untuk tugas kuliah, tetapi bingung bagaimana menjelaskannya saat interview.
@@ -136,7 +136,7 @@ Raka adalah mahasiswa semester akhir yang sedang apply internship Data Analyst. 
 
 ---
 
-### Persona 2 — Naya, Fresh Graduate
+### Persona 2 â€” Naya, Fresh Graduate
 
 **Profil:**  
 Naya baru lulus bootcamp AI dan ingin apply sebagai AI Engineer. Ia punya beberapa mini project, tetapi belum tahu apakah jawabannya cukup teknis.
@@ -155,7 +155,7 @@ Naya baru lulus bootcamp AI dan ingin apply sebagai AI Engineer. Ia punya bebera
 
 ---
 
-### Persona 3 — Dimas, Career Switcher
+### Persona 3 â€” Dimas, Career Switcher
 
 **Profil:**  
 Dimas ingin pindah dari admin operasional ke Backend Developer. Ia punya pengalaman mengelola data internal, tetapi belum tahu cara mengaitkannya dengan role backend.
@@ -250,7 +250,7 @@ Fitur yang masuk MVP:
 10. HRD Interview Stage dengan WebM loop
 11. Voice answer
 12. Speech-to-Text internal
-13. AI-generated question
+13. Pertanyaan adaptif berbasis sistem
 14. AI answer evaluation
 15. Clarifying question
 16. Evidence Ladder
@@ -286,37 +286,37 @@ Fitur yang tidak masuk MVP:
 
 ```txt
 User membuka Road2Work.id
-↓
+â†“
 User melihat landing page
-↓
+â†“
 User login / sign up
-↓
+â†“
 User masuk Readiness Hub
-↓
+â†“
 User memilih role family
-↓
+â†“
 User memilih target role
-↓
+â†“
 User memilih sumber konteks: Upload CV atau Isi Profil Singkat
-↓
+â†“
 Sistem mengekstrak skill, tools, experience, evidence
-↓
+â†“
 User masuk Interview Onboarding
-↓
+â†“
 User mulai live voice interview
-↓
+â†“
 AI HRD memberikan pertanyaan
-↓
+â†“
 User menjawab dengan suara
-↓
+â†“
 Sistem melakukan speech-to-text internal
-↓
+â†“
 AI mengevaluasi jawaban
-↓
+â†“
 Jika perlu, AI bertanya klarifikasi
-↓
+â†“
 Interview selesai
-↓
+â†“
 User melihat result dashboard
 ```
 
@@ -328,7 +328,7 @@ User melihat result dashboard
 
 **Trigger:** User membuka website.
 
-**User Action:** Klik “Mulai Latihan Interview”.
+**User Action:** Klik â€œMulai Latihan Interviewâ€.
 
 **System Response:** User diarahkan ke login/sign up jika belum login.
 
@@ -336,7 +336,7 @@ User melihat result dashboard
 
 ### 13.2 Role Selection Flow
 
-**Trigger:** User klik “Start New Interview”.
+**Trigger:** User klik â€œStart New Interviewâ€.
 
 **User Action:**
 
@@ -364,18 +364,18 @@ User melihat result dashboard
 
 ### 13.4 Live Interview Flow
 
-**Trigger:** User klik “Start Interview”.
+**Trigger:** User klik â€œStart Interviewâ€.
 
 **System Action:**
 
 1. AI menghasilkan pertanyaan utama.
-2. UI menampilkan HRD WebM state “Asking”.
+2. UI menampilkan HRD WebM state â€œAskingâ€.
 3. User menjawab dengan voice.
-4. UI berubah menjadi “Listening”.
+4. UI berubah menjadi â€œListeningâ€.
 5. Sistem melakukan STT.
-6. UI berubah menjadi “Thinking”.
+6. UI berubah menjadi â€œThinkingâ€.
 7. AI mengevaluasi jawaban.
-8. Jika perlu, UI berubah menjadi “Clarifying”.
+8. Jika perlu, UI berubah menjadi â€œClarifyingâ€.
 9. AI memberikan pertanyaan klarifikasi.
 10. Jika tidak perlu, sistem lanjut ke pertanyaan berikutnya.
 
@@ -721,7 +721,7 @@ Sebagai user, saya ingin melihat hasil interview saya agar saya tahu bagian yang
 3. Evidence Level
 4. Strengths
 5. Improvement Areas
-6. Before–After Answer Improvement
+6. Beforeâ€“After Answer Improvement
 7. Next Practice Recommendation
 8. Score Breakdown
 
@@ -761,7 +761,7 @@ Sebagai user, saya ingin melihat hasil interview saya agar saya tahu bagian yang
 
 ---
 
-### 15.3 Before–After Answer Improvement
+### 15.3 Beforeâ€“After Answer Improvement
 
 **Source:** Jawaban asli user, weakness, GenAI rewrite terkontrol.
 
@@ -887,7 +887,7 @@ Data Science mendukung produk melalui:
 1. Landing page harus ringan.
 2. WebM HRD harus dikompres.
 3. Proses AI harus menampilkan loading state.
-4. Jika AI membutuhkan waktu, UI menampilkan “AI is thinking”.
+4. Jika AI membutuhkan waktu, UI menampilkan â€œAI is thinkingâ€.
 
 ### 18.3 Reliability
 
@@ -1073,7 +1073,7 @@ Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, d
 
 ## 25. MVP Release Plan
 
-### Phase 1 — Foundation
+### Phase 1 â€” Foundation
 
 1. Finalisasi flow.
 2. Setup frontend.
@@ -1082,7 +1082,7 @@ Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, d
 5. Setup database.
 6. Role-skill matrix.
 
-### Phase 2 — Core Flow
+### Phase 2 â€” Core Flow
 
 1. Auth.
 2. Role selection.
@@ -1090,7 +1090,7 @@ Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, d
 4. Extraction.
 5. Interview onboarding.
 
-### Phase 3 — Interview Engine
+### Phase 3 â€” Interview Engine
 
 1. HRD Interview Stage.
 2. Voice recording.
@@ -1099,7 +1099,7 @@ Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, d
 5. Answer evaluation.
 6. Clarification.
 
-### Phase 4 — Dashboard & Integration
+### Phase 4 â€” Dashboard & Integration
 
 1. Final score.
 2. Strengths.
@@ -1108,7 +1108,7 @@ Road2Work.id dikembangkan oleh tim capstone lintas role yang berfokus pada AI, d
 5. Next practice recommendation.
 6. Integration testing.
 
-### Phase 5 — Deployment & Demo
+### Phase 5 â€” Deployment & Demo
 
 1. Deployment frontend.
 2. Deployment backend.
@@ -1146,7 +1146,7 @@ Road2Work.id MVP dianggap berhasil jika:
 9. AI dapat memberikan clarification saat jawaban kurang kuat.
 10. Interview dapat selesai.
 11. Dashboard dapat tampil.
-12. Dashboard berisi Strengths, Improvement Areas, Before–After Answer Improvement, dan Next Practice Recommendation.
+12. Dashboard berisi Strengths, Improvement Areas, Beforeâ€“After Answer Improvement, dan Next Practice Recommendation.
 13. Produk dapat didemokan secara end-to-end.
 
 ---
@@ -1159,17 +1159,18 @@ PRD ini menetapkan bahwa MVP harus fokus pada alur inti:
 
 ```txt
 Role Selection
-↓
+â†“
 Upload CV / Isi Profil Singkat
-↓
+â†“
 Context Extraction
-↓
+â†“
 Live Voice AI HRD Interview
-↓
+â†“
 AI Evaluation + Clarification
-↓
+â†“
 Evidence-Based Result Dashboard
 ```
 
 Dengan pendekatan ini, Road2Work.id memiliki value yang jelas, scope yang realistis, dan inovasi yang dapat ditunjukkan melalui voice interview, adaptive clarification, Evidence Ladder, dan dashboard feedback yang actionable.
+
 

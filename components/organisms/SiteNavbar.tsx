@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -119,7 +119,7 @@ export default function SiteNavbar() {
             <Button href="/login" variant="ghost" size="sm" className={isLanding ? 'text-white/82 hover:bg-white/10 hover:text-white' : undefined}>
               Masuk
             </Button>
-            <Button href="/signup" size="sm" className={isLanding ? 'bg-white text-brand-red hover:bg-white/92' : undefined}>
+            <Button href="/signup" size="sm" variant={isLanding ? 'white' : 'primary'}>
               Mulai Bangun Profil
             </Button>
           </div>

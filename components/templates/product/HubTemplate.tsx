@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, BarChart2, BrainCircuit, CalendarDays, CheckCircle2, FileText, HelpCircle, Sparkles, Target, TrendingUp, Upload } from 'lucide-react'
+import { ArrowRight, BarChart2, BrainCircuit, CalendarDays, CheckCircle2, FileText, HelpCircle, Lock, Sparkles, Target, TrendingUp, Upload } from 'lucide-react'
 import { motion } from 'motion/react'
 import AppHeader from '@/components/organisms/AppHeader'
 import Badge from '@/components/atoms/Badge'
@@ -208,6 +208,8 @@ export default function HubTemplate() {
                 Semua Riwayat Sesi
               </Button>
             </Card>
+
+            <CareerSummarySoonCard score={score} />
 
             <Card className="p-6">
               <h2 className="font-display text-xl font-black text-ink">Aktivitas Terbaru</h2>
@@ -418,6 +420,48 @@ function CategoryScoreRow({
   )
 }
 
+function CareerSummarySoonCard({ score }: { score: number }) {
+  const cappedScore = Math.min(90, Math.max(0, score))
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="border-b border-black/[0.06] bg-ink p-5 text-white">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
+            <Lock className="h-5 w-5" />
+          </div>
+          <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-white/80">
+            Coming Soon
+          </span>
+        </div>
+        <h2 className="font-display text-xl font-black tracking-[-0.02em]">Download Career Summary</h2>
+        <p className="mt-2 text-sm leading-6 text-white/65">
+          Capai skor 90+ untuk membuka fitur eksklusif Download Career Summary sebagai bukti kesiapan kerja Anda.
+        </p>
+      </div>
+      <div className="p-5">
+        <div className="mb-3 flex items-center justify-between text-sm">
+          <span className="font-semibold text-ink">Progress kesiapan</span>
+          <span className="font-display font-black text-brand-red">{cappedScore}/90</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full bg-ink/8">
+          <div className="h-full rounded-full bg-brand-red" style={{ width: `${Math.min(100, Math.round((cappedScore / 90) * 100))}%` }} />
+        </div>
+        <p className="mt-4 text-sm leading-6 text-muted">
+          Terus tingkatkan kemampuan melalui latihan hingga mencapai standar profesional terbaik.
+        </p>
+        <button
+          type="button"
+          disabled
+          className="mt-5 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full border border-black/10 bg-ink/5 px-5 py-3 font-display text-sm font-bold text-muted"
+        >
+          <Lock className="h-4 w-4" />
+          Soon Feature
+        </button>
+      </div>
+    </Card>
+  )
+}
 function NextActionCard({ items }: { items: CareerReadinessDashboard['nextBestActions'] }) {
   return (
     <Card className="p-6">
@@ -429,22 +473,38 @@ function NextActionCard({ items }: { items: CareerReadinessDashboard['nextBestAc
         <Badge tone="amber">Prioritas</Badge>
       </div>
       <div className="grid gap-3">
-        {items.map((action, index) => (
-          <Link key={action.id} href={getNextActionHref(action.actionType)} className="group rounded-2xl border border-black/[0.06] p-4 transition hover:border-brand-red/25 hover:bg-brand-red/5">
+        {items.map((action, index) => {
+          const isSoonAction = action.actionType === 'download_summary'
+          const content = (
             <div className="flex items-start gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-red text-sm font-bold text-white">{index + 1}</div>
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${isSoonAction ? 'bg-ink/10 text-muted' : 'bg-brand-red text-white'}`}>{index + 1}</div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-display font-bold text-ink">{action.title}</h3>
                   <span className="rounded-full bg-ink/5 px-2 py-0.5 text-xs font-bold text-muted">{action.impactLabel}</span>
                   {action.impactScoreText && <span className="rounded-full bg-brand-red/10 px-2 py-0.5 text-xs font-bold text-brand-red">{action.impactScoreText}</span>}
+                  {isSoonAction && <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-bold text-white">Soon</span>}
                 </div>
                 <p className="mt-1 text-sm leading-6 text-muted">{action.description}</p>
               </div>
-              <ArrowRight className="mt-1 h-4 w-4 text-muted transition group-hover:translate-x-0.5 group-hover:text-brand-red" />
+              {isSoonAction ? <Lock className="mt-1 h-4 w-4 text-muted" /> : <ArrowRight className="mt-1 h-4 w-4 text-muted transition group-hover:translate-x-0.5 group-hover:text-brand-red" />}
             </div>
-          </Link>
-        ))}
+          )
+
+          if (isSoonAction) {
+            return (
+              <div key={action.id} className="cursor-not-allowed rounded-2xl border border-black/[0.06] bg-ink/[0.02] p-4 opacity-80">
+                {content}
+              </div>
+            )
+          }
+
+          return (
+            <Link key={action.id} href={getNextActionHref(action.actionType)} className="group rounded-2xl border border-black/[0.06] p-4 transition hover:border-brand-red/25 hover:bg-brand-red/5">
+              {content}
+            </Link>
+          )
+        })}
       </div>
     </Card>
   )
@@ -453,11 +513,14 @@ function NextActionCard({ items }: { items: CareerReadinessDashboard['nextBestAc
 
 function getNextActionHref(actionType: string) {
   if (actionType === 'practice_interview') return '/onboarding'
-  if (actionType === 'review_role' || actionType === 'review_role_fit') return '/profile-review'
   if (actionType === 'download_summary') return '/hub'
-  return '/profile-review'
+  return '/profile-review?mode=edit'
 }
 
 function uniqueStrings(items: string[]) {
   return Array.from(new Set(items.map(item => item.trim()).filter(Boolean)))
 }
+
+
+
+

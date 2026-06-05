@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
@@ -31,14 +31,15 @@ export default function ProfileReviewTemplate() {
   const [achievements, setAchievements] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState('')
   const [newTool, setNewTool] = useState('')
-  const [newAchievement, setNewAchievement] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [profileUnavailable, setProfileUnavailable] = useState(false)
 
   const source = profile?.source ?? (profile?.contextSource === 'cv' ? 'cv' : 'manual')
+  const evidenceCount = compactUniqueStrings(achievements).length
   const completeness = normalizeScore(profile?.profileCompleteness ?? estimateProfileCompleteness(summary, skills, tools, achievements))
   const evidenceScore = normalizeScore(profile?.evidenceScore ?? profile?.initialEvidenceScore ?? estimateEvidenceScore(skills, achievements))
-  const totalSignals = skills.length + tools.length + achievements.length
+  const readingAccuracy = normalizeConfidence(profile?.aiConfidence ?? Math.round((evidenceScore + completeness) / 2))
+  const totalSignals = skills.length + tools.length + evidenceCount
   const hasReviewableProfile = Boolean(summary.trim() && skills.length && tools.length)
   const hasExtractedSignals = Boolean(skills.length || tools.length || achievements.length)
 
@@ -92,8 +93,8 @@ export default function ProfileReviewTemplate() {
     setSummary(buildProfileSummary(data))
     setSkills(data.skills ?? [])
     setTools(data.tools ?? [])
-    setSkillEvidence(data.skillEvidence?.length ? data.skillEvidence : buildSkillEvidence(data))
-    setAchievements(data.achievementSignals ?? data.evidenceItems ?? [])
+    setSkillEvidence(data.skillEvidence ?? [])
+    setAchievements(normalizeExperienceEvidence(data))
   }
 
   const nextDestination = useMemo(() => getNextDestination(profile, source, isEditMode), [profile, source, isEditMode])
@@ -111,12 +112,19 @@ export default function ProfileReviewTemplate() {
     }
   }
 
-  const addAchievement = () => {
-    const value = newAchievement.trim()
-    if (!value) return
-    setAchievements(current => Array.from(new Set([...current, value])))
-    setNewAchievement('')
+  const addExperienceEvidence = () => {
+    setAchievements(current => [...current, ''].slice(0, 3))
   }
+
+  const updateExperienceEvidence = (index: number, value: string) => {
+    setAchievements(current => current.map((item, itemIndex) => (itemIndex === index ? value : item)))
+  }
+
+  const removeExperienceEvidence = (index: number) => {
+    setAchievements(current => current.filter((_, itemIndex) => itemIndex !== index))
+  }
+
+  const preparedSkillEvidence = useMemo(() => buildSkillEvidenceFromExperiences(skills, tools, achievements, skillEvidence), [skills, tools, achievements, skillEvidence])
 
   const handleConfirm = async () => {
     if (!profile || isSubmitting) return
@@ -127,8 +135,8 @@ export default function ProfileReviewTemplate() {
         professionalSummary: summary,
         skills,
         tools,
-        skillEvidence,
-        achievementSignals: achievements,
+        skillEvidence: preparedSkillEvidence,
+        achievementSignals: compactUniqueStrings(achievements),
       })
       await confirmProfileIfAvailable(profile.id)
       await afterProfileConfirmed(updated.data.profile)
@@ -203,8 +211,8 @@ export default function ProfileReviewTemplate() {
         professionalSummary: summary,
         skills,
         tools,
-        skillEvidence,
-        achievementSignals: achievements,
+        skillEvidence: preparedSkillEvidence,
+        achievementSignals: compactUniqueStrings(achievements),
       })
     } catch (error) {
       if (!(error instanceof AppError) || error.status !== 404) throw error
@@ -212,8 +220,8 @@ export default function ProfileReviewTemplate() {
       return profileService.submitShortProfile(profileId, {
         mostRelevantExperience: summary || achievements.join('. ') || 'Pengalaman profesional belum dirinci.',
         skillsAndTools: Array.from(new Set([...skills, ...tools])).join(', ') || 'Skill dan tools belum dirinci.',
-        projectExperience: skillEvidence.map(item => item.evidenceText).filter(Boolean).join('\n'),
-        achievementOrImpact: achievements.join('\n'),
+        projectExperience: compactUniqueStrings(achievements).join('\n'),
+        achievementOrImpact: compactUniqueStrings(achievements).join('\n'),
       })
     }
   }
@@ -228,7 +236,10 @@ export default function ProfileReviewTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo={isEditMode ? '/hub' : source === 'cv' ? '/setup' : '/start'} backLabel="Kembali" />
+      <AppHeader
+        backTo={isEditMode ? '/hub' : source === 'cv' ? '/setup' : '/start'}
+        backLabel={isEditMode ? 'Kembali ke Dashboard' : source === 'cv' ? 'Ganti CV' : 'Ubah Pilihan Role'}
+      />
 
       <main className="mx-auto max-w-6xl px-5 py-10">
         {profileUnavailable ? (
@@ -275,7 +286,7 @@ export default function ProfileReviewTemplate() {
               <div className="grid grid-cols-2 gap-3">
                 <MiniStat label="Skill" value={skills.length} />
                 <MiniStat label="Tools" value={tools.length} />
-                <MiniStat label="Bukti" value={achievements.length + skillEvidence.length} />
+                <MiniStat label="Bukti" value={evidenceCount} />
                 <MiniStat label="Lengkap" value={`${completeness}%`} />
               </div>
             </div>
@@ -331,56 +342,42 @@ export default function ProfileReviewTemplate() {
             <ReviewSection
               number="04"
               icon={<Sparkles className="h-5 w-5" />}
-              title="Bukti per skill"
-              description="Hubungkan skill dengan contoh nyata. Bagian ini membantu AI HRD menyiapkan pertanyaan yang lebih relevan."
+              title="Pengalaman utama untuk interview"
+              description="Pilih maksimal tiga cerita paling kuat. Tulis konteks, kontribusimu, tools yang dipakai, dan hasilnya."
               action={
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  onClick={() =>
-                    setSkillEvidence(current => [
-                      ...current,
-                      { skillName: skills[0] ?? 'Skill baru', evidenceText: '', evidenceLevel: 3, source: 'user_edit' },
-                    ])
-                  }
+                  disabled={achievements.length >= 3}
+                  onClick={addExperienceEvidence}
                 >
                   <Plus className="h-4 w-4" /> Tambah
                 </Button>
               }
             >
-              {skillEvidence.length > 0 ? (
+              {achievements.length > 0 ? (
                 <div className="space-y-3">
-                  {skillEvidence.map((item, index) => (
-                    <div key={`${item.skillName}-${index}`} className="rounded-[20px] border border-black/[0.06] bg-paper p-4">
-                      <div className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
-                        <div>
-                          <Label>Skill</Label>
-                          <Input
-                            value={item.skillName}
-                            onChange={event => {
-                              const value = event.target.value
-                              setSkillEvidence(current => current.map((row, rowIndex) => (rowIndex === index ? { ...row, skillName: value } : row)))
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <Label>Bukti pengalaman</Label>
+                  {achievements.map((item, index) => (
+                    <div key={`experience-${index}`} className="rounded-[20px] border border-black/[0.06] bg-paper p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <Label>Pengalaman {index + 1}</Label>
                           <Textarea
-                            value={item.evidenceText}
-                            onChange={event => {
-                              const value = event.target.value
-                              setSkillEvidence(current => current.map((row, rowIndex) => (rowIndex === index ? { ...row, evidenceText: value } : row)))
-                            }}
-                            placeholder="Contoh: memakai SQL untuk membersihkan data transaksi dan membuat insight penjualan mingguan."
-                            className="min-h-[84px]"
+                            value={item}
+                            onChange={event => updateExperienceEvidence(index, event.target.value)}
+                            placeholder="Contoh: Saat magang, saya membuat dashboard penjualan memakai SQL dan Looker Studio. Saya membersihkan data, membuat visualisasi, lalu laporan mingguan tim jadi lebih cepat dibaca."
+                            className="mt-2 min-h-[112px] text-sm leading-7"
                           />
+                          <p className="mt-2 text-xs leading-5 text-muted">
+                            Fokus pada cerita yang bisa kamu jelaskan saat interview, bukan daftar tugas mentah dari CV.
+                          </p>
                         </div>
                         <button
                           type="button"
-                          aria-label="Hapus bukti skill"
-                          className="mt-6 inline-flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-brand-red/10 hover:text-brand-red"
-                          onClick={() => setSkillEvidence(current => current.filter((_, rowIndex) => rowIndex !== index))}
+                          aria-label={`Hapus pengalaman ${index + 1}`}
+                          className="mt-6 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-brand-red/10 hover:text-brand-red"
+                          onClick={() => removeExperienceEvidence(index)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -389,21 +386,9 @@ export default function ProfileReviewTemplate() {
                   ))}
                 </div>
               ) : (
-                <EmptyEditState text="Belum ada bukti per skill. Tambahkan minimal satu contoh pengalaman agar interview lebih tajam." />
+                <EmptyEditState text="Belum ada pengalaman utama. Tambahkan minimal satu cerita agar AI HRD punya konteks nyata untuk bertanya." />
               )}
             </ReviewSection>
-
-            <EditableChipsCard
-              number="05"
-              title="Pencapaian"
-              description="Tambahkan hasil, impact, atau kontribusi yang ingin kamu tonjolkan saat interview."
-              value={newAchievement}
-              placeholder="Contoh: completion rate naik 12%"
-              items={achievements}
-              onValueChange={setNewAchievement}
-              onAdd={addAchievement}
-              onRemove={item => setAchievements(current => current.filter(achievement => achievement !== item))}
-            />
           </div>
 
           <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
@@ -412,35 +397,35 @@ export default function ProfileReviewTemplate() {
                 <ShieldCheck className="h-4 w-4" />
                 Kualitas Profil
               </div>
-              <Metric label="Bukti Pengalaman" value={evidenceScore} hint="Seberapa kuat skill-mu didukung pengalaman nyata, bukan sekadar klaim." />
-              <Metric label="Kelengkapan Profil" value={completeness} hint="Makin lengkap profilmu, makin akurat rekomendasi role dan pertanyaan interview." />
-              <Metric label="Keyakinan Sistem" value={normalizeConfidence(profile?.aiConfidence ?? 82)} hint="Estimasi keyakinan sistem terhadap kualitas konteks profilmu." />
+              <Metric label="Bukti Pengalaman" value={evidenceScore} hint="Seberapa kuat pengalamanmu mendukung skill yang kamu tulis." />
+              <Metric label="Kelengkapan Profil" value={completeness} hint="Semakin lengkap profilmu, semakin tepat rekomendasi role dan pertanyaan interview." />
+              <Metric label="Akurasi Pembacaan" value={readingAccuracy} hint="Seberapa yakin Road2Work membaca konteks profilmu dengan tepat." />
             </Card>
 
             <Card className="p-6">
               <h2 className="font-display text-lg font-black text-ink">Berikutnya</h2>
               <p className="mt-2 text-sm leading-7 text-muted">
                 {nextDestination === '/hub'
-                  ? 'Setelah disimpan, dashboard akan langsung memakai profil terbaru untuk menghitung ulang skor dan prioritas latihan.'
+                  ? 'Setelah disimpan, dashboard akan memakai profil terbaru untuk memperbarui skor dan prioritas latihanmu.'
                   : source === 'cv'
-                  ? 'Kamu akan melihat rekomendasi role berdasarkan isi CV, lalu memilih role yang ingin dilatih.'
-                  : 'Kamu akan langsung masuk ke persiapan interview untuk target role yang sudah dipilih.'}
+                  ? 'Setelah profil dikonfirmasi, kamu akan melihat rekomendasi role yang paling relevan sebelum mulai latihan interview.'
+                  : 'Setelah profil dikonfirmasi, kamu akan masuk ke persiapan interview untuk target role yang sudah dipilih.'}
               </p>
               <Button type="button" size="lg" className="mt-5 w-full" withArrow={!isSubmitting} loading={isSubmitting} onClick={handleConfirm}>
-                {isEditMode ? 'Simpan Perubahan' : 'Konfirmasi Profil'}
+                {isEditMode ? 'Simpan Perubahan' : 'Simpan dan Lanjutkan'}
               </Button>
             </Card>
 
             <Card className="p-6">
               <div className="mb-3 flex items-center gap-2 font-mono text-[0.62rem] font-bold uppercase tracking-widest text-brand-red">
                 <Lightbulb className="h-4 w-4" />
-                Checklist Cepat
+Siap Dilanjutkan Jika
               </div>
               <div className="space-y-3">
                 <ChecklistItem checked={Boolean(summary.trim())} text="Ringkasan sudah menjelaskan fokus karier." />
                 <ChecklistItem checked={skills.length >= 3} text="Minimal 3 skill relevan sudah masuk." />
                 <ChecklistItem checked={tools.length >= 2} text="Tools utama sudah ditulis." />
-                <ChecklistItem checked={skillEvidence.some(item => item.evidenceText.trim())} text="Ada bukti pengalaman untuk skill utama." />
+                <ChecklistItem checked={evidenceCount > 0} text="Ada minimal satu pengalaman utama untuk interview." />
               </div>
             </Card>
           </aside>
@@ -460,7 +445,6 @@ export default function ProfileReviewTemplate() {
     setAchievements([])
     setNewSkill('')
     setNewTool('')
-    setNewAchievement('')
   }
 }
 
@@ -632,16 +616,55 @@ function buildProfileSummary(profile: Profile) {
   return ''
 }
 
-function buildSkillEvidence(profile: Profile): SkillEvidence[] {
-  const summary = profile.profileSummary ?? profile.professionalSummary ?? profile.experienceSummary ?? ''
-  return (profile.skills ?? []).slice(0, 8).map(skill => ({
-    skillName: skill,
-    evidenceText: summary || `Tambahkan contoh pengalaman yang membuktikan penggunaan ${skill}.`,
-    evidenceLevel: summary ? 2 : 1,
-    source: 'cv',
-  }))
+function normalizeExperienceEvidence(profile: Profile) {
+  const directEvidence = compactUniqueStrings([
+    ...((profile.achievementSignals ?? []) as string[]),
+    ...((profile.evidenceItems ?? []) as string[]),
+  ])
+
+  if (directEvidence.length) return directEvidence.slice(0, 3)
+
+  return compactUniqueStrings(
+    (profile.skillEvidence ?? []).map(item => {
+      const evidence = item as SkillEvidence & { evidence_text?: string }
+      return evidence.evidenceText || evidence.evidence_text || ''
+    }),
+  ).slice(0, 3)
 }
 
+function buildSkillEvidenceFromExperiences(skills: string[], tools: string[], experiences: string[], existing: SkillEvidence[]) {
+  const cleanExperiences = compactUniqueStrings(experiences).slice(0, 3)
+  if (!cleanExperiences.length) return []
+
+  const selectedSkills = compactUniqueStrings([...skills, ...tools]).slice(0, Math.max(3, cleanExperiences.length))
+  const fallbackSkill = selectedSkills[0] ?? 'Pengalaman profesional'
+
+  return cleanExperiences.map((experience, index) => {
+    const previous = existing[index]
+    return {
+      skillName: selectedSkills[index] ?? previous?.skillName ?? fallbackSkill,
+      evidenceText: experience,
+      evidenceLevel: previous?.evidenceLevel ?? (previous as (SkillEvidence & { evidence_level?: SkillEvidence['evidenceLevel'] }) | undefined)?.evidence_level ?? estimateEvidenceLevel(experience),
+      source: previous?.source ?? 'user_edit',
+    }
+  })
+}
+
+function compactUniqueStrings(values: string[]) {
+  return Array.from(new Set(values.map(value => value.trim()).filter(Boolean)))
+}
+
+function estimateEvidenceLevel(value: string) {
+  const text = value.toLowerCase()
+  const hasMetric = /\d|%|persen|meningkat|menurun|berkurang|lebih cepat|hemat|naik|turun/.test(text)
+  const hasImpact = /hasil|impact|dampak|membantu|berhasil|meningkat|mengurangi|mempercepat|efisiensi/.test(text)
+  const hasContext = /project|proyek|magang|tim|kampus|klien|user|pengguna|dashboard|aplikasi/.test(text)
+
+  if (hasMetric) return 5
+  if (hasImpact) return 4
+  if (hasContext) return 3
+  return value.trim() ? 2 : 1
+}
 
 function normalizeScore(value: unknown) {
   const numeric = Number(value)
@@ -656,16 +679,18 @@ function normalizeConfidence(value: unknown) {
   return normalizeScore(numeric)
 }
 function estimateProfileCompleteness(summary: string, skills: string[], tools: string[], achievements: string[]) {
+  const cleanAchievements = compactUniqueStrings(achievements)
   let score = 0
   if (summary.trim()) score += 30
   if (skills.length) score += Math.min(25, skills.length * 5)
   if (tools.length) score += Math.min(20, tools.length * 4)
-  if (achievements.length) score += Math.min(25, achievements.length * 8)
+  if (cleanAchievements.length) score += Math.min(25, cleanAchievements.length * 8)
   return Math.min(100, score)
 }
 
 function estimateEvidenceScore(skills: string[], achievements: string[]) {
-  return Math.min(100, Math.max(0, skills.length * 5 + achievements.length * 10))
+  const cleanAchievements = compactUniqueStrings(achievements)
+  return Math.min(100, Math.max(0, skills.length * 5 + cleanAchievements.length * 10))
 }
 
 function getNextDestination(_profile: Profile | null, source: Profile['source'] | 'manual' | 'cv' | null | undefined, isEditMode = false) {

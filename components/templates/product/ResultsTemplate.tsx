@@ -83,7 +83,7 @@ export default function ResultsTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo="/hub" backLabel="Kembali ke Hub" />
+      <AppHeader backTo="/hub" backLabel="Kembali ke Dashboard" />
 
       <main className="mx-auto max-w-5xl space-y-4 px-5 py-10">
         <DashboardUpdatedNotice result={result} isLoading={isLoading} />

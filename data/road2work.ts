@@ -22,9 +22,9 @@ export type IconItem = {
 
 export const navItems = [
   { label: 'Produk', href: '/#product' },
-  { label: 'Cara Kerja', href: '/how-it-works' },
+  { label: 'Cara Kerja', href: '/#workflow' },
   { label: 'Fitur', href: '/#features' },
-  { label: 'Demo', href: '/interview' },
+  { label: 'Demo', href: '/#demo' },
 ]
 
 export const valuePillars = ['Sesuai role', 'Berbasis suara', 'Fokus bukti', 'Feedback adaptif']

@@ -1,5 +1,5 @@
-# Software Requirements Specification (SRS)
-# Road2Work.id — AI Interview Readiness Platform
+﻿# Software Requirements Specification (SRS)
+# Road2Work.id â€” AI Interview Readiness Platform
 
 **Versi:** 1.0  
 **Project Theme:** Future-Ready Work & Economy  
@@ -33,7 +33,7 @@ User dapat memilih role tujuan, memberikan konteks pengalaman melalui **upload C
 
 1. Strengths
 2. Improvement Areas
-3. Before–After Answer Improvement
+3. Beforeâ€“After Answer Improvement
 4. Next Practice Recommendation
 
 Road2Work.id tidak diposisikan sebagai job portal utama, tetapi sebagai platform latihan interview yang membantu user membangun jawaban yang lebih relevan, jelas, dan berbasis evidence.
@@ -54,7 +54,7 @@ Ruang lingkup MVP Road2Work.id meliputi:
 8. CV/Profile Extraction
 9. Live Voice HRD Interview Stage
 10. Speech-to-Text internal
-11. AI-generated interview question
+11. Pertanyaan interview adaptif
 12. AI evaluation dan weakness detection
 13. Clarifying question jika jawaban kurang jelas
 14. Interview Readiness Score
@@ -99,7 +99,7 @@ Fitur berikut tidak termasuk MVP dan dapat masuk future development:
 | Clarifying Question | Pertanyaan klarifikasi yang diberikan AI jika jawaban user kurang jelas atau kurang evidence. |
 | Evidence Ladder | Sistem level untuk menilai kekuatan bukti pengalaman dalam jawaban user. |
 | Readiness Score | Skor akhir kesiapan interview user. |
-| GenAI | Generative AI seperti Gemini/GPT untuk menghasilkan pertanyaan dan feedback natural. |
+| GenAI | Generative AI melalui backend service untuk menghasilkan pertanyaan dan feedback natural. |
 | TensorFlow Model | Model deep learning pendukung untuk klasifikasi kualitas jawaban. |
 
 ---
@@ -147,35 +147,35 @@ Road2Work.id berbeda dari aplikasi interview biasa karena:
 
 ```txt
 Landing Page
-↓
+â†“
 Login / Sign Up
-↓
+â†“
 Readiness Hub
-↓
+â†“
 Pilih Role Family
-↓
+â†“
 Pilih Target Role
-↓
+â†“
 Interview Context Setup
-├── Upload CV
-└── Isi Profil Singkat
-↓
+â”œâ”€â”€ Upload CV
+â””â”€â”€ Isi Profil Singkat
+â†“
 Extract Skill, Tools, Experience, Evidence
-↓
+â†“
 Generate Initial Evidence Score
-↓
+â†“
 Build Personalized Interview Context
-↓
+â†“
 Interview Onboarding
-↓
+â†“
 Live Voice HRD Interview
-↓
+â†“
 Speech-to-Text Internal
-↓
+â†“
 AI Evaluation + Clarification
-↓
+â†“
 Final Interview Readiness Score
-↓
+â†“
 Result Dashboard
 ```
 
@@ -185,13 +185,13 @@ Result Dashboard
 
 ```txt
 User Browser
-↓
+â†“
 Next.js Frontend
-↓
+â†“
 Express.js API Gateway
-↓
+â†“
 FastAPI AI Service
-↓
+â†“
 PostgreSQL Database
 ```
 
@@ -268,7 +268,7 @@ Format requirement:
 
 ## 4.1 Authentication
 
-### FR-01 — Sign Up
+### FR-01 â€” Sign Up
 
 **Deskripsi:**  
 Sistem harus menyediakan fitur sign up agar user dapat membuat akun.
@@ -296,7 +296,7 @@ Sistem harus menyediakan fitur sign up agar user dapat membuat akun.
 
 ---
 
-### FR-02 — Login
+### FR-02 â€” Login
 
 **Deskripsi:**  
 Sistem harus menyediakan fitur login agar user dapat masuk ke akun.
@@ -323,7 +323,7 @@ Sistem harus menyediakan fitur login agar user dapat masuk ke akun.
 
 ---
 
-### FR-03 — Logout
+### FR-03 â€” Logout
 
 **Deskripsi:**  
 Sistem harus menyediakan fitur logout untuk mengakhiri session.
@@ -341,7 +341,7 @@ Sistem harus menyediakan fitur logout untuk mengakhiri session.
 
 ## 4.2 Landing Page
 
-### FR-04 — Menampilkan Landing Page
+### FR-04 â€” Menampilkan Landing Page
 
 **Deskripsi:**  
 Sistem harus menampilkan landing page yang menjelaskan value Road2Work.id.
@@ -373,7 +373,7 @@ Sistem harus menampilkan landing page yang menjelaskan value Road2Work.id.
 
 ## 4.3 Readiness Hub
 
-### FR-05 — Menampilkan Readiness Hub
+### FR-05 â€” Menampilkan Readiness Hub
 
 **Deskripsi:**  
 Setelah login, user melihat halaman Readiness Hub sebagai pusat awal assessment.
@@ -398,7 +398,7 @@ Setelah login, user melihat halaman Readiness Hub sebagai pusat awal assessment.
 
 ## 4.4 Role Selection
 
-### FR-06 — Menampilkan Role Family
+### FR-06 â€” Menampilkan Role Family
 
 **Deskripsi:**  
 Sistem harus menampilkan pilihan role family yang tersedia.
@@ -419,7 +419,7 @@ Sistem harus menampilkan pilihan role family yang tersedia.
 
 ---
 
-### FR-07 — Menampilkan Target Role
+### FR-07 â€” Menampilkan Target Role
 
 **Deskripsi:**  
 Sistem harus menampilkan target role berdasarkan role family yang dipilih.
@@ -445,7 +445,7 @@ Sistem harus menampilkan target role berdasarkan role family yang dipilih.
 
 ## 4.5 Interview Context Setup
 
-### FR-08 — Menampilkan Pilihan Sumber Konteks
+### FR-08 â€” Menampilkan Pilihan Sumber Konteks
 
 **Deskripsi:**  
 Sistem harus meminta user memilih salah satu sumber konteks sebelum interview.
@@ -456,7 +456,7 @@ Sistem harus meminta user memilih salah satu sumber konteks sebelum interview.
 2. Isi Profil Singkat
 
 **Catatan:**  
-Tidak ada opsi “lanjut tanpa data” pada MVP karena sistem membutuhkan minimal konteks user untuk menghasilkan interview yang relevan.
+Tidak ada opsi â€œlanjut tanpa dataâ€ pada MVP karena sistem membutuhkan minimal konteks user untuk menghasilkan interview yang relevan.
 
 **Acceptance Criteria:**
 
@@ -469,7 +469,7 @@ Tidak ada opsi “lanjut tanpa data” pada MVP karena sistem membutuhkan minima
 
 ---
 
-### FR-09 — Upload CV
+### FR-09 â€” Upload CV
 
 **Deskripsi:**  
 Sistem harus mengizinkan user mengupload CV dalam format PDF.
@@ -497,7 +497,7 @@ Sistem harus mengizinkan user mengupload CV dalam format PDF.
 
 ---
 
-### FR-10 — Isi Profil Singkat
+### FR-10 â€” Isi Profil Singkat
 
 **Deskripsi:**  
 Sistem harus menyediakan form profil singkat sebagai alternatif upload CV.
@@ -526,7 +526,7 @@ Sistem harus menyediakan form profil singkat sebagai alternatif upload CV.
 
 ---
 
-### FR-11 — Extract Skill, Tools, Experience, Evidence
+### FR-11 â€” Extract Skill, Tools, Experience, Evidence
 
 **Deskripsi:**  
 Sistem harus mengekstrak informasi utama dari CV atau profil singkat.
@@ -559,14 +559,14 @@ Sistem harus mengekstrak informasi utama dari CV atau profil singkat.
 
 ---
 
-### FR-12 — Generate Initial Evidence Score
+### FR-12 â€” Generate Initial Evidence Score
 
 **Deskripsi:**  
 Sistem harus menghasilkan skor awal berdasarkan konteks user sebelum interview.
 
 **Acceptance Criteria:**
 
-1. Skor awal berada dalam range 0–100.
+1. Skor awal berada dalam range 0â€“100.
 2. Skor dihitung berdasarkan jumlah dan kualitas evidence.
 3. Skor digunakan sebagai baseline dalam dashboard.
 
@@ -577,7 +577,7 @@ Sistem harus menghasilkan skor awal berdasarkan konteks user sebelum interview.
 
 ## 4.6 Interview Onboarding
 
-### FR-13 — Menampilkan Interview Onboarding
+### FR-13 â€” Menampilkan Interview Onboarding
 
 **Deskripsi:**  
 Sebelum interview dimulai, sistem menampilkan penjelasan singkat mengenai sesi interview.
@@ -603,7 +603,7 @@ Sebelum interview dimulai, sistem menampilkan penjelasan singkat mengenai sesi i
 
 ## 4.7 Live Voice HRD Interview
 
-### FR-14 — Menampilkan HRD Interview Stage
+### FR-14 â€” Menampilkan HRD Interview Stage
 
 **Deskripsi:**  
 Sistem harus menampilkan halaman interview utama dengan visual HRD berbasis WebM loop.
@@ -630,7 +630,7 @@ Sistem harus menampilkan halaman interview utama dengan visual HRD berbasis WebM
 
 ---
 
-### FR-15 — Generate Natural Main Question
+### FR-15 â€” Generate Natural Main Question
 
 **Deskripsi:**  
 Sistem harus menghasilkan pertanyaan interview utama secara natural menggunakan AI dengan guardrail.
@@ -666,7 +666,7 @@ Sistem harus menghasilkan pertanyaan interview utama secara natural menggunakan 
 
 ---
 
-### FR-16 — Record Voice Answer
+### FR-16 â€” Record Voice Answer
 
 **Deskripsi:**  
 Sistem harus memungkinkan user menjawab pertanyaan menggunakan suara.
@@ -684,7 +684,7 @@ Sistem harus memungkinkan user menjawab pertanyaan menggunakan suara.
 
 ---
 
-### FR-17 — Speech-to-Text Internal
+### FR-17 â€” Speech-to-Text Internal
 
 **Deskripsi:**  
 Sistem harus mengubah audio jawaban user menjadi teks internal.
@@ -711,7 +711,7 @@ Sistem harus mengubah audio jawaban user menjadi teks internal.
 
 ---
 
-### FR-18 — Evaluate Answer
+### FR-18 â€” Evaluate Answer
 
 **Deskripsi:**  
 Sistem harus mengevaluasi jawaban user berdasarkan rubric interview readiness.
@@ -762,7 +762,7 @@ Sistem harus mengevaluasi jawaban user berdasarkan rubric interview readiness.
 
 ---
 
-### FR-19 — Clarifying Question Decision
+### FR-19 â€” Clarifying Question Decision
 
 **Deskripsi:**  
 Sistem harus menentukan apakah jawaban user membutuhkan klarifikasi.
@@ -789,7 +789,7 @@ Sistem harus menentukan apakah jawaban user membutuhkan klarifikasi.
 
 ---
 
-### FR-20 — Generate Clarifying Question
+### FR-20 â€” Generate Clarifying Question
 
 **Deskripsi:**  
 Jika jawaban user membutuhkan klarifikasi, sistem harus menghasilkan pertanyaan klarifikasi yang natural.
@@ -819,7 +819,7 @@ Jika jawaban user membutuhkan klarifikasi, sistem harus menghasilkan pertanyaan 
 
 ---
 
-### FR-21 — Continue to Next Main Question
+### FR-21 â€” Continue to Next Main Question
 
 **Deskripsi:**  
 Jika jawaban sudah cukup atau setelah clarification selesai, sistem melanjutkan ke pertanyaan utama berikutnya.
@@ -835,7 +835,7 @@ Jika jawaban sudah cukup atau setelah clarification selesai, sistem melanjutkan 
 
 ---
 
-### FR-22 — Complete Interview Session
+### FR-22 â€” Complete Interview Session
 
 **Deskripsi:**  
 Sistem harus menyelesaikan session interview setelah jumlah pertanyaan utama terpenuhi.
@@ -853,14 +853,14 @@ Sistem harus menyelesaikan session interview setelah jumlah pertanyaan utama ter
 
 ## 4.8 Result Dashboard
 
-### FR-23 — Generate Final Interview Readiness Score
+### FR-23 â€” Generate Final Interview Readiness Score
 
 **Deskripsi:**  
 Sistem harus menghitung skor akhir kesiapan interview user.
 
 **Acceptance Criteria:**
 
-1. Skor berada pada range 0–100.
+1. Skor berada pada range 0â€“100.
 2. Skor dihitung dari seluruh jawaban.
 3. Skor memiliki status:
    - Ready
@@ -872,7 +872,7 @@ Sistem harus menghitung skor akhir kesiapan interview user.
 
 ---
 
-### FR-24 — Menampilkan Strengths
+### FR-24 â€” Menampilkan Strengths
 
 **Deskripsi:**  
 Dashboard harus menampilkan kekuatan utama user.
@@ -894,7 +894,7 @@ Dashboard harus menampilkan kekuatan utama user.
 
 ---
 
-### FR-25 — Menampilkan Improvement Areas
+### FR-25 â€” Menampilkan Improvement Areas
 
 **Deskripsi:**  
 Dashboard harus menampilkan area yang perlu diperbaiki user.
@@ -916,7 +916,7 @@ Dashboard harus menampilkan area yang perlu diperbaiki user.
 
 ---
 
-### FR-26 — Menampilkan Before–After Answer Improvement
+### FR-26 â€” Menampilkan Beforeâ€“After Answer Improvement
 
 **Deskripsi:**  
 Dashboard harus menampilkan perbandingan jawaban awal user dan versi jawaban yang lebih kuat.
@@ -933,7 +933,7 @@ Dashboard harus menampilkan perbandingan jawaban awal user dan versi jawaban yan
 
 ---
 
-### FR-27 — Menampilkan Next Practice Recommendation
+### FR-27 â€” Menampilkan Next Practice Recommendation
 
 **Deskripsi:**  
 Dashboard harus menampilkan rekomendasi latihan berikutnya berdasarkan kelemahan terbesar.
@@ -959,7 +959,7 @@ Dashboard harus menampilkan rekomendasi latihan berikutnya berdasarkan kelemahan
 
 ---
 
-### FR-28 — Menampilkan Score Breakdown
+### FR-28 â€” Menampilkan Score Breakdown
 
 **Deskripsi:**  
 Dashboard harus menampilkan breakdown skor agar user memahami hasilnya.
@@ -977,7 +977,7 @@ Dashboard harus menampilkan breakdown skor agar user memahami hasilnya.
 
 ## 4.9 Data Science Dashboard
 
-### FR-29 — Streamlit Insight Dashboard
+### FR-29 â€” Streamlit Insight Dashboard
 
 **Deskripsi:**  
 Tim Data Science harus menyediakan dashboard Streamlit untuk insight internal/project evaluation.
@@ -1007,7 +1007,7 @@ Tim Data Science harus menyediakan dashboard Streamlit untuk insight internal/pr
 
 ## 5.1 Performance Requirements
 
-### NFR-01 — Response Time UI
+### NFR-01 â€” Response Time UI
 
 Halaman utama harus dapat dimuat dalam waktu yang wajar.
 
@@ -1019,33 +1019,33 @@ Halaman utama harus dapat dimuat dalam waktu yang wajar.
 
 ---
 
-### NFR-02 — AI Response Time
+### NFR-02 â€” AI Response Time
 
 AI evaluation dan next question generation harus memberikan feedback dalam waktu yang masih nyaman.
 
 **Target MVP:**
 
-1. STT selesai dalam 5–15 detik tergantung durasi audio.
-2. Evaluasi jawaban selesai dalam 5–15 detik.
-3. UI menampilkan state “Thinking” saat proses berlangsung.
+1. STT selesai dalam 5â€“15 detik tergantung durasi audio.
+2. Evaluasi jawaban selesai dalam 5â€“15 detik.
+3. UI menampilkan state â€œThinkingâ€ saat proses berlangsung.
 
 ---
 
-### NFR-03 — File Upload Limit
+### NFR-03 â€” File Upload Limit
 
 Sistem harus membatasi file upload untuk menjaga performa.
 
 **Target:**
 
 1. Format CV: PDF.
-2. Maksimal ukuran file: disesuaikan backend, rekomendasi 2–5 MB untuk MVP.
+2. Maksimal ukuran file: disesuaikan backend, rekomendasi 2â€“5 MB untuk MVP.
 3. Audio jawaban dibatasi durasi dan ukuran.
 
 ---
 
 ## 5.2 Security Requirements
 
-### NFR-04 — Password Security
+### NFR-04 â€” Password Security
 
 Password user tidak boleh disimpan dalam plain text.
 
@@ -1056,7 +1056,7 @@ Password user tidak boleh disimpan dalam plain text.
 
 ---
 
-### NFR-05 — API Key Security
+### NFR-05 â€” API Key Security
 
 API key untuk GenAI/STT tidak boleh disimpan di frontend atau repository publik.
 
@@ -1068,7 +1068,7 @@ API key untuk GenAI/STT tidak boleh disimpan di frontend atau repository publik.
 
 ---
 
-### NFR-06 — CV dan Audio Privacy
+### NFR-06 â€” CV dan Audio Privacy
 
 Sistem harus menjaga privasi file user.
 
@@ -1083,7 +1083,7 @@ Sistem harus menjaga privasi file user.
 
 ## 5.3 Usability Requirements
 
-### NFR-07 — Simplicity
+### NFR-07 â€” Simplicity
 
 Setiap halaman harus memiliki satu keputusan utama.
 
@@ -1095,7 +1095,7 @@ Setiap halaman harus memiliki satu keputusan utama.
 
 ---
 
-### NFR-08 — Voice Interview Usability
+### NFR-08 â€” Voice Interview Usability
 
 User harus memahami bahwa interview dilakukan dengan suara.
 
@@ -1110,7 +1110,7 @@ User harus memahami bahwa interview dilakukan dengan suara.
 
 ## 5.4 Reliability Requirements
 
-### NFR-09 — Error Handling
+### NFR-09 â€” Error Handling
 
 Sistem harus menangani error dengan jelas.
 
@@ -1130,7 +1130,7 @@ Sistem harus menangani error dengan jelas.
 
 ---
 
-### NFR-10 — Fallback Demo
+### NFR-10 â€” Fallback Demo
 
 Untuk kebutuhan capstone, sistem harus memiliki strategi fallback demo.
 
@@ -1145,7 +1145,7 @@ Untuk kebutuhan capstone, sistem harus memiliki strategi fallback demo.
 
 ## 5.5 Maintainability Requirements
 
-### NFR-11 — Code Structure
+### NFR-11 â€” Code Structure
 
 Project harus memiliki struktur folder yang rapi.
 
@@ -1187,23 +1187,23 @@ app/utils/
 
 ## 6.1 User Interface
 
-### UI-01 — Landing Page
+### UI-01 â€” Landing Page
 
 Harus menampilkan copywriting produk dan CTA utama.
 
-### UI-02 — Role Selection
+### UI-02 â€” Role Selection
 
 Harus menggunakan card/selectable UI yang mudah dipahami.
 
-### UI-03 — Interview Context Setup
+### UI-03 â€” Interview Context Setup
 
 Harus menampilkan dua pilihan: Upload CV dan Isi Profil Singkat.
 
-### UI-04 — HRD Interview Stage
+### UI-04 â€” HRD Interview Stage
 
 Harus menampilkan HRD WebM visual, question bubble, mic button, dan state indicator.
 
-### UI-05 — Result Dashboard
+### UI-05 â€” Result Dashboard
 
 Harus menampilkan score dan 4 komponen hasil utama.
 
@@ -1266,7 +1266,7 @@ Sistem menggunakan software/service berikut:
 | Database | PostgreSQL, Drizzle ORM |
 | AI Service | FastAPI, Python |
 | Model | TensorFlow/Keras |
-| GenAI | Gemini/GPT API |
+| GenAI | OpenAI Responses API |
 | STT | Whisper/faster-whisper/browser STT/API STT |
 | DS Dashboard | Streamlit |
 | Deployment FE | Vercel / Netlify |
@@ -1407,11 +1407,11 @@ Sistem harus mendeteksi apakah jawaban butuh klarifikasi.
 **Decision logic MVP:**
 
 ```txt
-Jika evidence_specificity < threshold → weak_evidence
-Jika technical_accuracy < threshold → technical_detail
-Jika role_relevance < threshold → role_relevance
-Jika STAR structure rendah → star_structure
-Jika STT confidence rendah → unclear_audio
+Jika evidence_specificity < threshold â†’ weak_evidence
+Jika technical_accuracy < threshold â†’ technical_detail
+Jika role_relevance < threshold â†’ role_relevance
+Jika STAR structure rendah â†’ star_structure
+Jika STT confidence rendah â†’ unclear_audio
 ```
 
 ---
@@ -1454,7 +1454,7 @@ Opsi output:
 2. Average
 3. Strong
 
-atau supporting score 0–100.
+atau supporting score 0â€“100.
 
 ### Requirement Model
 
@@ -1468,15 +1468,15 @@ atau supporting score 0–100.
 
 ## 9. Business Rules
 
-### BR-01 — User Tidak Bisa Interview Tanpa Konteks
+### BR-01 â€” User Tidak Bisa Interview Tanpa Konteks
 
 User wajib memilih upload CV atau isi profil singkat sebelum interview.
 
-### BR-02 — Interview Menggunakan Voice Sebagai Mode Utama
+### BR-02 â€” Interview Menggunakan Voice Sebagai Mode Utama
 
 Text answer tidak menjadi flow utama pada MVP.
 
-### BR-03 — Clarification Dibatasi
+### BR-03 â€” Clarification Dibatasi
 
 Clarification maksimal harus dibatasi agar interview tidak looping.
 
@@ -1485,15 +1485,15 @@ Rekomendasi:
 1. Maksimal 1 clarification per main question.
 2. Maksimal 3 clarification per session.
 
-### BR-04 — AI Tidak Boleh Mengarang Data
+### BR-04 â€” AI Tidak Boleh Mengarang Data
 
 Feedback dan stronger answer harus berdasarkan data user.
 
-### BR-05 — Dashboard Harus Punya Alasan
+### BR-05 â€” Dashboard Harus Punya Alasan
 
 Setiap score/feedback harus memiliki alasan agar tidak terlihat seperti angka kosong.
 
-### BR-06 — GenAI Bukan Satu-Satunya Scoring Source
+### BR-06 â€” GenAI Bukan Satu-Satunya Scoring Source
 
 Scoring harus menggunakan hybrid approach:
 
@@ -1507,7 +1507,7 @@ Scoring harus menggunakan hybrid approach:
 
 ## 10. Use Case Specification
 
-## UC-01 — User Sign Up
+## UC-01 â€” User Sign Up
 
 **Actor:** User  
 **Precondition:** User belum memiliki akun  
@@ -1525,7 +1525,7 @@ Scoring harus menggunakan hybrid approach:
 
 ---
 
-## UC-02 — User Memilih Target Role
+## UC-02 â€” User Memilih Target Role
 
 **Actor:** User  
 **Precondition:** User sudah login  
@@ -1541,7 +1541,7 @@ Scoring harus menggunakan hybrid approach:
 
 ---
 
-## UC-03 — User Upload CV
+## UC-03 â€” User Upload CV
 
 **Actor:** User  
 **Precondition:** User sudah memilih target role  
@@ -1560,7 +1560,7 @@ Scoring harus menggunakan hybrid approach:
 
 ---
 
-## UC-04 — User Isi Profil Singkat
+## UC-04 â€” User Isi Profil Singkat
 
 **Actor:** User  
 **Precondition:** User sudah memilih target role  
@@ -1574,7 +1574,7 @@ Scoring harus menggunakan hybrid approach:
 
 ---
 
-## UC-05 — User Menjalani Live Voice Interview
+## UC-05 â€” User Menjalani Live Voice Interview
 
 **Actor:** User  
 **Precondition:** Interview context sudah tersedia  
@@ -1594,7 +1594,7 @@ Scoring harus menggunakan hybrid approach:
 
 ---
 
-## UC-06 — User Melihat Result Dashboard
+## UC-06 â€” User Melihat Result Dashboard
 
 **Actor:** User  
 **Precondition:** Interview session selesai  
@@ -1730,7 +1730,7 @@ Rekomendasi:
 
 ## 14. Requirement Prioritization
 
-### P0 — Wajib Ada
+### P0 â€” Wajib Ada
 
 1. Auth basic
 2. Role selection
@@ -1745,15 +1745,15 @@ Rekomendasi:
 11. Backend API
 12. Database
 
-### P1 — Penting
+### P1 â€” Penting
 
 1. TensorFlow supporting model
 2. Evidence Ladder
-3. Before–After Answer Improvement
+3. Beforeâ€“After Answer Improvement
 4. Streamlit dashboard
 5. Deployment staging
 
-### P2 — Bonus
+### P2 â€” Bonus
 
 1. Interview history
 2. Export result
@@ -1950,19 +1950,20 @@ SRS ini mendefinisikan bahwa MVP Road2Work.id harus fokus pada alur inti:
 
 ```txt
 Role Selection
-↓
+â†“
 Upload CV / Isi Profil Singkat
-↓
+â†“
 Extract Context
-↓
+â†“
 Live Voice Interview
-↓
+â†“
 AI Evaluation + Clarification
-↓
+â†“
 Result Dashboard
 ```
 
 Dengan scope ini, Road2Work.id tetap realistis untuk dikembangkan sebagai capstone project, tetapi cukup kuat secara inovasi karena menghadirkan adaptive AI HRD interview, voice-based practice, Evidence Ladder, dan dashboard feedback yang actionable.
 
 Dokumen ini menjadi acuan utama untuk pengembangan, integrasi, testing, deployment, dan presentasi akhir project Road2Work.id.
+
 
