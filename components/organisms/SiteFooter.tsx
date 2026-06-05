@@ -6,14 +6,18 @@ import Button from '@/components/atoms/Button'
 import Logo from '@/components/atoms/Logo'
 
 const platformLinks = [
-  { label: 'Beranda', href: '/' },
-  { label: 'Cara Kerja', href: '/how-it-works' },
+  { label: 'Produk', href: '/#product' },
+  { label: 'Cara Kerja', href: '/#workflow' },
   { label: 'Fitur', href: '/#features' },
-  { label: 'Role', href: '/start' },
-  { label: 'Tim', href: '/about' },
+  { label: 'Demo', href: '/#demo' },
 ]
 
-const availableRoles = ['Data Analyst', 'Data Scientist', 'AI Engineer', 'ML Engineer', 'Backend Developer']
+const legalLinks = [
+  { label: 'Pusat Bantuan', href: '#' },
+  { label: 'Tanya Jawab (FAQ)', href: '#' },
+  { label: 'Syarat & Ketentuan', href: '#' },
+  { label: 'Kebijakan Privasi', href: '#' },
+]
 
 export default function SiteFooter() {
   const scrollToTop = () => {
@@ -33,6 +37,14 @@ export default function SiteFooter() {
               <p className="mt-5 text-sm text-muted">
                 <span className="font-bold text-ink">Email:</span> hello@road2work.id
               </p>
+              <div className="mt-7 rounded-2xl border border-brand-red/15 bg-brand-red/5 p-4 transition-colors hover:bg-brand-red/10">
+                <p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-brand-red">
+                  Capstone Project
+                </p>
+                <p className="mt-2 text-xs font-medium leading-5 text-ink/70">
+                  Dikembangkan oleh Tim <span className="font-bold text-ink">CC26-PSU050</span> untuk mendukung tema <span className="font-bold italic text-ink">Future-Ready Work & Economy</span>.
+                </p>
+              </div>
             </div>
 
             <FooterColumn title="Platform">
@@ -43,10 +55,10 @@ export default function SiteFooter() {
               ))}
             </FooterColumn>
 
-            <FooterColumn title="Role Tersedia">
-              {availableRoles.map(role => (
-                <Link key={role} href="/start" className="text-sm text-muted transition hover:text-brand-red">
-                  {role}
+            <FooterColumn title="Legal & Bantuan">
+              {legalLinks.map(link => (
+                <Link key={link.label} href={link.href} className="text-sm text-muted transition hover:text-brand-red">
+                  {link.label}
                 </Link>
               ))}
             </FooterColumn>

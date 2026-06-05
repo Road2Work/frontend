@@ -1,4 +1,4 @@
-Software Requirements Specification
+﻿Software Requirements Specification
 Road2Work.id
 AI Career Readiness Platform
 Metadata
@@ -10,7 +10,7 @@ Your Roadmap to a Better Career
 Theme
 Future-Ready Work & Economy
 SRS Version
-v2.3 — Adaptive Session
+v2.3 â€” Adaptive Session
 Prepared For
 Capstone Project Road2Work.id
 Prepared By
@@ -104,17 +104,17 @@ Full CV builder
 Role fit dan next best action
 Payment/subscription platform pada MVP
 2.3 Core Product Loop
-Profile → Role → Practice → Feedback → Improve
+Profile â†’ Role â†’ Practice â†’ Feedback â†’ Improve
 Professional Profile Intelligence
-↓
+â†“
 Role Fit Recommendation / Role Fit Score
-↓
+â†“
 Adaptive Voice Interview
-↓
+â†“
 Answer Evaluation + Clarification
-↓
+â†“
 Career Readiness Dashboard
-↓
+â†“
 Next Best Action + Adaptive Interview Session berikutnya
 2.4 Product Objectives
 Membantu user membangun profil profesional berdasarkan CV atau profil manual.
@@ -254,99 +254,99 @@ Pertanyaan interview ulang dapat menargetkan competency yang sama, tetapi wordin
 6. User Flow dan Activity Flow
 6.1 Upload CV Path
 Landing Page
-↓
+â†“
 Login / Sign Up
-↓
+â†“
 Readiness Hub
-↓
+â†“
 Career Readiness Onboarding
-↓
+â†“
 Upload CV
-↓
+â†“
 AI Extract CV Data
-↓
+â†“
 Generate Professional Profile Draft
-↓
+â†“
 Review & Edit Profile
-↓
+â†“
 Confirm Profile
-↓
+â†“
 Generate Role Fit Ranking
-↓
+â†“
 Show Recommended Roles Rank 1, 2, 3
-↓
+â†“
 User pilih role rekomendasi atau pilih role manual
-↓
+â†“
 Confirm Selected Role
-↓
+â†“
 Build Personalized Interview Context
-↓
+â†“
 Interview Onboarding
-↓
+â†“
 Adaptive Voice Interview
-↓
+â†“
 Interview Result
-↓
+â†“
 Update Career Readiness Dashboard
 6.2 Manual Profile Path
 Landing Page
-↓
+â†“
 Login / Sign Up
-↓
+â†“
 Readiness Hub
-↓
+â†“
 Career Readiness Onboarding
-↓
+â†“
 User belum siap upload CV
-↓
+â†“
 Copywriting Disclaimer
-↓
+â†“
 Pilih Domain
-↓
+â†“
 Pilih Role Family
-↓
+â†“
 Pilih Target Role
-↓
+â†“
 Isi Profil Singkat
-↓
+â†“
 AI Extract Short Profile Data
-↓
+â†“
 Generate Professional Profile Draft
-↓
+â†“
 Review & Edit Profile
-↓
+â†“
 Confirm Profile
-↓
+â†“
 Use Selected Target Role
-↓
+â†“
 Build Personalized Interview Context
-↓
+â†“
 Interview Onboarding
-↓
+â†“
 Adaptive Voice Interview
-↓
+â†“
 Interview Result
-↓
+â†“
 Update Career Readiness Dashboard
 6.3 Adaptive Interview Retry Flow
 User memilih Latih Interview Lagi
-↓
+â†“
 Backend membaca profile + selected role
-↓
+â†“
 Backend membaca interview history terakhir
-↓
+â†“
 Build Adaptive Practice Memory
-↓
+â†“
 Ambil previous weakness, score breakdown, evidence level, asked question history
-↓
+â†“
 Generate improvement focus
-↓
+â†“
 Create new interview session
-↓
+â†“
 AI generate pertanyaan baru dengan avoidRepeatedQuestions = true
-↓
+â†“
 Interview berjalan adaptif
-↓
+â†“
 Dashboard diperbarui kembali
 6.4 HRD Interview State
 State
@@ -371,10 +371,10 @@ Completed
 Sesi interview selesai.
 Result dibuat, dashboard diperbarui, user dapat melihat hasil atau latihan lagi.
 6.5 State Transition
-Idle → Asking → Listening → Thinking
-Thinking → Clarifying → Listening → Thinking
-Thinking → Asking
-Thinking → Completed
+Idle â†’ Asking â†’ Listening â†’ Thinking
+Thinking â†’ Clarifying â†’ Listening â†’ Thinking
+Thinking â†’ Asking
+Thinking â†’ Completed
 Catatan:
 - Recording/timer bukan state terpisah, tetapi behavior dalam state Listening.
 - STT/evaluation bukan state terpisah, tetapi behavior dalam state Thinking.
@@ -667,8 +667,8 @@ Role-Skill Matrix
 + Previous Interview Evaluation
 + Asked Question History
 + Improvement Focus
-↓
-AI Generated Natural Question
+â†“
+Natural Adaptive Question
 10.5 Speech-to-Text Requirements
 STT harus mengembalikan transcript_text, stt_confidence, duration_seconds, dan status.
 STT harus mendukung bahasa Indonesia sebagai prioritas MVP.

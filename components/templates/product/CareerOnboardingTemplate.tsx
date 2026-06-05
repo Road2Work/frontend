@@ -14,7 +14,7 @@ export default function CareerOnboardingTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo="/hub" backLabel="Kembali ke Hub" />
+      <AppHeader tagline="Your Roadmap to a Better Career" />
 
       <main className="mx-auto max-w-5xl px-5 py-10 sm:px-6 sm:py-14">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="mx-auto max-w-2xl text-center">
@@ -27,13 +27,20 @@ export default function CareerOnboardingTemplate() {
           </p>
         </motion.div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <Card className="mx-auto mt-8 flex max-w-3xl items-start gap-3 border-brand-red/15 bg-brand-red/5 p-5 text-left text-sm leading-7 text-muted">
+          <Shield className="mt-1 h-5 w-5 shrink-0 text-brand-red" />
+          <p>
+            <span className="font-bold text-ink">Catatan MVP:</span> untuk saat ini Road2Work fokus pada domain Information Technology. Domain lain sedang masuk roadmap pengembangan berikutnya.
+          </p>
+        </Card>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
           <PathCard
             icon={FileText}
             title="Upload CV"
             badge="Direkomendasikan"
             description="Pilih ini kalau kamu sudah punya CV dan ingin melihat role yang paling relevan dari pengalaman, project, skill, dan tools yang sudah kamu tulis."
-            points={['Cocok untuk eksplor rekomendasi role', 'Bisa review hasil ekstraksi CV', 'Tetap bisa memilih role sebelum latihan']}
+            points={['Cocok untuk eksplor rekomendasi role', 'Bisa review hasil ekstraksi CV', 'Pilih fokus latihan dari ranking role']}
             href="/setup"
             onClick={() => choosePath('cv')}
           />

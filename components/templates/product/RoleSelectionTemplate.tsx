@@ -112,7 +112,7 @@ export default function RoleSelectionTemplate() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <AppHeader backTo="/career-onboarding" backLabel="Kembali ke Onboarding" />
+      <AppHeader backTo="/career-onboarding" backLabel="Ganti Jalur Mulai" />
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-12 flex items-center">
