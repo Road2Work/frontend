@@ -32,27 +32,27 @@ export const valuePillars = ['Sesuai role', 'Berbasis suara', 'Fokus bukti', 'Fe
 export const features: IconItem[] = [
   {
     title: 'Professional Profile Intelligence',
-    description: 'CV atau profil singkat dirapikan menjadi ringkasan profesional, daftar skill, tools, dan bukti pengalaman.',
+    description: 'Upload CV atau isi profil singkat. Road2Work membaca pengalaman menjadi skill, tools, achievement, dan evidence yang lebih terstruktur.',
     icon: FiSearch,
   },
   {
     title: 'Role Fit Recommendation',
-    description: 'Lihat role yang paling masuk akal untuk dilatih berdasarkan profil, skill, tools, dan bukti yang sudah terbaca.',
+    description: 'Pahami role yang paling relevan dengan profilmu, lengkap dengan role fit score, gap utama, dan alasan rekomendasi.',
     icon: FiTarget,
   },
   {
     title: 'Adaptive Voice Interview',
-    description: 'Jawab pertanyaan dengan suara. Jika jawaban belum jelas, AI HRD akan meminta detail yang lebih spesifik.',
+    description: 'Latihan interview dengan AI HRD berbasis suara. Pertanyaan menyesuaikan role, profil, dan kualitas jawabanmu.',
     icon: FiMic,
   },
   {
     title: 'Evidence-Based Feedback',
-    description: 'Setiap jawaban dinilai dari bukti, relevansi role, struktur, kejelasan, dan bagian yang masih perlu diperkuat.',
+    description: 'Jawaban dievaluasi berdasarkan relevansi role, struktur, clarity, evidence, kontribusi pribadi, dan impact.',
     icon: FiCheckCircle,
   },
   {
     title: 'Career Readiness Dashboard',
-    description: 'Lihat skor kesiapan, kekuatan, gap, feedback terbaru, riwayat aktivitas, dan prioritas latihan berikutnya.',
+    description: 'Pantau readiness score, strengths, gaps, latest feedback, timeline, dan langkah perbaikan berikutnya.',
     icon: FiMap,
   },
 ]
@@ -139,34 +139,51 @@ export const teamMembers = [
     name: 'Muhammad Adil Imamul Haq Mubarak',
     id: 'CACC149D6Y0561',
     role: 'AI Engineer',
+    photo: '/photo/adil.png',
+    github: 'https://github.com/AisTattoo',
+    linkedin: 'https://www.linkedin.com/in/muhammad-adil-imamul-haq-mubarak-5522bb2a8/',
   },
   {
     name: 'Alvano Hastagina',
     id: 'CFCC560D6Y0640',
     role: 'Backend Lead / Full-Stack Web Developer',
+    photo: '/photo/alvano.png',
+    github: 'https://github.com/alvanochi',
+    linkedin: 'https://www.linkedin.com/in/alvanoh/',
   },
   {
     name: 'Diva Syabina Putri',
     id: 'CACC307D6X0932',
     role: 'AI Engineer',
+    photo: '/photo/diva.png',
+    github: 'https://github.com/VaSy365',
+    linkedin: 'https://www.linkedin.com/in/diva-syabina-putri-a339692b1/',
   },
   {
     name: 'Nurul Ainil Fitri',
     id: 'CDCC295D6X1246',
     role: 'Data Scientist',
+    photo: '/photo/nurul.png',
+    github: 'https://github.com/nurulainilf',
+    linkedin: 'https://www.linkedin.com/in/nurulainilf/',
   },
   {
     name: 'Yosua Immanuel Hizkya Kristiawan',
     id: 'CFCC676D6Y1544',
     role: 'Project Manager & Frontend Lead / Full-Stack Web Developer',
+    photo: '/photo/yosua.png',
+    github: 'https://github.com/YosKyaa',
+    linkedin: 'https://www.linkedin.com/in/yosuaimmanuelhk/',
   },
   {
     name: 'Addya Virna Amany',
     id: 'CDCC290D6X1902',
     role: 'Data Scientist',
+    photo: '/photo/addya.png',
+    github: 'https://github.com/addyavirna-art',
+    linkedin: 'https://www.linkedin.com/in/addya-virna-amany-35878a359/',
   },
 ]
-
 export const onboardingChecklist = [
   'Mikrofon siap',
   'Ruangan tenang',
@@ -180,3 +197,6 @@ export const hubStats = [
   { label: 'Runtutan latihan', value: '3 hari', note: 'Jaga momentum', icon: FiFlag },
   { label: 'Fokus berikutnya', value: 'Bukti', note: 'Tambahkan metrik dampak', icon: FiCheckCircle },
 ]
+
+
+

@@ -22,17 +22,8 @@ export default function SiteFooter() {
 
   return (
     <footer className="relative bg-paper pb-8 pt-10 text-ink">
-      <div className="w-full rounded-t-[36px] bg-[#f6f2ec] px-3 pb-8 pt-16 sm:px-5 lg:px-8">
-        <div className="overflow-hidden rounded-[22px] bg-gradient-to-r from-[#ff6b5f] via-brand-red to-[#f45b2e] py-12 shadow-[0_20px_60px_rgba(230,57,70,0.22)]">
-          <div className="whitespace-nowrap font-display text-[clamp(2.7rem,6.2vw,5.4rem)] font-black leading-none text-white">
-            <div className="animate-[footer-marquee_18s_linear_infinite]">
-              <span className="mx-8">Mulai dari profilmu. Temukan role. Latih jawabanmu.</span>
-              <span className="mx-8">Mulai dari profilmu. Temukan role. Latih jawabanmu.</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-6 max-w-6xl border-t border-ink/10 pt-9">
+      <div className="w-full rounded-t-[36px] bg-[#f6f2ec] px-3 pb-8 pt-10 sm:px-5 lg:px-8">
+        <div className="mx-auto max-w-6xl border-t border-ink/10 pt-9">
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.65fr_0.8fr_0.9fr_1.25fr]">
             <div>
               <Logo />

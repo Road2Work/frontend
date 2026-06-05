@@ -53,8 +53,8 @@ export default function HrdVideoFrame({ state }: HrdVideoFrameProps) {
         style={interviewFrameStyles.bottomOverlay}
       >
         <div>
-          <div className="font-display text-sm font-semibold text-white/85">Ayu Rahayu</div>
-          <div className="mt-0.5 font-mono text-[0.56rem] tracking-wide text-white/35">AI HRD · Road2Work</div>
+          <div className="font-display text-sm font-semibold text-white/85">AI HRD Road2Work</div>
+          <div className="mt-0.5 font-mono text-[0.56rem] tracking-wide text-white/35">Adaptive Interview</div>
         </div>
 
         <motion.div

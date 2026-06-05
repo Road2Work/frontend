@@ -28,66 +28,65 @@ import {
 } from 'lucide-react'
 import AppHeader from '@/components/organisms/AppHeader'
 import { resultService } from '@/services/result.service'
-import type { InterviewResult } from '@/types/api-contract'
+import type { BeforeAfterImprovement, InterviewResult, NextPracticeRecommendation, PracticeMode, ResultInsight, ScoreBreakdown } from '@/types/api-contract'
 
-const scoreBreakdown = [
-  { label: 'Relevansi Peran', score: 70, icon: Target },
-  { label: 'Struktur STAR', score: 78, icon: BookOpen },
-  { label: 'Spesifisitas Bukti', score: 55, icon: BarChart2 },
-  { label: 'Akurasi Teknis', score: 62, icon: Cpu },
-  { label: 'Kejelasan Komunikasi', score: 82, icon: Volume2 },
-  { label: 'Kesadaran Diri', score: 68, icon: Eye },
-]
+const scoreBreakdownLabels = [
+  { key: 'roleRelevance', label: 'Relevansi Peran', icon: Target },
+  { key: 'starStructure', label: 'Struktur STAR', icon: BookOpen },
+  { key: 'evidenceSpecificity', label: 'Spesifisitas Bukti', icon: BarChart2 },
+  { key: 'technicalAccuracy', label: 'Akurasi Teknis', icon: Cpu },
+  { key: 'communicationClarity', label: 'Kejelasan Komunikasi', icon: Volume2 },
+  { key: 'selfAwareness', label: 'Kesadaran Diri', icon: Eye },
+] as const
 
-const strengths = [
-  { text: 'Kejelasan komunikasi konsisten di semua jawaban', tag: 'P2, P3, P5' },
-  { text: 'Struktur STAR diterapkan dengan baik di pertanyaan kunci', tag: 'P2, P4' },
-  { text: 'Pemahaman industri dan peran yang baik', tag: 'P1, P3' },
-]
-
-const improvements = [
-  { text: 'Spesifisitas bukti - tambahkan angka, skala, dan hasil nyata', priority: 'Tinggi' },
-  { text: 'Kedalaman teknis - jelaskan lebih detail tools dan metodologi yang digunakan', priority: 'Sedang' },
-  { text: 'Kesadaran diri - refleksikan pelajaran yang dipetik secara eksplisit', priority: 'Sedang' },
-]
-
-const practiceSteps = [
-  'Untuk setiap jawaban, sertakan minimal satu metrik spesifik: persen, rupiah, durasi, atau skala.',
-  'Tulis ulang jawaban P1 menggunakan template S-T-A-R-R dan tambahkan kalimat hasil kedua.',
-  'Rekam respons 90 detik untuk P3, lalu dengarkan kembali dan tandai bagian yang masih samar.',
-]
-
+type ScoreBreakdownItem = {
+  label: string
+  score: number
+  icon: LucideIcon
+}
 export default function ResultsTemplate() {
   const [result, setResult] = useState<InterviewResult | null>(null)
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return Boolean(window.sessionStorage.getItem('road2work:session-id'))
+  })
   const [sessionStats] = useState(() => {
     const totalQuestions = typeof window === 'undefined' ? '3' : (window.sessionStorage.getItem('road2work:total-main-questions') ?? '3')
     return [
       { icon: MessageSquare, label: 'Pertanyaan', value: `${totalQuestions} / ${totalQuestions}` },
       { icon: Clock, label: 'Durasi', value: '3-8 menit' },
-      { icon: Calendar, label: 'Tanggal', value: '17 Mei 2026' },
     ]
   })
 
   useEffect(() => {
-    const sessionId = window.sessionStorage.getItem('road2work:session-id') ?? 'session_001'
+    const sessionId = window.sessionStorage.getItem('road2work:session-id')
+    if (!sessionId) {
+      return
+    }
+
     resultService
       .getResult(sessionId)
-      .then(response => setResult(response.data.result))
+      .then(response => setResult(normalizeInterviewResult(response.data.result)))
       .catch(() => setResult(null))
+      .finally(() => setIsLoading(false))
   }, [])
 
-  const breakdown = result ? toScoreBreakdownItems(result) : scoreBreakdown
-  const strengthItems = result?.strengths.map(item => ({ body: item.description, meta: item.evidence ?? item.title })) ?? strengths.map(item => ({ body: item.text, meta: item.tag }))
+  const breakdown = result ? toScoreBreakdownItems(result) : []
+  const strengthItems = result?.strengths?.length
+    ? result.strengths.map(item => ({ body: item.description, meta: item.evidence ?? item.title }))
+    : []
   const improvementItems =
-    result?.improvementAreas.map(item => ({ body: item.description, meta: item.evidence ?? item.title })) ?? improvements.map(item => ({ body: item.text, meta: `Prioritas ${item.priority}` }))
-  const practiceItems = result?.nextPracticeRecommendation.focusAreas ?? practiceSteps
+    result?.improvementAreas?.length
+      ? result.improvementAreas.map(item => ({ body: item.description, meta: item.evidence ?? item.title }))
+      : []
+  const practiceItems = result?.nextPracticeRecommendation?.focusAreas ?? []
 
   return (
     <div className="min-h-screen bg-paper">
       <AppHeader backTo="/hub" backLabel="Kembali ke Hub" />
 
       <main className="mx-auto max-w-5xl space-y-4 px-5 py-10">
-        <DashboardUpdatedNotice />
+        <DashboardUpdatedNotice result={result} isLoading={isLoading} />
 
         <ResultHeroCard result={result} sessionStats={sessionStats} />
 
@@ -97,12 +96,14 @@ export default function ResultsTemplate() {
             icon={Award}
             tone="success"
             items={strengthItems}
+            emptyMessage="Kekuatan belum tersedia. Selesaikan evaluasi interview untuk melihat bagian ini."
           />
           <InsightCard
             title="Area Perbaikan"
             icon={TrendingUp}
             tone="danger"
             items={improvementItems}
+            emptyMessage="Area perbaikan belum tersedia. Road2Work akan menampilkannya setelah evaluasi selesai."
           />
         </section>
 
@@ -121,7 +122,7 @@ export default function ResultsTemplate() {
   )
 }
 
-function DashboardUpdatedNotice() {
+function DashboardUpdatedNotice({ result, isLoading }: { result: InterviewResult | null; isLoading: boolean }) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 12 }}
@@ -137,7 +138,11 @@ function DashboardUpdatedNotice() {
           <div>
             <h2 className="font-display text-lg font-black text-ink">Career Readiness Dashboard diperbarui</h2>
             <p className="mt-1 text-sm leading-6 text-muted">
-              Hasil interview ini sudah memperbarui skor kesiapan, prioritas latihan, dan feedback terbaru di dashboard.
+              {isLoading
+                ? 'Road2Work sedang mengambil hasil latihan terbarumu.'
+                : result
+                  ? 'Hasil interview ini sudah memperbarui skor kesiapan, prioritas latihan, dan feedback terbaru di dashboard.'
+                  : 'Hasil interview belum tersedia. Coba buka lagi setelah proses evaluasi selesai.'}
             </p>
           </div>
         </div>
@@ -153,10 +158,15 @@ function DashboardUpdatedNotice() {
 }
 
 function ResultHeroCard({ result, sessionStats }: { result: InterviewResult | null; sessionStats: Array<{ icon: LucideIcon; label: string; value: string }> }) {
-  const targetRole = result?.targetRole.roleName ?? 'Analis Data'
-  const score = result?.finalScore ?? 72
-  const readinessStatus = translateReadiness(result?.readinessStatus ?? 'Almost Ready')
-  const lowestScore = result ? getLowestScoreLabel(result) : 'Bukti: Lemah'
+  const targetRole = result?.targetRole?.roleName ?? result?.selectedRole?.name ?? 'Role target'
+  const score = result?.finalScore ?? 0
+  const readinessStatus = result ? translateReadiness(result.readinessStatus) : 'Menunggu Evaluasi'
+  const lowestScore = result ? getLowestScoreLabel(result) : 'Skor belum tersedia'
+  const headline = result ? getResultHeadline(score) : ['Hasil belum tersedia.', 'Cek lagi sebentar.']
+  const summary = result?.summary ?? buildResultSummary(result)
+  const stats = result?.createdAt
+    ? [...sessionStats, { icon: Calendar, label: 'Tanggal', value: formatResultDate(result.createdAt) }]
+    : sessionStats
 
   return (
     <motion.section
@@ -180,18 +190,17 @@ function ResultHeroCard({ result, sessionStats }: { result: InterviewResult | nu
           </div>
 
           <h1 className="mb-3 font-display text-[clamp(1.4rem,2.6vw,1.85rem)] font-black leading-[1.18] tracking-[-0.04em] text-ink">
-            Fondasi kuat.
+            {headline[0]}
             <br />
-            Perkuat bukti nyata.
+            {headline[1]}
           </h1>
           <p className="max-w-md text-sm leading-relaxed text-muted">
-            Struktur dan komunikasi kamu sudah bagus. Celah utama: tambahkan angka nyata dan hasil terukur di setiap jawaban.
-            Itu yang membawamu dari Hampir Siap ke Siap Kerja.
+            {summary}
           </p>
         </div>
 
         <div className="flex w-full shrink-0 flex-row justify-center gap-5 border-t border-black/[0.06] pt-5 lg:w-auto lg:flex-col lg:justify-start lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-          {sessionStats.map(stat => (
+          {stats.map(stat => (
             <SessionStat key={stat.label} {...stat} />
           ))}
         </div>
@@ -277,11 +286,13 @@ function InsightCard({
   icon: Icon,
   tone,
   items,
+  emptyMessage,
 }: {
   title: string
   icon: LucideIcon
   tone: 'success' | 'danger'
   items: Array<{ body: string; meta: string }>
+  emptyMessage: string
 }) {
   const isSuccess = tone === 'success'
   const accent = isSuccess ? '#22C55E' : '#E63946'
@@ -298,36 +309,34 @@ function InsightCard({
         <Icon size={11} />
         {title}
       </div>
-      <div className="space-y-4">
-        {items.map(item => (
-          <div key={item.body} className="flex items-start gap-3">
-            <div
-              className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border"
-              style={{
-                backgroundColor: isSuccess ? 'rgba(34,197,94,0.1)' : 'rgba(230,57,70,0.07)',
-                borderColor: isSuccess ? 'rgba(34,197,94,0.2)' : 'rgba(230,57,70,0.15)',
-              }}
-            >
-              {isSuccess ? <CheckCircle2 size={10} style={{ color: accent }} /> : <ChevronRight size={10} style={{ color: accent }} />}
+      {items.length ? (
+        <div className="space-y-4">
+          {items.map((item, index) => (
+            <div key={`${item.body}-${index}`} className="flex items-start gap-3">
+              <div
+                className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border"
+                style={{
+                  backgroundColor: isSuccess ? 'rgba(34,197,94,0.1)' : 'rgba(230,57,70,0.07)',
+                  borderColor: isSuccess ? 'rgba(34,197,94,0.2)' : 'rgba(230,57,70,0.15)',
+                }}
+              >
+                {isSuccess ? <CheckCircle2 size={10} style={{ color: accent }} /> : <ChevronRight size={10} style={{ color: accent }} />}
+              </div>
+              <div>
+                <p className="text-sm leading-snug text-ink">{item.body}</p>
+                <span className="mt-1 inline-block font-mono text-xs tracking-wide text-[#A0A0A0]">{item.meta}</span>
+              </div>
             </div>
-            <div>
-              <p className="text-sm leading-snug text-ink">{item.body}</p>
-              <span className="mt-1 inline-block font-mono text-xs tracking-wide text-[#A0A0A0]">{item.meta}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyInlineState message={emptyMessage} />
+      )}
     </motion.section>
   )
 }
-
 function BeforeAfterCard({ result }: { result: InterviewResult | null }) {
-  const improvement = result?.beforeAfterImprovement[0]
-  const beforeAnswer = improvement?.beforeAnswer ?? 'Saya banyak pakai SQL waktu magang dan membantu meningkatkan database kami. Saya menjalankan beberapa query dan memperbaiki masalah performa.'
-  const afterAnswer =
-    improvement?.afterAnswer ??
-    'Saat magang di PT XYZ, saya mengoptimalkan 3 query SQL pada database PostgreSQL yang menangani 2 juta transaksi per hari, sehingga waktu query berkurang dari 4 detik ke 0,3 detik dan tim analis hemat sekitar 2 jam per hari.'
-  const note = improvement?.improvementNotes.join(', ') ?? 'Ditambahkan: nama perusahaan, skala, angka spesifik, waktu yang dihemat'
+  const improvements = (result?.beforeAfterImprovement ?? []).filter(item => item.beforeAnswer || item.afterAnswer)
 
   return (
     <motion.section
@@ -336,32 +345,54 @@ function BeforeAfterCard({ result }: { result: InterviewResult | null }) {
       transition={{ duration: 0.5, delay: 0.2 }}
       className="rounded-2xl border border-black/[0.07] bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.05)]"
     >
-      <div className="mb-5 flex items-center justify-between gap-4">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-widest text-slate-400">
           <div className="h-px w-4 bg-slate-400/60" />
           Perbaikan Jawaban: Sebelum ke Sesudah
         </div>
-        <div className="rounded-full bg-black/[0.04] px-2.5 py-1 font-mono text-xs tracking-wide text-slate-400">P1 - Proyek SQL</div>
+        <div className="rounded-full bg-black/[0.04] px-2.5 py-1 font-mono text-xs tracking-wide text-slate-400">
+          {improvements.length ? `${improvements.length} jawaban dievaluasi` : 'Menunggu hasil evaluasi'}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <AnswerPanel
-          tone="danger"
-          label="Jawaban Kamu"
-          body={beforeAnswer}
-          note="Kurang: nama perusahaan, skala, angka spesifik, hasil terukur"
-        />
-        <AnswerPanel
-          tone="success"
-          label="Jawaban yang Diperbaiki"
-          body={afterAnswer}
-          note={note}
-        />
-      </div>
+      {improvements.length ? (
+        <div className="space-y-5">
+          {improvements.map((improvement, index) => {
+            const note = improvement.improvementNotes?.length
+              ? improvement.improvementNotes.join(', ')
+              : 'Tambahkan konteks, kontribusi pribadi, tools yang digunakan, dan hasil yang terukur.'
+
+            return (
+              <div key={`${improvement.questionText}-${index}`} className="rounded-2xl border border-black/[0.05] bg-black/[0.015] p-4">
+                <div className="mb-3 inline-flex max-w-full rounded-full bg-white px-3 py-1 font-mono text-xs tracking-wide text-slate-400 shadow-sm">
+                  <span className="truncate">{improvement.questionText || `Jawaban ${index + 1}`}</span>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <AnswerPanel
+                    tone="danger"
+                    label="Jawaban Kamu"
+                    body={improvement.beforeAnswer || 'Jawaban awal tidak tersedia dari sesi ini.'}
+                    note="Versi awal dari jawaban yang dievaluasi sistem."
+                  />
+                  <AnswerPanel
+                    tone="success"
+                    label="Jawaban yang Diperbaiki"
+                    body={improvement.afterAnswer || 'Saran perbaikan belum tersedia untuk jawaban ini.'}
+                    note={note}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-black/10 bg-black/[0.02] p-5 text-sm leading-6 text-muted">
+          Perbandingan jawaban belum tersedia untuk sesi ini. Setelah evaluasi lengkap tersimpan, bagian ini akan menampilkan jawaban asli dan versi yang lebih kuat berdasarkan konteks interview kamu.
+        </div>
+      )}
     </motion.section>
   )
 }
-
 function AnswerPanel({
   tone,
   label,
@@ -414,7 +445,7 @@ function AnswerPanel({
   )
 }
 
-function BreakdownCard({ items }: { items: typeof scoreBreakdown }) {
+function BreakdownCard({ items }: { items: ScoreBreakdownItem[] }) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 14 }}
@@ -423,15 +454,18 @@ function BreakdownCard({ items }: { items: typeof scoreBreakdown }) {
       className="rounded-2xl border border-black/[0.07] bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_6px_24px_rgba(0,0,0,0.05)] md:col-span-3"
     >
       <SectionKicker label="Rincian Skor" muted />
-      <div className="space-y-4">
-        {items.map((item, index) => (
-          <ScoreBar key={item.label} {...item} delay={index * 0.07} />
-        ))}
-      </div>
+      {items.length ? (
+        <div className="space-y-4">
+          {items.map((item, index) => (
+            <ScoreBar key={item.label} {...item} delay={index * 0.07} />
+          ))}
+        </div>
+      ) : (
+        <EmptyInlineState message="Rincian skor belum tersedia. Selesaikan evaluasi interview untuk melihat breakdown jawaban." />
+      )}
     </motion.section>
   )
 }
-
 function ScoreBar({ label, score, icon: Icon, delay }: { label: string; score: number; icon: LucideIcon; delay: number }) {
   const color = score >= 75 ? '#22C55E' : score >= 60 ? '#F59E0B' : '#E63946'
   const textColor = score >= 75 ? '#16A34A' : score >= 60 ? '#B45309' : '#DC2626'
@@ -463,6 +497,9 @@ function ScoreBar({ label, score, icon: Icon, delay }: { label: string; score: n
 }
 
 function NextPracticeCard({ result, items }: { result: InterviewResult | null; items: string[] }) {
+  const recommendation = result?.nextPracticeRecommendation
+  const hasItems = items.length > 0
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 14 }}
@@ -475,31 +512,38 @@ function NextPracticeCard({ result, items }: { result: InterviewResult | null; i
         Latihan Berikutnya
       </div>
       <h3 className="mb-5 font-display text-lg font-bold tracking-[-0.03em] text-white">
-        Fokus: {result?.nextPracticeRecommendation.practiceType ?? 'Bukti & Dampak'}
+        {recommendation?.practiceType ? `Fokus: ${recommendation.practiceType}` : 'Latihan belum tersedia'}
       </h3>
 
-      <div className="flex-1 space-y-3.5">
-        {items.map((step, index) => (
-          <div key={step} className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-brand-red/30 bg-brand-red/20 font-mono text-xs font-bold text-brand-red">
-              {index + 1}
+      {hasItems ? (
+        <div className="flex-1 space-y-3.5">
+          {items.map((step, index) => (
+            <div key={`${step}-${index}`} className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border border-brand-red/30 bg-brand-red/20 font-mono text-xs font-bold text-brand-red">
+                {index + 1}
+              </div>
+              <p className="text-sm leading-relaxed text-white/65">{step}</p>
             </div>
-            <p className="text-sm leading-relaxed text-white/65">{step}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 border-t border-white/10 pt-4">
-        <div className="mb-1 font-mono text-xs tracking-wide text-white/30">ESTIMASI PENINGKATAN</div>
-        <div className="flex items-baseline gap-2">
-          <span className="font-display text-2xl font-black tracking-[-0.03em] text-emerald-500">+12-18 pts</span>
-          <span className="text-xs text-white/30">di sesi berikutnya</span>
+          ))}
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-white/60">
+          Rekomendasi latihan belum tersedia. Coba cek lagi setelah evaluasi selesai.
+        </div>
+      )}
+
+      {hasItems && (
+        <div className="mt-6 border-t border-white/10 pt-4">
+          <div className="mb-1 font-mono text-xs tracking-wide text-white/30">ESTIMASI PENINGKATAN</div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-2xl font-black tracking-[-0.03em] text-emerald-500">+12-18 pts</span>
+            <span className="text-xs text-white/30">di sesi berikutnya</span>
+          </div>
+        </div>
+      )}
     </motion.section>
   )
 }
-
 function AdaptiveSessionSuggestionCard({ result }: { result: InterviewResult | null }) {
   const suggestion = result?.adaptiveSessionSuggestion
 
@@ -524,8 +568,8 @@ function AdaptiveSessionSuggestionCard({ result }: { result: InterviewResult | n
           </p>
         </div>
         <div className="flex flex-wrap gap-2 sm:max-w-xs sm:justify-end">
-          {suggestion.recommendedFocus.map(item => (
-            <span key={item} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-red shadow-soft">
+          {suggestion.recommendedFocus.map((item, index) => (
+            <span key={`${item}-${index}`} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-brand-red shadow-soft">
               {item.replaceAll('_', ' ')}
             </span>
           ))}
@@ -585,6 +629,13 @@ function ResultActions({ result }: { result: InterviewResult | null }) {
   )
 }
 
+function EmptyInlineState({ message }: { message: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-black/10 bg-black/[0.02] p-4 text-sm leading-6 text-muted">
+      {message}
+    </div>
+  )
+}
 function SectionKicker({ label, muted }: { label: string; muted?: boolean }) {
   return (
     <div className={`mb-6 flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-widest ${muted ? 'text-slate-400' : 'text-brand-red'}`}>
@@ -601,21 +652,184 @@ function translateReadiness(status: InterviewResult['readinessStatus']) {
     'Needs Practice': 'Perlu Latihan',
   }
 
-  return labels[status]
+  return labels[status] ?? 'Hampir Siap'
 }
 
-function toScoreBreakdownItems(result: InterviewResult): typeof scoreBreakdown {
-  return [
-    { label: 'Relevansi Peran', score: result.scoreBreakdown.roleRelevance, icon: Target },
-    { label: 'Struktur STAR', score: result.scoreBreakdown.starStructure, icon: BookOpen },
-    { label: 'Spesifisitas Bukti', score: result.scoreBreakdown.evidenceSpecificity, icon: BarChart2 },
-    { label: 'Akurasi Teknis', score: result.scoreBreakdown.technicalAccuracy, icon: Cpu },
-    { label: 'Kejelasan Komunikasi', score: result.scoreBreakdown.communicationClarity, icon: Volume2 },
-    { label: 'Kesadaran Diri', score: result.scoreBreakdown.selfAwareness, icon: Eye },
-  ]
+function toScoreBreakdownItems(result: InterviewResult): ScoreBreakdownItem[] {
+  const breakdown = result.scoreBreakdown
+  return scoreBreakdownLabels.map(item => ({
+    label: item.label,
+    score: breakdown[item.key],
+    icon: item.icon,
+  }))
 }
 
 function getLowestScoreLabel(result: InterviewResult) {
   const lowest = toScoreBreakdownItems(result).reduce((current, item) => (item.score < current.score ? item : current))
   return `${lowest.label}: ${lowest.score}`
+}
+
+type RawRecord = Record<string, unknown>
+
+function normalizeInterviewResult(rawResult: unknown): InterviewResult {
+  const raw = isRecord(rawResult) ? rawResult : {}
+  const scoreBreakdownRaw = getRecord(raw.scoreBreakdown) ?? getRecord(raw.score_breakdown)
+  const targetRoleRaw = getRecord(raw.targetRole) ?? getRecord(raw.target_role) ?? getRecord(raw.selectedRole) ?? getRecord(raw.selected_role)
+  const nextPracticeRaw = getRecord(raw.nextPracticeRecommendation) ?? getRecord(raw.next_practice_recommendation)
+
+  return {
+    id: getString(raw.id, 'result_latest'),
+    sessionId: getString(raw.sessionId ?? raw.session_id, ''),
+    finalScore: clampScore(getNumber(raw.finalScore ?? raw.final_score, 0)),
+    interviewReadinessScore: getOptionalNumber(raw.interviewReadinessScore ?? raw.interview_readiness_score),
+    readinessStatus: normalizeReadinessStatus(raw.readinessStatus ?? raw.readiness_status),
+    summary: getOptionalString(raw.summary),
+    evidenceLevel: clampScore(getNumber(raw.evidenceLevel ?? raw.evidence_level, 0)),
+    selectedRole: normalizeSelectedRole(raw.selectedRole ?? raw.selected_role),
+    targetRole: {
+      id: getString(targetRoleRaw?.id, ''),
+      roleName: getString(targetRoleRaw?.roleName ?? targetRoleRaw?.role_name ?? targetRoleRaw?.name, 'Role target'),
+      roleFamily: getString(targetRoleRaw?.roleFamily ?? targetRoleRaw?.role_family, ''),
+    },
+    strengths: normalizeInsightArray(raw.strengths),
+    improvementAreas: normalizeInsightArray(raw.improvementAreas ?? raw.improvement_areas),
+    beforeAfterImprovement: normalizeBeforeAfterArray(raw.beforeAfterImprovement ?? raw.before_after_improvement),
+    nextPracticeRecommendation: normalizePracticeRecommendation(nextPracticeRaw),
+    adaptiveSessionSuggestion: normalizeAdaptiveSuggestion(raw.adaptiveSessionSuggestion ?? raw.adaptive_session_suggestion),
+    scoreBreakdown: normalizeScoreBreakdown(scoreBreakdownRaw),
+    createdAt: getString(raw.createdAt ?? raw.created_at, new Date().toISOString()),
+  }
+}
+
+function normalizeScoreBreakdown(raw?: RawRecord): ScoreBreakdown {
+  return {
+    roleRelevance: clampScore(getNumber(raw?.roleRelevance ?? raw?.role_relevance, 0)),
+    starStructure: clampScore(getNumber(raw?.starStructure ?? raw?.star_structure, 0)),
+    evidenceSpecificity: clampScore(getNumber(raw?.evidenceSpecificity ?? raw?.evidence_specificity, 0)),
+    technicalAccuracy: clampScore(getNumber(raw?.technicalAccuracy ?? raw?.technical_accuracy, 0)),
+    communicationClarity: clampScore(getNumber(raw?.communicationClarity ?? raw?.communication_clarity, 0)),
+    selfAwareness: clampScore(getNumber(raw?.selfAwareness ?? raw?.self_awareness, 0)),
+  }
+}
+
+function normalizeInsightArray(value: unknown): ResultInsight[] {
+  if (!Array.isArray(value)) return []
+  return value.map((item, index) => {
+    const raw = isRecord(item) ? item : {}
+    return {
+      title: getString(raw.title, `Insight ${index + 1}`),
+      description: getString(raw.description ?? raw.text ?? raw.body ?? raw.reason ?? raw.cause ?? raw.suggestion, String(item)),
+      evidence: getOptionalString(raw.evidence ?? raw.meta ?? raw.suggestion ?? raw.cause),
+    }
+  }).filter(item => item.description.trim().length > 0)
+}
+
+function normalizeBeforeAfterArray(value: unknown): BeforeAfterImprovement[] {
+  if (!Array.isArray(value)) return []
+  return value.map(item => {
+    const raw = isRecord(item) ? item : {}
+    return {
+      questionText: getString(raw.questionText ?? raw.question_text ?? raw.question, 'Jawaban interview'),
+      beforeAnswer: getString(raw.beforeAnswer ?? raw.before_answer ?? raw.before, ''),
+      afterAnswer: getString(raw.afterAnswer ?? raw.after_answer ?? raw.after, ''),
+      improvementNotes: normalizeStringArray(raw.improvementNotes ?? raw.improvement_notes ?? [raw.problem, raw.why_better, raw.evidence_ladder_note].filter(Boolean)),
+    }
+  }).filter(item => item.beforeAnswer || item.afterAnswer)
+}
+
+function normalizePracticeRecommendation(raw?: RawRecord | null): NextPracticeRecommendation {
+  return {
+    practiceType: getString(raw?.practiceType ?? raw?.practice_type, '') as NextPracticeRecommendation['practiceType'],
+    reason: getString(raw?.reason, ''),
+    focusAreas: normalizeStringArray(raw?.focusAreas ?? raw?.focus_areas),
+  }
+}
+
+function normalizeAdaptiveSuggestion(value: unknown): InterviewResult['adaptiveSessionSuggestion'] {
+  const raw = getRecord(value)
+  if (!raw) return undefined
+  return {
+    recommendedFocus: normalizeStringArray(raw.recommendedFocus ?? raw.recommended_focus),
+    avoidRepeatedQuestions: getBoolean(raw.avoidRepeatedQuestions ?? raw.avoid_repeated_questions, true),
+    suggestedPracticeMode: getString(raw.suggestedPracticeMode ?? raw.suggested_practice_mode, 'adaptive_from_history') as PracticeMode,
+  }
+}
+
+function normalizeSelectedRole(value: unknown): InterviewResult['selectedRole'] {
+  const raw = getRecord(value)
+  if (!raw) return undefined
+  return { id: getString(raw.id, ''), name: getString(raw.name ?? raw.roleName ?? raw.role_name, 'Role target') }
+}
+
+function normalizeReadinessStatus(value: unknown): InterviewResult['readinessStatus'] {
+  const status = getString(value, 'Almost Ready')
+  if (status === 'Ready' || status === 'Almost Ready' || status === 'Needs Practice') return status
+  if (status.toLowerCase().includes('ready') && !status.toLowerCase().includes('almost')) return 'Ready'
+  if (status.toLowerCase().includes('practice')) return 'Needs Practice'
+  return 'Almost Ready'
+}
+
+function buildResultSummary(result: InterviewResult | null) {
+  if (!result) return 'Hasil belum tersedia. Setelah proses evaluasi selesai, Road2Work akan menampilkan skor, kekuatan, area perbaikan, dan latihan berikutnya di sini.'
+
+  const lowest = getLowestScoreLabel(result)
+  const topStrength = result.strengths[0]?.description
+  const topImprovement = result.improvementAreas[0]?.description
+
+  if (topStrength && topImprovement) {
+    return `${topStrength} Fokus berikutnya: ${topImprovement}`
+  }
+
+  return `Skor terendah ada pada ${lowest}. Gunakan rekomendasi latihan berikutnya untuk memperkuat jawaban di sesi selanjutnya.`
+}
+
+function getResultHeadline(score: number) {
+  if (score >= 85) return ['Sudah kuat.', 'Jaga konsistensi.']
+  if (score >= 70) return ['Fondasi kuat.', 'Perkuat bukti nyata.']
+  return ['Mulai terbaca.', 'Butuh bukti lebih jelas.']
+}
+
+function formatResultDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date)
+}
+
+function normalizeStringArray(value: unknown) {
+  if (!Array.isArray(value)) return []
+  return value.map(item => String(item)).filter(Boolean)
+}
+
+function getRecord(value: unknown): RawRecord | undefined {
+  return isRecord(value) ? value : undefined
+}
+
+function isRecord(value: unknown): value is RawRecord {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function getString(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value : fallback
+}
+
+function getOptionalString(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value : undefined
+}
+
+function getNumber(value: unknown, fallback: number) {
+  const numberValue = Number(value)
+  return Number.isFinite(numberValue) ? numberValue : fallback
+}
+
+function getOptionalNumber(value: unknown) {
+  const numberValue = Number(value)
+  return Number.isFinite(numberValue) ? numberValue : undefined
+}
+
+function getBoolean(value: unknown, fallback: boolean) {
+  return typeof value === 'boolean' ? value : fallback
+}
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)))
 }

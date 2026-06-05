@@ -12,6 +12,19 @@ import type {
   SubmitVoiceAnswerResponse,
 } from '@/types/api-contract'
 
+export type InterviewQuotaResponse = {
+  freeInterviewQuota?: number
+  usedInterviewCount?: number
+  remainingQuota?: number
+  remainingInterviewCount?: number
+  quota?: {
+    total: number
+    used: number
+    remaining: number
+    isExceeded?: boolean
+  }
+}
+
 export const interviewService = {
   createSession(payload: CreateSessionPayload) {
     if (useMockApi) return mockRoad2WorkApi.createSession(payload)
@@ -48,7 +61,7 @@ export const interviewService = {
 
   getQuota() {
     if (useMockApi) return mockRoad2WorkApi.getQuota()
-    return http.get<ApiSuccess<{ freeInterviewQuota: number; usedInterviewCount: number; remainingQuota: number }>>(endpoints.interviews.quota)
+    return http.get<ApiSuccess<InterviewQuotaResponse>>(endpoints.interviews.quota)
   },
 
   getPracticeMemory(params: { profileId: string; roleId: string }) {
@@ -59,9 +72,10 @@ export const interviewService = {
 
 function createVoiceAnswerFormData(payload: SubmitVoiceAnswerPayload) {
   const formData = new FormData()
+  const audioFilename = getAudioFilename(payload.audioFile)
   formData.append('questionId', payload.questionId)
   formData.append('questionType', payload.questionType)
-  formData.append('audioFile', payload.audioFile, 'answer.webm')
+  formData.append('audioFile', payload.audioFile, audioFilename)
   formData.append('recordingStartedAt', payload.recordingStartedAt)
   formData.append('recordingEndedAt', payload.recordingEndedAt)
   formData.append('answerDurationSec', String(payload.answerDurationSec))
@@ -70,4 +84,19 @@ function createVoiceAnswerFormData(payload: SubmitVoiceAnswerPayload) {
   formData.append('autoMicStarted', String(payload.autoMicStarted))
   formData.append('silenceAutoStopEnabled', String(payload.silenceAutoStopEnabled))
   return formData
+}
+
+function getAudioFilename(audioFile: Blob) {
+  const extensionByMime: Record<string, string> = {
+    'audio/webm': 'webm',
+    'audio/webm;codecs=opus': 'webm',
+    'audio/mp4': 'mp4',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+    'audio/x-wav': 'wav',
+    'audio/ogg': 'ogg',
+  }
+
+  const extension = extensionByMime[audioFile.type] ?? 'webm'
+  return `answer.${extension}`
 }

@@ -9,8 +9,12 @@ export const metadata: Metadata = {
   description:
     'Platform berbasis AI yang membantu job seeker di Indonesia mempersiapkan interview kerja secara lebih terarah, terukur, dan realistis.',
   icons: {
-    icon: '/logo/Logor2w-normal.png',
-    apple: '/logo/Logor2w-normal.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo/Logor2w-normal.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/logo/Logor2w-normal.png', type: 'image/png' }],
   },
 }
 
@@ -23,6 +27,7 @@ export default function RootLayout({
     <html lang="id" className="light" suppressHydrationWarning>
       <body
         className="antialiased bg-paper text-ink"
+        suppressHydrationWarning
       >
         <QueryProvider>
           <ThemeProvider>{children}</ThemeProvider>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
@@ -14,20 +14,12 @@ type AuthUserMenuProps = {
 
 export default function AuthUserMenu({ fallbackName = 'User', compact = false }: AuthUserMenuProps) {
   const router = useRouter()
-  const [user] = useState<Pick<User, 'name' | 'email' | 'role'> | null>(() => {
-    if (typeof window === 'undefined') return null
-    const stored = window.localStorage.getItem('user')
-    if (!stored) return null
-
-    try {
-      return JSON.parse(stored) as Pick<User, 'name' | 'email' | 'role'>
-    } catch {
-      return null
-    }
-  })
+  const storedUser = useSyncExternalStore(subscribeUserStorage, getStoredUserSnapshot, getServerUserSnapshot)
+  const user = useMemo(() => parseStoredUser(storedUser), [storedUser])
 
   const displayName = user?.name ?? fallbackName
   const initial = displayName.slice(0, 1).toUpperCase()
+  const userMeta = user?.role === 'admin' ? 'Admin' : user?.email ?? 'Road2Work User'
 
   const handleLogout = () => {
     window.localStorage.removeItem('token')
@@ -48,7 +40,7 @@ export default function AuthUserMenu({ fallbackName = 'User', compact = false }:
           <div className="text-sm font-bold text-ink">{displayName}</div>
           <div className="flex items-center justify-end gap-1 text-xs text-muted">
             {user?.role === 'admin' && <ShieldCheck className="h-3 w-3 text-brand-red" />}
-            {user?.role === 'admin' ? 'Admin' : user?.email ?? 'Road2Work User'}
+            {userMeta}
           </div>
         </div>
       )}
@@ -67,4 +59,27 @@ export default function AuthUserMenu({ fallbackName = 'User', compact = false }:
       </Button>
     </div>
   )
+}
+
+function subscribeUserStorage(onStoreChange: () => void) {
+  window.addEventListener('storage', onStoreChange)
+  return () => window.removeEventListener('storage', onStoreChange)
+}
+
+function getStoredUserSnapshot() {
+  return window.localStorage.getItem('user')
+}
+
+function getServerUserSnapshot() {
+  return null
+}
+
+function parseStoredUser(storedUser: string | null) {
+  if (!storedUser) return null
+
+  try {
+    return JSON.parse(storedUser) as Pick<User, 'name' | 'email' | 'role'>
+  } catch {
+    return null
+  }
 }

@@ -61,8 +61,10 @@ export default function InterviewSetupTemplate() {
       if (source === 'cv') {
         const formData = new FormData()
         if (cvFile) formData.append('cvFile', cvFile)
+        formData.append('targetRoleId', window.sessionStorage.getItem('road2work:selected-role-id') ?? 'role_data_analyst')
         const response = await profileService.uploadCvForExtraction(formData)
         window.sessionStorage.setItem('road2work:profile-id', response.data.profile.id)
+        window.sessionStorage.setItem('road2work:profile-cache', JSON.stringify(response.data.profile))
         window.sessionStorage.setItem('road2work:profile-context-source', 'cv')
       } else {
         const formData = new FormData(form!)
@@ -77,6 +79,7 @@ export default function InterviewSetupTemplate() {
           achievementOrImpact: String(formData.get('impact') ?? ''),
         })
         window.sessionStorage.setItem('road2work:profile-id', response.data.profile.id)
+        window.sessionStorage.setItem('road2work:profile-cache', JSON.stringify(response.data.profile))
         window.sessionStorage.setItem('road2work:profile-context-source', 'manual')
       }
 
