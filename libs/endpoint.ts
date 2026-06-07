@@ -1,10 +1,14 @@
-export const endpoints = {
+﻿export const endpoints = {
   auth: {
     login: '/auth/login',
     signup: '/auth/signup',
     me: '/auth/me',
     meLegacy: '/me',
     refresh: '/auth/refresh',
+    google: '/auth/google',
+    oauthExchange: '/auth/oauth/exchange',
+    verifyEmail: '/auth/verify-email',
+    resendVerification: '/auth/resend-verification',
   },
   domains: {
     getAll: '/domains',
@@ -58,3 +62,4 @@ export const endpoints = {
     roleCompetencyMap: (id: string) => `/admin/roles/${id}/competency-map`,
   },
 } as const
+
