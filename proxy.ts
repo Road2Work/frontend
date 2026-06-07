@@ -7,7 +7,7 @@ export function proxy(req: NextRequest) {
   const userRole = req.cookies.get('userRole')?.value
 
   const isApi = pathname.startsWith('/api')
-  const isAuth = pathname === '/login' || pathname === '/signup'
+  const isAuth = pathname === '/login' || pathname === '/signup' || pathname === '/verify-email' || pathname.startsWith('/auth/callback')
   const isAdmin = pathname.startsWith('/admin')
   const isPublicAsset =
     pathname.startsWith('/logo') ||
