@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -41,6 +41,15 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
         ? await authService.login({ email, password })
         : await authService.signup({ name, email, password });
 
+      const requiresEmailVerification = 'requiresEmailVerification' in response.data && response.data.requiresEmailVerification;
+      if (!response.data.accessToken || requiresEmailVerification) {
+        toast.success("Akun berhasil dibuat", {
+          description: "Cek email kamu untuk mengaktifkan akun Road2Work.id.",
+        });
+        router.push(`/verify-email?sent=1&email=${encodeURIComponent(email)}`);
+        return;
+      }
+
       localStorage.setItem("token", response.data.accessToken);
       const refreshToken = "refreshToken" in response.data ? response.data.refreshToken : undefined;
       if (typeof refreshToken === "string" && refreshToken) {
@@ -50,7 +59,7 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
       document.cookie = `token=${response.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
       document.cookie = `userRole=${response.data.user.role ?? "user"}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 
-      toast.success(isLogin ? "Berhasil masuk" : "Akun berhasil dibuat", {
+      toast.success("Berhasil masuk", {
         description: response.data.user.role === "admin" ? "Kamu akan diarahkan ke Admin Panel." : "Kamu akan diarahkan ke Readiness Hub.",
       });
       router.push(response.data.user.role === "admin" ? "/admin" : "/hub");
@@ -200,7 +209,14 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
             </Button>
           </form>
 
-          <Button variant="secondary" className="mt-4 w-full">
+          <Button
+            type="button"
+            variant="secondary"
+            className="mt-4 w-full"
+            onClick={() => {
+              window.location.href = authService.googleUrl();
+            }}
+          >
             Lanjut dengan Google
           </Button>
 
@@ -212,3 +228,6 @@ export default function AuthTemplate({ mode }: { mode: "login" | "signup" }) {
     </main>
   );
 }
+
+
+

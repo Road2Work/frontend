@@ -1,6 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
+﻿import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/services/auth.service'
+import { authService, type SignupAuthResponse } from '@/services/auth.service'
+import type { RegisterPayload } from '@/schema/auth.schema'
 
 export const useLoginMutation = () => {
   const router = useRouter()
@@ -13,7 +14,6 @@ export const useLoginMutation = () => {
       if (typeof refreshToken === 'string' && refreshToken) localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('user', JSON.stringify(data.data.user))
 
-      // Also set cookie so Next.js middleware can read it for route protection
       document.cookie = `token=${data.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
       document.cookie = `userRole=${data.data.user.role ?? 'user'}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
 
@@ -28,9 +28,16 @@ export const useLoginMutation = () => {
 export const useRegisterMutation = () => {
   const router = useRouter()
 
-  return useMutation({
+  return useMutation<SignupAuthResponse, Error, RegisterPayload>({
     mutationFn: authService.register,
     onSuccess: data => {
+      const requiresEmailVerification = 'requiresEmailVerification' in data.data && data.data.requiresEmailVerification
+
+      if (!data.data.accessToken || requiresEmailVerification) {
+        router.push(`/verify-email?sent=1&email=${encodeURIComponent(data.data.user.email)}`)
+        return
+      }
+
       localStorage.setItem('token', data.data.accessToken)
       const refreshToken = 'refreshToken' in data.data ? data.data.refreshToken : undefined
       if (typeof refreshToken === 'string' && refreshToken) localStorage.setItem('refreshToken', refreshToken)
@@ -44,3 +51,5 @@ export const useRegisterMutation = () => {
     },
   })
 }
+
+
